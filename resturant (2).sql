@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.1
+-- version 5.0.4
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 27, 2022 at 11:09 PM
--- Server version: 10.4.11-MariaDB
+-- Generation Time: May 08, 2022 at 03:54 PM
+-- Server version: 10.4.17-MariaDB
 -- PHP Version: 7.4.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -43,12 +42,7 @@ CREATE TABLE `branches` (
 
 INSERT INTO `branches` (`id`, `name`, `address`, `phone`, `created_at`, `updated_at`) VALUES
 (9, 'الدقى', 'الدقى', '2775615156', '2022-02-21 14:21:57', '2022-02-21 14:21:57'),
-(10, 'المهندسيين', 'المهندسين', '45645616', '2022-02-21 14:22:11', '2022-02-21 14:22:11'),
-(12, 'asdasd', 'sladklasdkl;', '5640564056', '2022-03-11 20:21:02', '2022-03-11 20:21:02'),
-(13, 'askldjklaskld56456', 'asadasjkld', '456465456', '2022-03-11 20:21:06', '2022-03-11 20:21:06'),
-(14, 'xlcjklzx', '4asd5as64das', '5465456456456', '2022-03-11 20:21:11', '2022-03-11 20:21:11'),
-(15, 'asdasdasd456456', 'as;ldasl;dkas', '45645645', '2022-03-11 20:21:15', '2022-03-11 20:21:15'),
-(16, 'asdasdas', 'as4d56asd4as56', '456465', '2022-03-11 20:21:20', '2022-03-11 20:21:20');
+(10, 'المهندسيين', 'المهندسين', '45645616', '2022-02-21 14:22:11', '2022-02-21 14:22:11');
 
 -- --------------------------------------------------------
 
@@ -112,7 +106,6 @@ CREATE TABLE `cities` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `country_id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `price` double NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -121,9 +114,36 @@ CREATE TABLE `cities` (
 -- Dumping data for table `cities`
 --
 
-INSERT INTO `cities` (`id`, `country_id`, `name`, `price`, `created_at`, `updated_at`) VALUES
-(10, 11, 'الرتاق', 60, '2022-02-21 13:01:19', '2022-02-21 13:01:19'),
-(11, 11, 'الخوض', 30, '2022-02-21 13:01:35', '2022-02-21 13:01:35');
+INSERT INTO `cities` (`id`, `country_id`, `name`, `created_at`, `updated_at`) VALUES
+(13, 11, 'القاهرة', '2022-03-31 10:29:38', '2022-03-31 10:29:38'),
+(14, 11, 'الأسكندرية', '2022-03-31 10:42:16', '2022-03-31 10:42:16');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cities_prices`
+--
+
+CREATE TABLE `cities_prices` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `city_id` bigint(20) UNSIGNED NOT NULL,
+  `currency_id` bigint(20) UNSIGNED NOT NULL,
+  `price` double NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `cities_prices`
+--
+
+INSERT INTO `cities_prices` (`id`, `city_id`, `currency_id`, `price`, `created_at`, `updated_at`) VALUES
+(1, 13, 1, 80, '2022-03-31 10:29:38', '2022-03-31 10:29:38'),
+(2, 13, 2, 40, '2022-03-31 10:29:38', '2022-03-31 10:29:38'),
+(3, 13, 3, 30, '2022-03-31 10:29:38', '2022-03-31 10:29:38'),
+(7, 14, 1, 90, '2022-03-31 10:51:20', '2022-03-31 10:51:20'),
+(8, 14, 2, 60, '2022-03-31 10:51:20', '2022-03-31 10:51:20'),
+(9, 14, 3, 40, '2022-03-31 10:51:21', '2022-03-31 10:51:21');
 
 -- --------------------------------------------------------
 
@@ -169,9 +189,9 @@ CREATE TABLE `currencies` (
 --
 
 INSERT INTO `currencies` (`id`, `name`, `symbol`, `exchange_rate`, `default`, `code`, `created_at`, `updated_at`) VALUES
-(1, 'جنيه مصرى', 'EGP', 0.05, 0, 'EGP', '2022-03-27 18:57:51', '2022-03-27 18:53:19'),
-(2, 'دولار امريكى', '$', 0.91, 0, 'US', '2022-03-27 19:11:07', '2022-03-27 18:53:18'),
-(3, 'EURO', '€', 1, 1, 'EUR', '2022-03-27 20:03:20', '2022-03-27 18:54:35');
+(1, 'egyptian pound', 'EGP', 0, 1, 'EGP', '2022-03-28 13:44:54', '2022-05-08 11:45:45'),
+(2, 'دولار أمريكى', '$', 0, 0, 'US', '2022-03-28 13:48:12', '2022-05-08 11:45:44'),
+(3, 'يورو', 'EUR', 0, 0, 'EUR', '2022-03-28 13:48:49', '2022-05-08 11:45:43');
 
 -- --------------------------------------------------------
 
@@ -310,7 +330,13 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (41, '2022_03_22_161612_create_customer_cards_table', 17),
 (42, '2022_03_23_132138_create_languages_table', 18),
 (43, '2022_03_23_132316_create_translations_table', 18),
-(44, '2022_03_27_183420_create_currencies_table', 19);
+(44, '2022_03_27_183420_create_currencies_table', 19),
+(47, '2022_02_08_214245_create_currencies_table', 20),
+(50, '2022_02_09_120302_create_product_prices_table', 21),
+(51, '2022_02_09_120303_create_products_variations_prices_table', 22),
+(52, '2022_02_09_120303_create_products_variations_table', 23),
+(53, '2022_02_09_120304_create_products_variations_prices_table', 23),
+(54, '2022_02_10_143303_create_cities_prices_table', 23);
 
 -- --------------------------------------------------------
 
@@ -323,6 +349,7 @@ CREATE TABLE `orders` (
   `user_id` bigint(20) UNSIGNED DEFAULT NULL,
   `branch_id` bigint(20) UNSIGNED DEFAULT NULL,
   `status_id` bigint(20) UNSIGNED NOT NULL,
+  `currency_id` bigint(20) UNSIGNED NOT NULL,
   `city_id` bigint(20) UNSIGNED DEFAULT NULL,
   `paid` tinyint(1) NOT NULL DEFAULT 0,
   `type` enum('inhouse','online') COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -344,11 +371,11 @@ CREATE TABLE `orders` (
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`id`, `user_id`, `branch_id`, `status_id`, `city_id`, `paid`, `type`, `customer_name`, `customer_phone`, `customer_address`, `notes`, `total_discount`, `shipping`, `grand_total`, `viewed`, `client_viewed`, `client_status_viewed`, `created_at`, `updated_at`) VALUES
-(124, 31, 9, 5, NULL, 0, 'inhouse', NULL, NULL, NULL, NULL, NULL, NULL, 140, 1, 1, 1, '2022-03-23 10:47:46', '2022-03-27 19:07:02'),
-(125, 31, 9, 5, NULL, 1, 'inhouse', 'moza', '01551720391', 'الشهيد محمد', 'ملاحظات', NULL, NULL, 210, 1, 1, 1, '2022-03-23 11:02:38', '2022-03-27 19:07:02'),
-(126, 31, 9, 5, NULL, 0, 'inhouse', 'hamdy emad', '01152059120', 'asldjasdjklasjd;l', NULL, NULL, NULL, 180, 0, 1, 1, '2022-03-27 18:56:42', '2022-03-27 19:07:02'),
-(127, 31, 9, 5, NULL, 1, 'inhouse', 'hamdy emad', '01152059120', '7st ahmed shbeb', NULL, NULL, NULL, 180, 0, 1, 1, '2022-03-27 19:05:35', '2022-03-27 19:07:02');
+INSERT INTO `orders` (`id`, `user_id`, `branch_id`, `status_id`, `currency_id`, `city_id`, `paid`, `type`, `customer_name`, `customer_phone`, `customer_address`, `notes`, `total_discount`, `shipping`, `grand_total`, `viewed`, `client_viewed`, `client_status_viewed`, `created_at`, `updated_at`) VALUES
+(138, NULL, 9, 5, 2, NULL, 0, 'inhouse', NULL, NULL, NULL, NULL, NULL, NULL, 1150, 1, 0, 0, '2022-03-30 13:05:04', '2022-05-08 11:43:56'),
+(139, NULL, 9, 5, 2, NULL, 0, 'inhouse', 'hamdy mad', '01152059120', NULL, 'ىخفثس', 30, NULL, 1480, 1, 0, 0, '2022-03-30 14:08:58', '2022-05-08 11:43:56'),
+(140, NULL, 9, 7, 1, 13, 0, 'online', 'hamdy emad', '01551720391', '7st ahmed shbeb', NULL, 20, NULL, 80, 1, 0, 0, '2022-03-31 11:37:48', '2022-05-08 11:43:56'),
+(141, NULL, 9, 5, 1, NULL, 0, 'inhouse', NULL, NULL, NULL, NULL, 90, NULL, 3700, 1, 0, 0, '2022-03-31 15:34:56', '2022-05-08 11:43:56');
 
 -- --------------------------------------------------------
 
@@ -374,10 +401,11 @@ CREATE TABLE `orders_details` (
 --
 
 INSERT INTO `orders_details` (`id`, `order_id`, `product_id`, `variant`, `variant_type`, `price`, `qty`, `total_price`, `created_at`, `updated_at`) VALUES
-(265, 124, 14, NULL, NULL, 70, 2, 140, '2022-03-23 10:47:46', '2022-03-23 10:47:46'),
-(266, 125, 14, NULL, NULL, 70, 3, 210, '2022-03-23 11:02:38', '2022-03-23 11:02:38'),
-(267, 126, 12, NULL, NULL, 90, 2, 180, '2022-03-27 18:56:42', '2022-03-27 18:56:42'),
-(268, 127, 12, NULL, NULL, 90, 2, 180, '2022-03-27 19:05:36', '2022-03-27 19:05:36');
+(293, 140, 23, NULL, NULL, 100, 1, 100, '2022-03-31 11:37:48', '2022-03-31 11:37:48'),
+(294, 141, 23, NULL, NULL, 160, 2, 320, '2022-03-31 15:34:56', '2022-03-31 15:34:56'),
+(295, 141, 24, NULL, NULL, 1600, 2, 3200, '2022-03-31 15:34:56', '2022-03-31 15:34:56'),
+(296, 141, 24, 'صوص', 'extra', 40, 3, 120, '2022-03-31 15:34:56', '2022-03-31 15:34:56'),
+(297, 141, 24, 'فرانشيز', 'extra', 50, 3, 150, '2022-03-31 15:34:56', '2022-03-31 15:34:56');
 
 -- --------------------------------------------------------
 
@@ -406,14 +434,6 @@ CREATE TABLE `payments` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `payments`
---
-
-INSERT INTO `payments` (`id`, `user_id`, `transaction_id`, `order_id`, `amount`, `created_at`, `updated_at`) VALUES
-(1, 31, 'cs_test_a1iIo4ZxyuROhdh6kYxR2dqo1kS9LbSRuNNe1bkXt36PXai1SbkejiSg2S', 125, 21000, '2022-03-23 11:02:48', '2022-03-23 11:02:48'),
-(2, 31, 'cs_test_a1zumACQVRNJnTdBPOdVsBwExMTBs7nsz1dvHgJuxaB3piIrUka1d3hvbN', 127, 18000, '2022-03-27 19:05:39', '2022-03-27 19:05:39');
 
 -- --------------------------------------------------------
 
@@ -523,9 +543,6 @@ CREATE TABLE `products` (
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `photos` text CHARACTER SET utf8 DEFAULT NULL,
   `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `price` double NOT NULL,
-  `discount` double DEFAULT NULL,
-  `price_after_discount` double NOT NULL,
   `active` tinyint(1) NOT NULL DEFAULT 0,
   `viewed_number` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -536,11 +553,38 @@ CREATE TABLE `products` (
 -- Dumping data for table `products`
 --
 
-INSERT INTO `products` (`id`, `category_id`, `name`, `photos`, `description`, `price`, `discount`, `price_after_discount`, `active`, `viewed_number`, `created_at`, `updated_at`) VALUES
-(12, 10, 'فطيرة بلدى', NULL, 'فطيرة جميلة جدا', 90, 0, 90, 1, 1, '2022-02-21 16:01:55', '2022-02-21 16:01:55'),
-(13, 11, 'فطير تركى بالقشطة', '[\"uploads\\/products\\/pug-icon-11-1645467032.jpg\"]', 'فطير تركى بالقشطةasjdiasjdkl a', 0, 0, 0, 1, 1, '2022-02-21 16:10:32', '2022-02-21 16:10:32'),
-(14, 12, 'بيتزا مرجاريتا فرع الدقى', '[\"uploads\\/products\\/3c85a485ec933611a7d481af56b707226cc786c8-1645631162.jpg\",\"uploads\\/products\\/angular-icon-logo-1645631162.png\",\"uploads\\/products\\/api-1645631162.png\",\"uploads\\/products\\/chicken_pizza_2_637661032197208530-1645631162.jpg\",\"uploads\\/products\\/crossbody bags indybest copy-1645631162.jpg\"]', 'ريم إيبسوم(Lorem Ipsum) هو ببساطة نص شكلي (بمعنى أن الغاية هي الشكل وليس المحتوى) ويُستخدم في صناعات المطابع ودور النشر. كان لوريم إيبسوم ولايزال المعيار للنص الشكلي منذ القرن الخامس عشر عندما قامت مطبعة مجهولة برص مجموعة', 90, 20, 70, 1, 2, '2022-02-22 08:51:46', '2022-02-28 15:28:08'),
-(15, 12, 'بيتزا بدون اضافات ولا مقاسات', NULL, ';klasdjklasdjasdadasjkdjasl', 120, 0, 120, 1, 1, '2022-02-22 10:16:01', '2022-02-22 10:16:01');
+INSERT INTO `products` (`id`, `category_id`, `name`, `photos`, `description`, `active`, `viewed_number`, `created_at`, `updated_at`) VALUES
+(23, 12, 'بيتزا', '[\"public\\/uploads\\/products\\/chicken_pizza_2_637661032197208530-1648731741.jpg\"]', 'wassssf', 1, 1, '2022-03-31 11:02:22', '2022-03-31 11:02:22'),
+(24, 12, 'moza', NULL, NULL, 1, 1, '2022-03-31 15:34:22', '2022-03-31 15:34:22');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `products_prices`
+--
+
+CREATE TABLE `products_prices` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `product_id` bigint(20) UNSIGNED NOT NULL,
+  `currency_id` bigint(20) UNSIGNED NOT NULL,
+  `price` double NOT NULL,
+  `discount` double DEFAULT NULL,
+  `price_after_discount` double NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `products_prices`
+--
+
+INSERT INTO `products_prices` (`id`, `product_id`, `currency_id`, `price`, `discount`, `price_after_discount`, `created_at`, `updated_at`) VALUES
+(23, 23, 1, 160, 0, 160, '2022-03-31 15:33:46', '2022-03-31 15:33:46'),
+(24, 23, 2, 30, 20, 10, '2022-03-31 15:33:46', '2022-03-31 15:33:46'),
+(25, 23, 3, 20, 10, 10, '2022-03-31 15:33:46', '2022-03-31 15:33:46'),
+(26, 24, 1, 1600, 0, 1600, '2022-03-31 15:34:22', '2022-03-31 15:34:22'),
+(27, 24, 2, 1500, 0, 1500, '2022-03-31 15:34:22', '2022-03-31 15:34:22'),
+(28, 24, 3, 1400, 0, 1400, '2022-03-31 15:34:22', '2022-03-31 15:34:22');
 
 -- --------------------------------------------------------
 
@@ -553,9 +597,6 @@ CREATE TABLE `products_variations` (
   `product_id` bigint(20) UNSIGNED NOT NULL,
   `type` enum('extra','size') COLLATE utf8mb4_unicode_ci NOT NULL,
   `variant` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `price` double NOT NULL,
-  `discount` double DEFAULT NULL,
-  `price_after_discount` double NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -564,13 +605,39 @@ CREATE TABLE `products_variations` (
 -- Dumping data for table `products_variations`
 --
 
-INSERT INTO `products_variations` (`id`, `product_id`, `type`, `variant`, `price`, `discount`, `price_after_discount`, `created_at`, `updated_at`) VALUES
-(40, 12, 'extra', 'صوص', 10, NULL, 10, '2022-02-21 16:01:55', '2022-02-21 16:01:55'),
-(41, 12, 'extra', 'جبنة', 5, NULL, 5, '2022-02-21 16:01:55', '2022-02-21 16:01:55'),
-(42, 13, 'size', 'large', 90, 0, 90, '2022-02-21 16:10:32', '2022-02-21 16:10:32'),
-(43, 13, 'size', 'xlarge', 120, 0, 120, '2022-02-21 16:10:33', '2022-02-21 16:10:33'),
-(62, 14, 'extra', 'سبايسى', 20, NULL, 20, '2022-02-28 15:29:34', '2022-02-28 15:29:34'),
-(63, 14, 'extra', 'صوص', 10, NULL, 10, '2022-02-28 15:29:34', '2022-02-28 15:29:34');
+INSERT INTO `products_variations` (`id`, `product_id`, `type`, `variant`, `created_at`, `updated_at`) VALUES
+(1, 24, 'extra', 'صوص', '2022-03-31 15:34:22', '2022-03-31 15:34:22'),
+(2, 24, 'extra', 'فرانشيز', '2022-03-31 15:34:23', '2022-03-31 15:34:23');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `products_variations_prices`
+--
+
+CREATE TABLE `products_variations_prices` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `product_id` bigint(20) UNSIGNED NOT NULL,
+  `variant_id` bigint(20) UNSIGNED NOT NULL,
+  `currency_id` bigint(20) UNSIGNED NOT NULL,
+  `price` double NOT NULL,
+  `discount` double DEFAULT NULL,
+  `price_after_discount` double NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `products_variations_prices`
+--
+
+INSERT INTO `products_variations_prices` (`id`, `product_id`, `variant_id`, `currency_id`, `price`, `discount`, `price_after_discount`, `created_at`, `updated_at`) VALUES
+(1, 24, 1, 1, 40, NULL, 40, '2022-03-31 15:34:23', '2022-03-31 15:34:23'),
+(2, 24, 1, 2, 20, NULL, 20, '2022-03-31 15:34:23', '2022-03-31 15:34:23'),
+(3, 24, 1, 3, 10, NULL, 10, '2022-03-31 15:34:23', '2022-03-31 15:34:23'),
+(4, 24, 2, 1, 50, NULL, 50, '2022-03-31 15:34:23', '2022-03-31 15:34:23'),
+(5, 24, 2, 2, 30, NULL, 30, '2022-03-31 15:34:24', '2022-03-31 15:34:24'),
+(6, 24, 2, 3, 40, NULL, 40, '2022-03-31 15:34:24', '2022-03-31 15:34:24');
 
 -- --------------------------------------------------------
 
@@ -740,10 +807,11 @@ CREATE TABLE `statuses_histroy` (
 --
 
 INSERT INTO `statuses_histroy` (`id`, `user_id`, `order_id`, `status_id`, `created_at`, `updated_at`) VALUES
-(119, 31, 124, 5, '2022-03-23 10:47:46', '2022-03-23 10:47:46'),
-(120, 31, 125, 5, '2022-03-23 11:02:38', '2022-03-23 11:02:38'),
-(121, 31, 126, 5, '2022-03-27 18:56:42', '2022-03-27 18:56:42'),
-(122, 31, 127, 5, '2022-03-27 19:05:36', '2022-03-27 19:05:36');
+(133, 7, 138, 5, '2022-03-30 13:05:04', '2022-03-30 13:05:04'),
+(134, 7, 139, 5, '2022-03-30 14:08:58', '2022-03-30 14:08:58'),
+(135, 7, 140, 5, '2022-03-31 11:37:48', '2022-03-31 11:37:48'),
+(136, 7, 140, 7, '2022-03-31 11:41:51', '2022-03-31 11:41:51'),
+(137, 7, 141, 5, '2022-03-31 15:34:56', '2022-03-31 15:34:56');
 
 -- --------------------------------------------------------
 
@@ -1159,7 +1227,7 @@ INSERT INTO `translations` (`id`, `lang_id`, `lang_key`, `lang_value`, `created_
 (396, 3, 'edit food', 'edit food', '2022-03-27 13:34:54', '2022-03-27 13:34:54'),
 (397, 3, 'food images', 'food images', '2022-03-27 13:34:54', '2022-03-27 13:34:54'),
 (398, 4, 'edit food', 'edit food', '2022-03-27 13:34:59', '2022-03-27 13:34:59'),
-(399, 4, 'food images', 'food images', '2022-03-27 13:34:59', '2022-03-27 13:34:59'),
+(399, 4, 'food images', 'صور الطعام', '2022-03-27 13:34:59', '2022-03-28 09:13:59'),
 (400, 4, 'countries', 'البلاد', '2022-03-27 13:57:17', '2022-03-27 13:57:40'),
 (401, 4, 'create new country', 'انشاء بلد جديدة', '2022-03-27 13:57:17', '2022-03-27 13:58:19'),
 (402, 4, 'country name', 'أسم البلد', '2022-03-27 13:57:18', '2022-03-27 13:58:19'),
@@ -1235,7 +1303,44 @@ INSERT INTO `translations` (`id`, `lang_id`, `lang_key`, `lang_value`, `created_
 (472, 4, 'edit successfully', 'edit successfully', '2022-03-27 17:13:25', '2022-03-27 17:13:25'),
 (473, 4, 'exchange to default currency', 'تحويل الى العملة الأفتراضية', '2022-03-27 17:35:43', '2022-03-27 18:04:31'),
 (474, 4, 'password is incorrect', 'password is incorrect', '2022-03-27 18:35:23', '2022-03-27 18:35:23'),
-(475, 4, 'loged out successfully', 'loged out successfully', '2022-03-27 18:54:44', '2022-03-27 18:54:44');
+(475, 4, 'loged out successfully', 'loged out successfully', '2022-03-27 18:54:44', '2022-03-27 18:54:44'),
+(476, 4, 'new order', 'new order', '2022-03-28 08:56:37', '2022-03-28 08:56:37'),
+(477, 4, 'foods count', 'foods count', '2022-03-28 08:56:37', '2022-03-28 08:56:37'),
+(478, 4, 'deleted successfully', 'deleted successfully', '2022-03-28 09:01:59', '2022-03-28 09:01:59'),
+(479, 3, 'currencies', 'currencies', '2022-03-28 09:06:24', '2022-03-28 09:06:24'),
+(480, 4, 'the category is required', 'الصنف مطلوب', '2022-03-28 09:15:15', '2022-03-28 09:16:15'),
+(481, 4, 'the category should be exists', 'يجب على الصنف أن يكون موجود', '2022-03-28 09:15:15', '2022-03-28 09:16:15'),
+(482, 4, 'the price is required', 'السعر مطلوب', '2022-03-28 09:15:15', '2022-03-28 09:18:17'),
+(483, 4, 'the price should be a number', 'السعر يجب أن يكون رقما', '2022-03-28 09:15:15', '2022-03-28 09:18:17'),
+(484, 4, 'the discount should be a number', 'يجب على الخصم أن يكون رقم', '2022-03-28 09:15:15', '2022-03-28 09:17:38'),
+(485, 4, 'the viewed number should be a number', 'رقم الظهور يجب أم يكون رقما', '2022-03-28 09:15:15', '2022-03-28 09:18:18'),
+(486, 4, 'created successfully', 'تم الأنشاء بنجاح', '2022-03-28 09:19:21', '2022-03-28 14:11:31'),
+(487, 4, 'currency', 'العملة', '2022-03-28 11:36:12', '2022-03-30 14:07:51'),
+(488, 4, 'you should create branch and currency first', 'يجب عليك انشاء فرع و عملة أولا', '2022-03-28 11:44:21', '2022-03-30 14:08:22'),
+(489, 4, 'the extra is required', 'الأضافة مطلوبة', '2022-03-28 13:57:09', '2022-03-28 14:04:28'),
+(490, 4, 'currency required', 'العملة مطلوبة', '2022-03-28 13:57:09', '2022-03-30 14:07:56'),
+(491, 4, 'currency should be in the currencies', 'العملة يجب أن تكون من ضمن الموجودين', '2022-03-28 13:57:09', '2022-03-30 14:08:09'),
+(492, 4, 'the size is required', 'المقاس مطلوب', '2022-03-28 21:32:00', '2022-03-29 09:55:52'),
+(493, 4, 'the amount is required', 'the amount is required', '2022-03-30 10:21:39', '2022-03-30 10:21:39'),
+(494, 4, 'the amount should be at least 1', 'the amount should be at least 1', '2022-03-30 10:21:39', '2022-03-30 10:21:39'),
+(495, 3, 'new order', 'new order', '2022-03-30 10:21:50', '2022-03-30 10:21:50'),
+(496, 3, 'foods count', 'foods count', '2022-03-30 10:21:50', '2022-03-30 10:21:50'),
+(497, 4, 'the city is required', 'the city is required', '2022-03-30 10:47:57', '2022-03-30 10:47:57'),
+(498, 4, 'edit order', 'edit order', '2022-03-30 11:35:15', '2022-03-30 11:35:15'),
+(499, 4, 'order quantity', 'عدد الطلب', '2022-03-30 11:38:11', '2022-03-30 11:56:14'),
+(500, 4, 'total price of extras', 'السعر الكلى للأضافات', '2022-03-30 11:38:11', '2022-03-30 11:55:42'),
+(501, 4, 'the country is required', 'the country is required', '2022-03-31 10:10:45', '2022-03-31 10:10:45'),
+(502, 3, 'cities', 'cities', '2022-03-31 10:41:06', '2022-03-31 10:41:06'),
+(503, 3, 'create new city', 'create new city', '2022-03-31 10:41:06', '2022-03-31 10:41:06'),
+(504, 3, 'back to countries', 'back to countries', '2022-03-31 10:41:06', '2022-03-31 10:41:06'),
+(505, 3, 'city name', 'city name', '2022-03-31 10:41:07', '2022-03-31 10:41:07'),
+(506, 3, 'currency', 'currency', '2022-03-31 11:29:22', '2022-03-31 11:29:22'),
+(507, 3, 'the category is required', 'the category is required', '2022-03-31 15:32:35', '2022-03-31 15:32:35'),
+(508, 3, 'the category should be exists', 'the category should be exists', '2022-03-31 15:32:35', '2022-03-31 15:32:35'),
+(509, 3, 'the discount should be a number', 'the discount should be a number', '2022-03-31 15:32:35', '2022-03-31 15:32:35'),
+(510, 3, 'the viewed number should be a number', 'the viewed number should be a number', '2022-03-31 15:32:35', '2022-03-31 15:32:35'),
+(511, 4, 'create new branch', 'create new branch', '2022-05-08 11:39:05', '2022-05-08 11:39:05'),
+(512, 4, 'back to branches', 'back to branches', '2022-05-08 11:39:05', '2022-05-08 11:39:05');
 
 -- --------------------------------------------------------
 
@@ -1336,6 +1441,14 @@ ALTER TABLE `cities`
   ADD KEY `cities_country_id_foreign` (`country_id`);
 
 --
+-- Indexes for table `cities_prices`
+--
+ALTER TABLE `cities_prices`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `cities_prices_city_id_currency_id_unique` (`city_id`,`currency_id`),
+  ADD KEY `cities_prices_currency_id_foreign` (`currency_id`);
+
+--
 -- Indexes for table `countries`
 --
 ALTER TABLE `countries`
@@ -1391,7 +1504,8 @@ ALTER TABLE `orders`
   ADD PRIMARY KEY (`id`),
   ADD KEY `orders_status_id_foreign` (`status_id`),
   ADD KEY `orders_branch_id_foreign` (`branch_id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `currency_id` (`currency_id`);
 
 --
 -- Indexes for table `orders_details`
@@ -1437,11 +1551,28 @@ ALTER TABLE `products`
   ADD KEY `products_category_id_foreign` (`category_id`);
 
 --
+-- Indexes for table `products_prices`
+--
+ALTER TABLE `products_prices`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `products_prices_product_id_currency_id_unique` (`product_id`,`currency_id`),
+  ADD KEY `products_prices_currency_id_foreign` (`currency_id`);
+
+--
 -- Indexes for table `products_variations`
 --
 ALTER TABLE `products_variations`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `product_id` (`product_id`,`variant`);
+  ADD UNIQUE KEY `products_variations_product_id_variant_unique` (`product_id`,`variant`);
+
+--
+-- Indexes for table `products_variations_prices`
+--
+ALTER TABLE `products_variations_prices`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `products_variations_prices_product_id_foreign` (`product_id`),
+  ADD KEY `products_variations_prices_currency_id_foreign` (`currency_id`),
+  ADD KEY `products_variations_prices_variant_id_foreign` (`variant_id`);
 
 --
 -- Indexes for table `roles`
@@ -1528,7 +1659,13 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `cities`
 --
 ALTER TABLE `cities`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- AUTO_INCREMENT for table `cities_prices`
+--
+ALTER TABLE `cities_prices`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `countries`
@@ -1570,19 +1707,19 @@ ALTER TABLE `languages`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=128;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=142;
 
 --
 -- AUTO_INCREMENT for table `orders_details`
 --
 ALTER TABLE `orders_details`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=269;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=298;
 
 --
 -- AUTO_INCREMENT for table `payments`
@@ -1606,13 +1743,25 @@ ALTER TABLE `permessions`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+
+--
+-- AUTO_INCREMENT for table `products_prices`
+--
+ALTER TABLE `products_prices`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `products_variations`
 --
 ALTER TABLE `products_variations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `products_variations_prices`
+--
+ALTER TABLE `products_variations_prices`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -1642,13 +1791,13 @@ ALTER TABLE `statuses`
 -- AUTO_INCREMENT for table `statuses_histroy`
 --
 ALTER TABLE `statuses_histroy`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=123;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=138;
 
 --
 -- AUTO_INCREMENT for table `translations`
 --
 ALTER TABLE `translations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=476;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=513;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -1685,6 +1834,13 @@ ALTER TABLE `cities`
   ADD CONSTRAINT `cities_country_id_foreign` FOREIGN KEY (`country_id`) REFERENCES `countries` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `cities_prices`
+--
+ALTER TABLE `cities_prices`
+  ADD CONSTRAINT `cities_prices_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `cities_prices_currency_id_foreign` FOREIGN KEY (`currency_id`) REFERENCES `currencies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `customer_cards`
 --
 ALTER TABLE `customer_cards`
@@ -1702,6 +1858,7 @@ ALTER TABLE `expenses`
 ALTER TABLE `orders`
   ADD CONSTRAINT `orders_branch_id_foreign` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`currency_id`) REFERENCES `currencies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `orders_status_id_foreign` FOREIGN KEY (`status_id`) REFERENCES `statuses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
@@ -1731,10 +1888,25 @@ ALTER TABLE `products`
   ADD CONSTRAINT `products_category_id_foreign` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `products_prices`
+--
+ALTER TABLE `products_prices`
+  ADD CONSTRAINT `products_prices_currency_id_foreign` FOREIGN KEY (`currency_id`) REFERENCES `currencies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `products_prices_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `products_variations`
 --
 ALTER TABLE `products_variations`
   ADD CONSTRAINT `products_variations_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `products_variations_prices`
+--
+ALTER TABLE `products_variations_prices`
+  ADD CONSTRAINT `products_variations_prices_currency_id_foreign` FOREIGN KEY (`currency_id`) REFERENCES `currencies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `products_variations_prices_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `products_variations_prices_variant_id_foreign` FOREIGN KEY (`variant_id`) REFERENCES `products_variations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `roles_permessions`
@@ -1747,9 +1919,9 @@ ALTER TABLE `roles_permessions`
 -- Constraints for table `statuses_histroy`
 --
 ALTER TABLE `statuses_histroy`
-  ADD CONSTRAINT `statuses_histroy_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
-  ADD CONSTRAINT `statuses_histroy_status_id_foreign` FOREIGN KEY (`status_id`) REFERENCES `statuses` (`id`),
-  ADD CONSTRAINT `statuses_histroy_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `statuses_histroy_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `statuses_histroy_status_id_foreign` FOREIGN KEY (`status_id`) REFERENCES `statuses` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `statuses_histroy_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `translations`
