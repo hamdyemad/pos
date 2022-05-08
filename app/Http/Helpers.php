@@ -18,6 +18,11 @@ function price($price) {
     return $currency->symbol . $price;
 }
 
+function currency() {
+    $currency = Currency::where('default', 1)->first();
+    return $currency->symbol;
+}
+
 function translate($key) {
     $language = Language::where('code', app()->getLocale())->first();
     if($language) {

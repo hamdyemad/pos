@@ -103,7 +103,7 @@
                                                 @if(isset($cart['amount']))
                                                     <div class="d-flex align-items-center  mt-2">
                                                         <span class="h4">السعر : </span>
-                                                        <span class="badge badge-primary d-block ml-1">{{ price($product->price_after_discount) }}</span>
+                                                        <span class="badge badge-primary d-block ml-1">{{ price($product->current_price->price_after_discount) }}</span>
                                                     </div>
                                                     <div class="amount d-flex align-items-center  mt-2">
                                                         <span class="h4">الكمية : </span>
@@ -124,7 +124,7 @@
                                                                     <tr>
                                                                         <td>{{ $size['size_name'] }}</td>
                                                                         <td>{{$size['size_amount'] }}</td>
-                                                                        <td class="total_size">{{ price($product->variants->find($size['size_id'])->price_after_discount * $size['size_amount']) }}</td>
+                                                                        <td class="total_size">{{ price($product->variants->find($size['size_id'])->current_price->price_after_discount * $size['size_amount']) }}</td>
                                                                     </tr>
                                                                 @endforeach
                                                             </tbody>
@@ -145,7 +145,7 @@
                                                                     <tr>
                                                                         <td>{{ $extra['extra_name'] }}</td>
                                                                         <td>{{$extra['extra_amount'] }}</td>
-                                                                        <td class="total_extra">{{ price($product->variants->find($extra['extra_id'])->price_after_discount * $extra['extra_amount']) }}</td>
+                                                                        <td class="total_extra">{{ price($product->variants->find($extra['extra_id'])->current_price->price_after_discount * $extra['extra_amount']) }}</td>
                                                                     </tr>
                                                                 @endforeach
                                                             </tbody>

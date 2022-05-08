@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\FrontEnd;
 
 use App\Http\Controllers\Controller;
+use App\Models\Currency;
 use App\Models\Product;
 use App\Traits\Res;
 use Illuminate\Http\Request;
@@ -25,10 +26,10 @@ class CartController extends Controller
         if($product) {
             $total_price = [];
             if($request['size_id']) {
-                array_push($total_price, $product->variants->find($request['size_id'])->price_after_discount * $request['size_amount']);
+                array_push($total_price, $product->variants->find($request['size_id'])->current_price->price_after_discount * $request['size_amount']);
             }
             if($request['extra_id']) {
-                array_push($total_price, $product->variants->find($request['extra_id'])->price_after_discount * $request['extra_amount']);
+                array_push($total_price, $product->variants->find($request['extra_id'])->current_price->price_after_discount * $request['extra_amount']);
             }
 
             if($request['size_id'] == null) {
@@ -44,7 +45,7 @@ class CartController extends Controller
 
             if($request['amount']) {
                 if($request['amount'] !== '0') {
-                    array_push($total_price, $product['price_after_discount'] * $request['amount']);
+                    array_push($total_price, $product->current_price['price_after_discount'] * $request['amount']);
                 }
             }
             $total_price = array_reduce($total_price, function($acc, $curr) {return $acc + $curr;});
@@ -224,15 +225,15 @@ class CartController extends Controller
                 $product = Product::find($cart['product_id']);
                 if($request['data']['name'] == 'amount') {
                     $cart['amount'] = intval($request['data']['amount']);
-                    $cart['total_price'] =  $product->price_after_discount * $cart['amount'];
+                    $cart['total_price'] =  $product->current_price->price_after_discount * $cart['amount'];
                 } else {
                     $variantArray = explode('-', $request['data']['name']);
                     if($variantArray[0] == 'size') {
                         foreach ($cart['sizes'] as $sizeIndex => $size) {
                             if($variantArray[1] == $sizeIndex) {
-                                $cart['total_price'] -=  $product->variants->find($size['size_id'])->price_after_discount * intval($size['size_amount']);
+                                $cart['total_price'] -=  $product->variants->find($size['size_id'])->current_price->price_after_discount * intval($size['size_amount']);
                                 $size['size_amount'] = intval($request['data']['amount']);
-                                $cart['total_price'] += $product->variants->find($size['size_id'])->price_after_discount * $size['size_amount'];
+                                $cart['total_price'] += $product->variants->find($size['size_id'])->current_price->price_after_discount * $size['size_amount'];
                                 $cart['sizes'][$sizeIndex] = $size;
                             }
                         }
@@ -240,9 +241,9 @@ class CartController extends Controller
                     if($variantArray[0] == 'extra') {
                         foreach ($cart['extras'] as $extraIndex => $extra) {
                             if($variantArray[1] == $extraIndex) {
-                                $cart['total_price'] -=  $product->variants->find($extra['extra_id'])->price_after_discount * intval($extra['extra_amount']);
+                                $cart['total_price'] -=  $product->variants->find($extra['extra_id'])->current_price->price_after_discount * intval($extra['extra_amount']);
                                 $extra['extra_amount'] = intval($request['data']['amount']);
-                                $cart['total_price'] += $product->variants->find($extra['extra_id'])->price_after_discount * $extra['extra_amount'];
+                                $cart['total_price'] += $product->variants->find($extra['extra_id'])->current_price->price_after_discount * $extra['extra_amount'];
                                 $cart['extras'][$extraIndex] = $extra;
                             }
                         }

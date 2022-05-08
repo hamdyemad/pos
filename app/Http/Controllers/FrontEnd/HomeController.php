@@ -5,6 +5,7 @@ namespace App\Http\Controllers\FrontEnd;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Country;
+use App\Models\Currency;
 use App\Models\Product;
 use App\Traits\Res;
 use App\User;

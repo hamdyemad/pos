@@ -17,21 +17,24 @@
                         @endif
                     </div>
                     <div class="card-body products">
-
-                        <div class="owl-carousel branch-carousel owl-theme">
-                            @foreach ($category->products()->where('active', 1)->orderBy('viewed_number')->get() as $product)
-                                <div class="item">
-                                    <a href="{{ route('frontend.product', $product) }}" class="d-block">
-                                        @if($product->photos)
-                                            <img class="rounded" src="{{ asset(json_decode($product->photos)[0]) }}" alt="">
-                                        @else
-                                            <img class="rounded"  src="{{ asset('/images/product_avatar.png') }}" alt="">
-                                        @endif
-                                        <h4>{{ $product->name }}</h4>
-                                    </a>
-                                </div>
-                            @endforeach
-                        </div>
+                        @if($category->products()->where('active', 1)->orderBy('viewed_number')->count() > 0)
+                            <div class="owl-carousel branch-carousel owl-theme">
+                                @foreach ($category->products()->where('active', 1)->orderBy('viewed_number')->get() as $product)
+                                    <div class="item">
+                                        <a href="{{ route('frontend.product', $product) }}" class="d-block">
+                                            @if($product->photos)
+                                                <img class="rounded" src="{{ asset(json_decode($product->photos)[0]) }}" alt="">
+                                            @else
+                                                <img class="rounded"  src="{{ asset('/images/product_avatar.png') }}" alt="">
+                                            @endif
+                                            <h4>{{ $product->name }}</h4>
+                                        </a>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="alert alert-info">لا يوجد اطعمة</div>
+                        @endif
                     </div>
                 </div>
             @endforeach

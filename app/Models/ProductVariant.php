@@ -16,4 +16,9 @@ class ProductVariant extends Model
     public function currenctPriceOfVariant() {
         return $this->hasOne(ProductVariantPrice::class, 'variant_id');
     }
+
+    public function current_price() {
+        $currency = Currency::where('default', 1)->first();
+        return $this->currenctPriceOfVariant()->where('currency_id', $currency->id);
+    }
 }

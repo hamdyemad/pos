@@ -41,11 +41,11 @@
                                                                 <div class="d-flex align-items-center">
                                                                     <span class="h4">الكمية : </span>
                                                                     <input type="number" min="1" class="form-control ml-1 amount" data-index="{{ $index }}" name="amount" value="{{ $cart['amount'] }}">
-                                                                    <span class="d-none current_price">{{ $product->price_after_discount }}</span>
+                                                                    <span class="d-none current_price">{{ $product->current_price->price_after_discount }}</span>
                                                                 </div>
                                                                 <div class="d-flex align-items-center ml-2">
                                                                     <span class="h4">السعر : </span>
-                                                                    <span class="badge badge-primary d-block ml-1 price">{{ price($product->price_after_discount * $cart['amount'])  }}</span>
+                                                                    <span class="badge badge-primary d-block ml-1 price">{{ price($product->current_price->price_after_discount * $cart['amount'])  }}</span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -63,11 +63,11 @@
                                                                     <div class="d-flex align-items-center ml-1">
                                                                         <span class="h4">الكمية : </span>
                                                                         <input type="number" min="1" class="form-control ml-1 amount" data-index="{{ $index }}" name="size-{{ $sizeIndex }}" value="{{ $size['size_amount']}}">
-                                                                        <span class="d-none current_price">{{ $product->variants->find($size['size_id'])->price_after_discount }}</span>
+                                                                        <span class="d-none current_price">{{ $product->variants->find($size['size_id'])->current_price->price_after_discount }}</span>
                                                                     </div>
                                                                     <div class="d-flex align-items-center ml-1">
                                                                         <span class="h4">السعر : </span>
-                                                                        <span class="badge badge-primary d-block ml-1 price">{{ price($product->variants->find($size['size_id'])->price_after_discount * $size['size_amount']) }}</span>
+                                                                        <span class="badge badge-primary d-block ml-1 price">{{ price($product->variants->find($size['size_id'])->current_price->price_after_discount * $size['size_amount']) }}</span>
                                                                     </div>
                                                                 </div>
                                                             @endforeach
@@ -87,11 +87,11 @@
                                                                     <div class="d-flex align-items-center ml-1">
                                                                         <span class="h4">الكمية : </span>
                                                                         <input type="number" min="1" class="form-control ml-1 amount"  data-index="{{ $index }}" name="extra-{{ $extraIndex }}" value="{{ $extra['extra_amount']}}">
-                                                                        <span class="d-none current_price">{{ $product->variants->find($extra['extra_id'])->price_after_discount }}</span>
+                                                                        <span class="d-none current_price">{{ $product->variants->find($extra['extra_id'])->current_price->price_after_discount }}</span>
                                                                     </div>
                                                                     <div class="d-flex align-items-center ml-1">
                                                                         <span class="h4">السعر : </span>
-                                                                        <span class="badge badge-primary d-block ml-1 price">{{ price($product->variants->find($extra['extra_id'])->price_after_discount * $extra['extra_amount']) }}</span>
+                                                                        <span class="badge badge-primary d-block ml-1 price">{{ price($product->variants->find($extra['extra_id'])->current_price->price_after_discount * $extra['extra_amount']) }}</span>
                                                                     </div>
                                                                 </div>
                                                             @endforeach

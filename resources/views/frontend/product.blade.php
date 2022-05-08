@@ -46,7 +46,7 @@
                                                 <div class="card-body">
                                                     <ul class="select_variant size_select">
                                                         @foreach ($product->variants->groupBy('type')['size'] as $size)
-                                                            <li class="variant" data-id="{{ $size->id }}" data-value="{{ $size }}">
+                                                            <li class="variant" data-id="{{ $size->id }}" data-value="{{ $size }}" data-price="{{ $size->current_price }}">
                                                                 {{ $size->variant . ' ( ' . price($size->price_after_discount) . ' ) ' }}
                                                             </li>
                                                         @endforeach
@@ -55,8 +55,16 @@
                                             </div>
                                         @else
                                             <h4 class="prices mt-2 mb-3">
-                                                <del class="d-block mb-2"><span>السعر قبل الخصم : </span> <span>{{ price($product->price) }}</span></del>
-                                                <div><span>السعر بعد الخصم : </span> <span class="price_after_discount"> {{ price($product->price_after_discount) }}</span></div>
+                                                <del class="d-block mb-2">
+                                                    <span>السعر قبل الخصم : </span>
+                                                    <span>{{ $product->current_price->price }}</span>
+                                                    <span class="currency d-inline">{{ currency() }}</span>
+                                                </del>
+                                                <div>
+                                                    <span>السعر بعد الخصم : </span>
+                                                    <span class="price_after_discount"> {{ $product->current_price->price_after_discount }}</span>
+                                                    <span class="currency d-inline">{{ currency() }}</span>
+                                                </div>
                                             </h4>
                                             <div class="not_variant">
                                                 <input class="form-control amount" type="number" name="amount" min="0" value="1">
@@ -73,8 +81,8 @@
                                                 <div class="card-body">
                                                     <ul class="select_variant extra_select">
                                                         @foreach ($product->variants->groupBy('type')['extra'] as $extra)
-                                                            <li class="variant" data-id="{{ $extra->id }}" data-value="{{ $extra }}">
-                                                                {{ $extra->variant . ' ( ' . price($extra->price_after_discount) . ' ) ' }}
+                                                            <li class="variant" data-id="{{ $extra->id }}" data-value="{{ $extra }}" data-price="{{ $extra->current_price }}">
+                                                                {{ $extra->variant . ' ( ' . price($extra->current_price->price_after_discount) . ' ) ' }}
                                                             </li>
                                                         @endforeach
                                                     </ul>
@@ -84,12 +92,13 @@
                                         <div class="h4">
                                             <span>السعر الكلى : </span>
                                             <span class="grand_total">
-                                                @if($product->price_after_discount)
-                                                    {{ price($product->price_after_discount) }}
+                                                @if($product->current_price->price_after_discount)
+                                                    {{ $product->current_price->price_after_discount }}
                                                 @else
                                                     0
                                                 @endif
                                             </span>
+                                            <span class="currency d-inline">{{ currency() }}</span>
                                         </div>
                                         <div>
                                             <button class="btn btn-primary add_to_cart">
@@ -171,7 +180,7 @@
 
             $(".select_variant").children().each((index, child) => {
                 if($(child).hasClass('active')) {
-                    prices.push($(child).data('value').price_after_discount);
+                    prices.push($(child).data('price').price_after_discount);
                 }
             });
             if(!isNaN(price_after_discount)) {
@@ -188,6 +197,7 @@
                 let price = parseFloat($(".price_after_discount").text()),
                     grand_total = $(".grand_total"),
                     amount = parseFloat($(this).val());
+                    console.log($(".price_after_discount").text());
                     if(!isNaN(amount)) {
                         grand_total.text(amount * price);
                     }
@@ -195,30 +205,6 @@
             });
         }
         amountChange();
-
-
-        // $(".add_to_cart").on('click', function() {
-        //     let token = $("meta[name=_token]").attr('content');
-        //     $.ajax({
-        //         method: "POST",
-        //         url: "{{ route('frontend.addToCart') }}",
-        //         data: {
-        //             _token: token,
-        //             carts: $('#cart').serializeArray()
-        //         },
-        //         success: function(res) {
-        //             console.log(res)
-        //             if(res.status) {
-        //                 toastr.success(res.message);
-        //             } else {
-        //                 toastr.error(res.message);
-        //             }
-        //         },
-        //         error: function(err) {
-        //             console.log(err)
-        //         }
-        //     })
-        // });
 
     </script>
 @endsection
