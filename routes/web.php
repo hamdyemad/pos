@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+
 Route::group([
 'prefix' => LaravelLocalization::setLocale(),
 'middleware' => [ 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath'
@@ -13,6 +14,7 @@ Route::group([
             return view('auth.login');
         })->name('admin_login');
     });
+
 
     Route::get('/paymob/callback', 'Payments\PaymobController@callback');
     Route::get('/success', 'Payments\PaypalController@processSuccess')->name('processSuccess');
