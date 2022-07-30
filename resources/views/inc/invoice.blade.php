@@ -11,7 +11,6 @@
                 </h4>
                 <h4 class="font-size-16">
                     <strong>({{ $order->created_at }})</strong>
-                    <strong class="d-block text-center mt-1">({{ $order->created_at->diffForHumans() }})</strong>
                 </h4>
             </div>
             <hr>
@@ -49,13 +48,13 @@
                 @endif
                 <div class="col last">
                     @if (get_setting('logo'))
-                        <img src="{{ asset(get_setting('logo')) }}" alt="">
+                        <img class="rounded" src="{{ asset(get_setting('logo')) }}" alt="">
                     @else
-                        <img src="{{ asset('/images/default.jpg') }}" alt="">
+                        <img class="rounded" src="{{ asset('/images/default.jpg') }}" alt="">
                     @endif
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center mt-2">
                         <strong class="d-block mr-2">{{ translate('order branch') }} : </strong>
-                        <span class="badge badge-primary">{{ $order->branch->name }}</span>
+                        <span class="badge badge-primary">{{ translate($order->branch->name) }}</span>
                     </div>
                     @if($order->notes)
                         <div class="d-flex align-items-center mt-2">

@@ -39,7 +39,7 @@
                                         <label for="branch_id">{{ translate('order branch creation') }}</label>
                                         <select class="form-control select2 branch_select" name="branch_id">
                                             @foreach ($branches as $branch)
-                                            <option value="{{ $branch->id }}" @if(old('branch_id') == $branch->id) selected @endif>{{ $branch->name }}</option>
+                                            <option value="{{ $branch->id }}" @if(old('branch_id') == $branch->id) selected @endif>{{ translate($branch->name) }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -439,6 +439,7 @@
             },
             'url' : "{{ route('products.all_by_ids') }}",
             'success': function(products) {
+                console.log(products);
                 if(products.length !== 0) {
                     $(".products_table").empty();
                     products.forEach(product => {
@@ -453,6 +454,7 @@
                             let sizeTypeArray = product.variants.filter((obj) => {
                                 return obj.type == 'size';
                             });
+                            console.log(product)
                             if(sizeTypeArray.length !==0) {
                                 $(`.${product.id}`).append(`<td>{{ translate('there is no price') }}</td>`);
                                 $(`.${product.id}`).append(`<td>{{ translate('there is no quantity') }}</td>`);
@@ -468,9 +470,9 @@
                                     `);
                                 });
                             } else {
-                                $(`.${product.id}`).append(`<td><div class="price">${product.currenct_price.price_after_discount}</div></td>`);
+                                $(`.${product.id}`).append(`<td><div class="price">${product.price_of_currency.price_after_discount}</div></td>`);
                                 $(`.${product.id}`).append(`<td><input class="form-control amount" value="1" min="1" type="number" name="products[${product.id}][amount]"></td>`);
-                                $(`.${product.id}`).append(`<td><div class="total_price">${product.currenct_price.price_after_discount}</div></td>`);
+                                $(`.${product.id}`).append(`<td><div class="total_price">${product.price_of_currency.price_after_discount}</div></td>`);
                                 $(`.${product.id}`).append(`<td>{{ translate('there is no sizes') }}</td>`);
                             }
                             if(extraTypeArray.length !==0) {
@@ -493,9 +495,9 @@
                                 $(".products_table").append(getProductVariantHeadingTable());
                             }
                             $(".products_table .variant_table tbody").append(getProductVariantHeadingTr(product))
-                            $(`.${product.id}`).append(`<td><div class="price">${product.currenct_price.price_after_discount}</div></td>`);
+                            $(`.${product.id}`).append(`<td><div class="price">${product.price_of_currency.price_after_discount}</div></td>`);
                             $(`.${product.id}`).append(`<td><input class="form-control amount" value="1" min="1" type="number" name="products[${product.id}][amount]"></td>`);
-                            $(`.${product.id}`).append(`<td><div class="total_price">${product.currenct_price.price_after_discount}</div></td>`);
+                            $(`.${product.id}`).append(`<td><div class="total_price">${product.price_of_currency.price_after_discount}</div></td>`);
                             $(`.${product.id}`).append(`<td>{{ translate('there is no sizes') }}</td>`);
                             $(`.${product.id}`).append(`<td>{{ translate('there is no extras') }}</td>`);
                             getFullPrice();

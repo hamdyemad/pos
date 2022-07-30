@@ -181,14 +181,15 @@ class OrderController extends Controller
                 $product = Product::find($productId);
                 if($product) {
                     if(isset($productObj['amount'])) {
+                        $price = $product->price_of_currency()->where('currency_id', $request->currency_id)->first();
                         OrderDetail::create([
                             'order_id' => $order->id,
                             'product_id' => $productId,
-                            'price' => $product->currenctPrice->price_after_discount,
+                            'price' => $price->price_after_discount,
                             'qty' => $productObj['amount'],
-                            'total_price' => $product->currenctPrice->price_after_discount * $productObj['amount']
+                            'total_price' => $price->price_after_discount * $productObj['amount']
                         ]);
-                        array_push($grand_total, $product->currenctPrice->price_after_discount * $productObj['amount']);
+                        array_push($grand_total, $price->price_after_discount * $productObj['amount']);
                     }
                     if(isset($productObj['variants'])) {
                         foreach ($productObj['variants'] as $variantId => $variant) {

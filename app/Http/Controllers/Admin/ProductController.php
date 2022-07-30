@@ -34,6 +34,7 @@ class ProductController extends Controller
         $this->authorize('products.index');
         Carbon::setLocale(app()->getLocale());
         $currencies = Currency::all();
+        $branches = Branch::all();
         if(Auth::user()->type == 'admin') {
             $categories = Category::latest()->get();
             $products = Product::latest();
@@ -51,6 +52,11 @@ class ProductController extends Controller
         }
         if($request->price) {
             $products->where('price', 'like', '%' . $request->price . '%');
+        }
+        if($request->branch_id) {
+            $products->with('category')->whereHas('category', function($query) use($request) {
+                return $query->where('branch_id', $request->branch_id);
+            })->get();
         }
         if($request->category_id) {
             $products->where('category_id', 'like', '%' . $request->category_id . '%');
@@ -79,7 +85,7 @@ class ProductController extends Controller
             ->whereDate('created_at', '<=', $end);
         }
         $products = $products->paginate(10);
-        return view('categories.products.index', compact('products', 'categories', 'currencies'));
+        return view('categories.products.index', compact('branches','products', 'categories', 'currencies'));
     }
 
     /**
@@ -439,8 +445,8 @@ class ProductController extends Controller
     }
 
     public function all_by_ids(Request $request) {
-        $products = Product::with(['currenctPrice' => function($query) use($request) {
-            return $query->where('currency_id', $request['currency_id']);
+        $products = Product::with(['price_of_currency' => function($query) use($request) {
+            return $query->where('currency_id', $request['currency_id'])->first();
         },'variants.currenctPriceOfVariant' => function($variantQuery) use($request) {
             return $variantQuery->where('currency_id', $request['currency_id']);
         }])->whereIn('id', $request->ids)->get();

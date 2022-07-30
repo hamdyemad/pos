@@ -50,61 +50,65 @@
             </form>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table mb-0">
+            @if(count($branches) < 1)
+                <div class="alert alert-info">{{ translate('there is no branches') }}</div>
+            @else
+                <div class="table-responsive">
+                    <table class="table mb-0">
 
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>{{ translate('branch name') }}</th>
-                            <th>{{ translate('branch address') }}</th>
-                            <th>{{ translate('branch phone') }}</th>
-                            <th>{{ translate('creation date') }}</th>
-                            <th>{{ translate('last update date') }}</th>
-                            <th>{{ translate('settings') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($branches as $branch)
+                        <thead>
                             <tr>
-                                <th scope="row">{{ $branch->id }}</th>
-                                <td>{{ $branch->name }}</td>
-                                <td>{{ $branch->address }}</td>
-                                <td>{{ $branch->phone }}</td>
-                                <td>
-                                    {{ $branch->created_at->diffForHumans() }}
-                                </td>
-                                <td>
-                                    {{ $branch->updated_at->diffForHumans() }}
-                                </td>
-                                <td>
-                                    <div class="options d-flex">
-                                        @can('branches.edit')
-                                            <a class="btn btn-info mr-1" href="{{ route('branches.edit', $branch) }}">
-                                                <span>{{ translate('edit') }}</span>
-                                                <span class="mdi mdi-circle-edit-outline"></span>
-                                            </a>
-
-                                        @endcan
-                                        @can('branches.destroy')
-                                            <button class="btn btn-danger" data-toggle="modal"
-                                                data-target="#modal_{{ $branch->id }}">
-                                                <span>{{ translate('delete') }}</span>
-                                                <span class="mdi mdi-delete-outline"></span>
-                                            </button>
-                                            <!-- Modal -->
-                                            @include('layouts.partials.modal', [
-                                            'id' => $branch->id,
-                                            'route' => route('branches.destroy', $branch->id)
-                                            ])
-                                        @endcan
-                                </td>
+                                <th>#</th>
+                                <th>{{ translate('branch name') }}</th>
+                                <th>{{ translate('branch address') }}</th>
+                                <th>{{ translate('branch phone') }}</th>
+                                <th>{{ translate('creation date') }}</th>
+                                <th>{{ translate('last update date') }}</th>
+                                <th>{{ translate('settings') }}</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                {{ $branches->links() }}
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach ($branches as $branch)
+                                <tr>
+                                    <th scope="row">{{ $branch->id }}</th>
+                                    <td>{{ translate($branch->name) }}</td>
+                                    <td>{{ translate($branch->address) }}</td>
+                                    <td>{{ $branch->phone }}</td>
+                                    <td>
+                                        {{ $branch->created_at->diffForHumans() }}
+                                    </td>
+                                    <td>
+                                        {{ $branch->updated_at->diffForHumans() }}
+                                    </td>
+                                    <td>
+                                        <div class="options d-flex">
+                                            @can('branches.edit')
+                                                <a class="btn btn-info mr-1" href="{{ route('branches.edit', $branch) }}">
+                                                    <span>{{ translate('edit') }}</span>
+                                                    <span class="mdi mdi-circle-edit-outline"></span>
+                                                </a>
+
+                                            @endcan
+                                            @can('branches.destroy')
+                                                <button class="btn btn-danger" data-toggle="modal"
+                                                    data-target="#modal_{{ $branch->id }}">
+                                                    <span>{{ translate('delete') }}</span>
+                                                    <span class="mdi mdi-delete-outline"></span>
+                                                </button>
+                                                <!-- Modal -->
+                                                @include('layouts.partials.modal', [
+                                                'id' => $branch->id,
+                                                'route' => route('branches.destroy', $branch->id)
+                                                ])
+                                            @endcan
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    {{ $branches->links() }}
+                </div>
+            @endif
         </div>
     </div>
 @endsection

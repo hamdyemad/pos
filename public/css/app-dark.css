@@ -3912,6 +3912,7 @@ body {
   width: 100px;
   height: 100px;
   border-radius: 50%;
+  margin: 0px 2px;
 }
 
 @media (max-width: 991px) {
@@ -3958,22 +3959,76 @@ body {
 }
 
 .admin .show_product img {
-  width: 250px;
-  height: 250px;
+  width: 100% !important;
+  height: 100% !important;
   border-radius: 10px;
-}
-
-@media (max-width: 991px) {
-  .admin .show_product img {
-    width: 200px !important;
-    height: 200px !important;
-    margin: auto;
-    border-radius: 10px;
-  }
 }
 
 .admin .show_product .owl-stage {
   margin: auto;
+}
+
+.admin .show_product .owl-nav {
+  display: block;
+}
+
+@media (max-width: 991px) {
+  .admin .show_product .owl-nav {
+    display: none;
+  }
+}
+
+.admin .show_product .owl-nav button {
+  top: 50%;
+  transform: translateY(-50%);
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  line-height: 35px;
+  text-align: center;
+  background-color: var(--primary);
+  color: #fff;
+  border-radius: 50%;
+  pointer-events: all;
+}
+
+.admin .show_product .owl-nav button.owl-prev {
+  right: -45px;
+}
+
+.admin .show_product .owl-nav button.owl-next {
+  left: -45px;
+}
+
+.admin .show_product .owl-nav button span {
+  font-size: 60px;
+}
+
+.admin .show_product .owl-dots {
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin .show_product .owl-dots button {
+  transition: all 0.3s ease-in-out;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: var(--green);
+  margin: 0px 5px;
+}
+
+@media (max-width: 991px) {
+  .admin .show_product .owl-dots button {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+.admin .show_product .owl-dots button.active {
+  background-color: var(--primary);
 }
 
 .admin .create_order img {

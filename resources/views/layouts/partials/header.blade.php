@@ -153,11 +153,13 @@
                             </div>
                         </a> --}}
                     </div>
-                    <div class="p-2 border-top">
-                        <a class="btn btn-sm btn-link font-size-14 btn-block text-center" href="{{ route('orders.index') . '?status_id='. $status->id }}">
-                            {{ translate('show orders') }}
-                        </a>
-                    </div>
+                    @if($status)
+                        <div class="p-2 border-top">
+                            <a class="btn btn-sm btn-link font-size-14 btn-block text-center" href="{{ route('orders.index') . '?status_id='. $status->id }}">
+                                {{ translate('show orders') }}
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
             {{-- End Noteifications --}}

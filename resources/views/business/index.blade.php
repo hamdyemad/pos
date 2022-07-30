@@ -58,67 +58,71 @@
             </form>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>{{ translate('financial name') }}</th>
-                            <th>{{ translate('financial type') }}</th>
-                            <th>{{ translate('branch') }}</th>
-                            <th>{{ translate('creation date') }}</th>
-                            <th>{{ translate('creation date') }}</th>
-                            <th>{{ translate('settings') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($businesses as $business)
+            @if(count($businesses) < 1)
+                <div class="alert alert-info">{{ translate('there is no financial') }}</div>
+            @else
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
                             <tr>
-                                <th scope="row">{{ $business->id }}</th>
-                                <td>{{ $business->name }}</td>
-                                <td>
-                                    @if ($business->type == 'expense')
-                                        مصروف
-                                    @elseif($business->type == 'income')
-                                        ايراد
-                                    @endif
-                                </td>
-                                <td>
-                                    {{ $business->branch->name }}
-                                </td>
-                                <td>
-                                    {{ $business->created_at->diffForHumans() }}
-                                </td>
-                                <td>
-                                    {{ $business->updated_at->diffForHumans() }}
-                                </td>
-                                <td>
-                                    <div class="options d-flex">
-                                        @can('business.edit')
-                                            <a class="btn btn-info mr-1" href="{{ route('business.edit', $business) }}">
-                                                <span>{{ translate('edit') }}</span>
-                                                <span class="mdi mdi-circle-edit-outline"></span>
-                                            </a>
-                                        @endcan
-                                        @can('business.destroy')
-                                            <button class="btn btn-danger" data-toggle="modal"
-                                                data-target="#modal_{{ $business->id }}">
-                                                <span>{{ translate('delete') }}</span>
-                                                <span class="mdi mdi-delete-outline"></span>
-                                            </button>
-                                            <!-- Modal -->
-                                            @include('layouts.partials.modal', [
-                                            'id' => $business->id,
-                                            'route' => route('business.destroy', $business->id)
-                                            ])
-                                        @endcan
-                                </td>
+                                <th>#</th>
+                                <th>{{ translate('financial name') }}</th>
+                                <th>{{ translate('financial type') }}</th>
+                                <th>{{ translate('branch') }}</th>
+                                <th>{{ translate('creation date') }}</th>
+                                <th>{{ translate('creation date') }}</th>
+                                <th>{{ translate('settings') }}</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                {{ $businesses->links() }}
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach ($businesses as $business)
+                                <tr>
+                                    <th scope="row">{{ $business->id }}</th>
+                                    <td>{{ $business->name }}</td>
+                                    <td>
+                                        @if ($business->type == 'expense')
+                                            مصروف
+                                        @elseif($business->type == 'income')
+                                            ايراد
+                                        @endif
+                                    </td>
+                                    <td>
+                                        {{ $business->branch->name }}
+                                    </td>
+                                    <td>
+                                        {{ $business->created_at->diffForHumans() }}
+                                    </td>
+                                    <td>
+                                        {{ $business->updated_at->diffForHumans() }}
+                                    </td>
+                                    <td>
+                                        <div class="options d-flex">
+                                            @can('business.edit')
+                                                <a class="btn btn-info mr-1" href="{{ route('business.edit', $business) }}">
+                                                    <span>{{ translate('edit') }}</span>
+                                                    <span class="mdi mdi-circle-edit-outline"></span>
+                                                </a>
+                                            @endcan
+                                            @can('business.destroy')
+                                                <button class="btn btn-danger" data-toggle="modal"
+                                                    data-target="#modal_{{ $business->id }}">
+                                                    <span>{{ translate('delete') }}</span>
+                                                    <span class="mdi mdi-delete-outline"></span>
+                                                </button>
+                                                <!-- Modal -->
+                                                @include('layouts.partials.modal', [
+                                                'id' => $business->id,
+                                                'route' => route('business.destroy', $business->id)
+                                                ])
+                                            @endcan
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    {{ $businesses->links() }}
+                </div>
+            @endif
         </div>
     </div>
 @endsection

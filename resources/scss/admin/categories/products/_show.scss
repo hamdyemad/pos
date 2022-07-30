@@ -7,17 +7,12 @@
         }
     }
     img {
-        width: 250px;
-        height: 250px;
+        width: 100% !important;
+        height: 100% !important;
         border-radius: 10px;
-        @media (max-width: 991px) {
-            width: 200px !important;
-            height: 200px !important;
-            margin: auto;
-            border-radius: 10px;
-        }
     }
     .owl-stage {
         margin: auto;
     }
+    @import "./inc/dot_env";
 }

@@ -52,7 +52,7 @@ class CategoryController extends Controller
         if(count($branches) > 0) {
             return view('categories.create', compact('branches'));
         } else {
-            return redirect()->back()->with('error', translate('you should create category first'));
+            return redirect()->back()->with('error', translate('you should create branch'));
 
         }
     }
@@ -78,20 +78,23 @@ class CategoryController extends Controller
         if($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors())->withInput($request->all())->with('error', translate('there is something error'));
         }
-        $creation = [
-            'name' => $request->name,
-            'branch_id' => $request->branch_id,
-            'viewed_number' => $request->viewed_number
-        ];
-        if($request->active) {
-            $creation['active'] = 1;
-        } else {
-            $creation['active'] = 0;
-        }
         if($request->has('photo')) {
-            $creation['photo'] = $this->uploadFile($request, $this->categoriesPath, 'photo');
+            $photo = $this->uploadFile($request, $this->categoriesPath, 'photo');
         }
-        Category::create($creation);
+        foreach ($request->branch_id as $value) {
+            $creation = [
+                'name' => $request->name,
+                'branch_id' => $value,
+                'viewed_number' => $request->viewed_number
+            ];
+            $creation['photo'] = $photo;
+            if($request->active) {
+                $creation['active'] = 1;
+            } else {
+                $creation['active'] = 0;
+            }
+            Category::create($creation);
+        }
         return redirect()->back()->with('success', translate('created successfully'));
     }
 

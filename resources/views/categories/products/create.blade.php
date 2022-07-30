@@ -40,7 +40,7 @@
                                         <select class="form-control select2 branch_select" name="branch_id">
                                             <option value="">{{ translate('choose') }}</option>
                                             @foreach ($branches as $branch)
-                                                <option value="{{ $branch->id }}" @if (old('branch_id') == $branch->id) selected @endif>{{ $branch->name }}</option>
+                                                <option value="{{ $branch->id }}" @if (old('branch_id') == $branch->id) selected @endif>{{ translate($branch->name) }}</option>
                                             @endforeach
                                         </select>
                                         @error('branch_id')
@@ -554,6 +554,9 @@
             let tr = $(input).parent().parent(),
                 priceInputVal = parseFloat($(tr).find('.price-input').val()),
                 discountInputVal = parseFloat($(tr).find('.discount-input').val());
+                if(isNaN(priceInputVal)) {
+                    priceInputVal = 0;
+                }
                 if(isNaN(discountInputVal)) {
                     discountInputVal = 0;
                 }

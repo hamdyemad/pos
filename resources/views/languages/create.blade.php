@@ -37,7 +37,7 @@
                                 <label for="rtl">rtl</label>
                                 <div class="form-group">
                                     <input type="checkbox" name="rtl" id="switch" switch="bool" />
-                                    <label for="switch" data-on-label="Yes" data-off-label="No"></label>
+                                    <label for="switch" data-on-label="{{ translate('yes') }}" data-off-label="{{ translate('no') }}"></label>
                                 </div>
                             </div>
                             <div class="col-12">

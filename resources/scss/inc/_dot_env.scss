@@ -1,0 +1,49 @@
+.owl-nav {
+    display: block;
+    @media (max-width: 991px) {
+        display: none;
+    }
+    button {
+        top: 50%;
+        transform: translateY(-50%);
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        line-height: 35px;
+        text-align: center;
+        background-color: var(--primary);
+        color: #fff;
+        border-radius: 50%;
+        pointer-events: all;
+        &.owl-prev {
+            right: -45px;
+        }
+        &.owl-next {
+            left: -45px;
+        }
+        span {
+            font-size: 60px;
+        }
+    }
+}
+.owl-dots {
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    button {
+        transition: all 0.3s ease-in-out;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background-color: var(--green);
+        margin: 0px 5px;
+        @media (max-width: 991px) {
+            width: 10px;
+            height: 10px;
+        }
+        &.active {
+            background-color: var(--primary);
+        }
+    }
+}

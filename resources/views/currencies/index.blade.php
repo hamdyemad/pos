@@ -31,7 +31,6 @@
                     </div>
                     <div class="col-6">
                         <div class="form-group">
-                            <label for="name"></label>
                             <input type="submit" value="{{ translate('search') }}" class="form-control btn btn-primary mt-1">
                         </div>
                     </div>

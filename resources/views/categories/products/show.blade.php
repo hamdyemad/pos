@@ -19,12 +19,6 @@
                 <div class="text-left">
                     <h1>معلومات عن ({{ $product->name }})</h1>
                 </div>
-                <div class="text-left">
-                    <a class="btn btn-info" href="{{ route('products.index') }}">
-                        الرجوع الى الأكلات
-                    </a>
-                </div>
-
             </div>
             <div class="card-body">
                 <div class="owl-carousel owl-theme" style="direction: ltr">
@@ -46,7 +40,7 @@
                                 <th>الحجم</th>
                                 <th>السعر</th>
                                 <th>الخصم</th>
-                                <th>السعر بعد الخصم</th>
+                                <th><span class="max">السعر بعد الخصم</span></th>
                             </thead>
                             <tbody>
                                 @foreach ($product->variants->groupBy('type')['size'] as $variant)
@@ -80,6 +74,9 @@
                     </div>
                     @endif
                 @endif
+                <a class="btn btn-info btn-block" href="{{ route('products.index') }}">
+                    الرجوع الى الأكلات
+                </a>
             </div>
         </div>
     </div>

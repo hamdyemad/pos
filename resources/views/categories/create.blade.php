@@ -46,10 +46,9 @@
                                 <div class="col-12 col-md-6">
                                     <div class="form-group">
                                         <label for="category">{{ translate('the branch') }}</label>
-                                        <select class="form-control select2" name="branch_id">
-                                            <option value="">{{ translate('choose') }}</option>
+                                        <select class="form-control select2" multiple name="branch_id[]">
                                             @foreach ($branches as $branch)
-                                                <option value="{{ $branch->id }}" @if (old('branch_id') == $branch->id) selected @endif>{{ $branch->name }}</option>
+                                                <option value="{{ $branch->id }}" @if (is_array(old('branch_id'))) @if(in_array($branch->id, old('branch_id'))) selected @endif @endif>{{ translate($branch->name) }}</option>
                                             @endforeach
                                         </select>
                                         @error('branch_id')

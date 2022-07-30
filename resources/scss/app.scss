@@ -156,6 +156,10 @@ body {
 @import "./frontend/inc/user_side_nav";
 @import "./frontend/footer";
 
+.select2 .select2-container, .select2-container--default, .select2-container--below {
+    display: block !important;
+}
+
 .order_tracker {
     padding: 55px 0;
     .track {
@@ -197,4 +201,10 @@ body {
         border-radius: 50%;
         text-align: center;
     }
+}
+
+
+.max {
+    display: block;
+    width: max-content;
 }

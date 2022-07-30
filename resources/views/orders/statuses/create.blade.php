@@ -35,7 +35,7 @@
                                 <label for="{{ translate('default status') }}">{{ translate('default status') }}</label>
                                 <div class="form-group">
                                     <input type="checkbox" name="default_val" id="switch4" switch="bool" />
-                                    <label for="switch4" data-on-label="Yes" data-off-label="No"></label>
+                                    <label for="switch4" data-on-label="{{ translate('yes') }}" data-off-label="{{ translate('no') }}"></label>
                                 </div>
                             </div>
                             <div class="col-12">

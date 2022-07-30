@@ -22,6 +22,10 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class, 'product_id');
     }
 
+    public function price_of_currency() {
+        return $this->hasOne(ProductPrice::class, 'product_id');
+    }
+
     public function current_price() {
         $currency = Currency::where('default', 1)->first();
         return $this->hasOne(ProductPrice::class, 'product_id')->where('currency_id', $currency->id);
