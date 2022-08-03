@@ -1,9 +1,10 @@
  <!-- ========== Left Sidebar Start ========== -->
  @php
+    $orders_views_ids = App\Models\OrderView::where('user_id', Auth::id())->pluck('order_id');
     if(Auth::user()->type == 'admin') {
-        $orders_count = App\Models\Order::where('viewed', 0)->latest()->get()->count();
+        $orders_count = App\Models\Order::whereNotIn('id', $orders_views_ids)->latest()->get()->count();
     } else {
-        $orders_count = App\Models\Order::where('viewed', 0)->where('branch_id', Auth::user()->branch_id)->latest()->get()->count();
+        $orders_count = App\Models\Order::whereNotIn('id', $orders_views_ids)->where('branch_id', Auth::user()->branch_id)->latest()->get()->count();
     }
 @endphp
  <div class="vertical-menu">
@@ -20,7 +21,7 @@
                          <img src="{{ asset('/images/default.jpg') }}" alt="">
                      @endif
                  </a>
-                 <span class="badge badge-primary d-block">{{ Auth::user()->name }}</span>
+                 <span class="badge badge-primary d-block mt-2">{{ Auth::user()->name }}</span>
              </div>
              <!-- Left Menu Start -->
              <ul class="metismenu list-unstyled" id="side-menu">

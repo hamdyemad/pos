@@ -12,37 +12,88 @@
         @slot('li3') {{ translate('orders') }} @endslot
     @endcomponent
     <div class="all_orders">
+        <!-- Start Status Modal -->
+            <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="statusModalLabel">{{ translate('change order status') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <form id="orders_status" action="{{ route('orders.status_all_update') }}" method="POST">
+                        <div class="modal-body">
+                            <select class="form-control select2" name="status_id">
+                                <option value="">{{ translate('choose') }}</option>
+                                @foreach ($statuses as $status)
+                                    <option value="{{ $status->id }}">{{ $status->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ translate('Close') }}</button>
+                            @csrf
+                            <button type="submit" class="btn btn-primary" >{{ translate('Save') }}</button>
+                            <input class="input_orders" type="hidden" name="orders">
+                        </div>
+                    </form>
+                </div>
+                </div>
+            </div>
+        <!-- End Status Modal -->
+        <form id="shipping_invoice" target="_blank" action="{{ route('orders.all_pdf') }}" method="POST">
+            @csrf
+        </form>
         <div class="card">
             <div class="card-header">
                 <div class="d-flex flex-column flex-md-row text-center text-md-right justify-content-between">
                     <h2>{{ translate('orders') }}</h2>
-                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                        <i class="fa fa-filter" aria-hidden="true"></i>
-                        <span>{{ translate('filter') }}</span>
-                    </button>
+                    <div class="d-flex">
+                        <div class="dropdown mr-2">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-edit"></i>
+                                <span>{{ translate('quick edit') }}</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <button class="dropdown-item" href="#" form="shipping_invoice">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span>{{ translate('order invoice') }}</span>
+                                </button>
+                                <button class="dropdown-item" href="#" data-toggle="modal" data-target="#statusModal">
+                                    <i class="fas fa-edit"></i>
+                                    <span>{{ translate('change order status') }}</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                            <i class="fa fa-filter" aria-hidden="true"></i>
+                            <span>{{ translate('filter') }}</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="collapse mt-2" id="collapseExample">
                     <form action="{{ route('orders.index') }}" method="GET">
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
                                     <label for="customer_name">{{ translate('customer name') }}</label>
                                     <input class="form-control" name="customer_name" type="text" value="{{ request('customer_name') }}">
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
                                     <label for="customer_phone">{{ translate('customer phone') }}</label>
                                     <input class="form-control" name="customer_phone" type="text" value="{{ request('customer_phone') }}">
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
                                     <label for="customer_address">{{ translate('customer address') }}</label>
                                     <input class="form-control" name="customer_address" type="text" value="{{ request('customer_address') }}">
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
                                     <label for="name">{{ translate('order status') }}</label>
                                     <select class="form-control select2" name="status_id">
@@ -55,7 +106,7 @@
                                 </div>
                             </div>
                             @if(Auth::user()->type == 'admin')
-                                <div class="col-6">
+                                <div class="col-12 col-md-6 col-lg-3">
                                     <div class="form-group">
                                         <label for="name">{{ translate('order type') }}</label>
                                         <select class="form-control select2" name="type">
@@ -65,7 +116,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-6">
+                                <div class="col-12 col-md-6 col-lg-3">
                                     <div class="form-group">
                                         <label for="name">{{ translate('the branch') }}</label>
                                         <select class="form-control select2" name="branch_id">
@@ -78,9 +129,9 @@
                                     </div>
                                 </div>
                             @endif
-                            <div class="col-6">
+                            <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
-                                    <label for="name"></label>
+                                    <label class="d-none d-md-inline-block" for="name"></label>
                                     <input type="submit" value="{{ translate('search') }}" class="form-control btn btn-primary mt-1">
                                 </div>
                             </div>
@@ -97,6 +148,9 @@
                         <table class="table mb-0">
                             <thead>
                                 <tr>
+                                    <th>
+                                        <input class="form-control select_all" type="checkbox">
+                                    </th>
                                     <th><span>{{ translate('order number') }}</span></th>
                                     <th><span>{{ translate('currency') }}</span></th>
                                     <th><span>{{ translate('customer name') }}</span></th>
@@ -114,7 +168,8 @@
                             <tbody>
                                 @foreach ($orders as $order)
                                     <tr id="{{ $order->id }}" data-value="{{ $order }}">
-                                        <th scope="row">{{ $order->id }}</th>
+                                        <th><input class="form-control" name="orders[]" value="{{ $order->id }}"  form="shipping_invoice" type="checkbox"></th>
+                                        <th>{{ $order->id }}</th>
                                         <th>{{ $order->currency->code }}</th>
                                         @if($order->customer_name)
                                             <td>{{ $order->customer_name }}</td>
@@ -161,9 +216,9 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <div class="badge badge-primary p-2">({{ $order->branch->name }})</div>
+                                            <div class="badge badge-primary p-2">({{ translate($order->branch->name) }})</div>
                                             @if($order->type == 'online')
-                                                <div class="badge badge-primary mt-2">{{ translate('online order') }}</div>
+                                                <div class="badge badge-info mt-2">{{ translate('online order') }}</div>
                                             @endif
                                         </td>
                                         <td>
@@ -271,6 +326,27 @@
 
 @section('footerScript')
     <script>
+
+        $('#statusModal').on('shown.bs.modal', function () {
+            console.log("yes")
+            let orders = [];
+            $("tbody input[type='checkbox']").each((index, input) => {
+                if(input.checked) {
+                    orders.push($(input).val());
+                }
+            })
+            $(".input_orders").val(orders);
+        })
+        $(".select_all").on('click', function() {
+            $("tbody input[type='checkbox']").each((index, input) => {
+                if($(".select_all")[0].checked) {
+                    input.checked = 1;
+                } else {
+                    input.checked = 0;
+                }
+            })
+        });
+
         orderChannel.bind('App\\Events\\newOrder', function(data) {
             if(data) {
                 if(data.order.branch_id == "{{ Auth::user()->branch_id }}" || "{{Auth::user()->type}}" == 'admin') {

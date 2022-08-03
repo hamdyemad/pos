@@ -47,10 +47,11 @@
             {{-- Start Noteifications --}}
             @php
                 $status = App\Models\Status::where('default_val', 1)->first();
+                $orders_views_ids = App\Models\OrderView::where('user_id', Auth::id())->pluck('order_id');
                 if(Auth::user()->type == 'admin') {
-                    $orders = App\Models\Order::where('viewed', 0)->latest()->get();
+                    $orders = App\Models\Order::whereNotIn('id', $orders_views_ids)->latest()->get();
                 } else {
-                    $orders = App\Models\Order::where('viewed', 0)->where('branch_id', Auth::user()->branch_id)->latest()->get();
+                    $orders = App\Models\Order::whereNotIn('id', $orders_views_ids)->where('branch_id', Auth::user()->branch_id)->latest()->get();
                 }
             @endphp
             <div class="dropdown d-inline-block ml-1">
@@ -155,7 +156,7 @@
                     </div>
                     @if($status)
                         <div class="p-2 border-top">
-                            <a class="btn btn-sm btn-link font-size-14 btn-block text-center" href="{{ route('orders.index') . '?status_id='. $status->id }}">
+                            <a class="btn btn-sm btn-link font-size-14 btn-block text-center" href="{{ route('orders.index')}}">
                                 {{ translate('show orders') }}
                             </a>
                         </div>

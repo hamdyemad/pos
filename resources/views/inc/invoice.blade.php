@@ -1,7 +1,7 @@
 <div class="invoice">
     <div class="row">
         <div class="col-12">
-            <div class="invoice-title d-flex justify-content-between">
+            <div class="invoice-title d-block d-md-flex justify-content-between">
                 <h4 class="font-size-16">
                     <strong>{{ translate('order number') }} ({{ $order->id }})</strong>
                     <strong class="d-block mt-1 font-size-16">{{ translate('order status') }} ({{ $order->status->name }})</strong>
@@ -104,7 +104,7 @@
                                                                         <span class="badge badge-secondary">{{ $extra->price  }}</span>
                                                                     </div>
                                                                     <div class="line">
-                                                                        <strong>{{ translate('order quantity') }} :</strong>
+                                                                        <strong>{{ translate('quantity') }} :</strong>
                                                                         <span class="badge badge-secondary">{{ $extra->qty  }}</span>
                                                                     </div>
                                                                     @if($extra->qty > 1)

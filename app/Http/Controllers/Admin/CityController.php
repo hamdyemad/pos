@@ -62,7 +62,7 @@ class CityController extends Controller
         ];
         $rules = [
             'name' => 'required|string|unique:cities,name',
-            'prices.*.price' => 'required|regex:/^\d+(\.\d{1,2})?$/|min:2',
+            'prices.*.price' => 'required|regex:/^\d+(\.\d{1,2})?$/',
             'prices.*.currency_id' => 'required|exists:currencies,id',
             'country_id' => 'required|exists:countries,id'
         ];

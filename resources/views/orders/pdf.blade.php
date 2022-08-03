@@ -3,26 +3,25 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>{{ $order->id }}</title>
-        <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
-        <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
 		<style>
 			.invoice-box {
-				max-width: 800px;
-				margin: auto;
 				padding: 30px;
 				border: 1px solid #eee;
+                height: 100%;
 				box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
 				font-size: 16px;
 				line-height: 24px;
-				font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+				font-family: "Cairo", sans-serif;
 				color: #555;
 			}
 
 			.invoice-box table {
 				width: 100%;
 				line-height: inherit;
-				text-align: left;
+				text-align: right;
 			}
 
 			.invoice-box table td {
@@ -87,15 +86,15 @@
 			/** RTL **/
 			.invoice-box.rtl {
 				direction: rtl;
-				font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+				/* font-family: "Cairo", sans-serif; */
 			}
 
 			.invoice-box.rtl table {
 				text-align: right;
 			}
 
-			.invoice-box.rtl table tr td:nth-child(2) {
-				text-align: left;
+			.invoice-box.rtl  tr td.order_header {
+				text-align: left !important;
 			}
 		</style>
 	</head>
@@ -115,7 +114,7 @@
                                     @endif
 								</td>
 
-								<td>
+								<td class="order_header">
                                     {{ translate('order number') . ' : ' . $order->id }}<br>
                                     @if($order->paid)
                                     {{ translate('paid') }}
@@ -335,6 +334,15 @@
                         <span>{{ translate('final price') }}</span></td>
                     <td>
                         <span>{{ $order->currency->code . $order->grand_total }}</span>
+                    </td>
+                </tr>
+                <tr class="item">
+                    <td colspan="6">
+                        @php
+                            $order_id = $order['id'];
+                            \Storage::disk('public')->put('barcodes/' . $order['id'] . '.png',base64_decode(DNS1D::getBarcodePNG("$order_id", 'C128')));
+                        @endphp
+                        <img src="{{ asset('barcodes/' . $order['id'] . '.png') }}" style="width:200px; height: 30px" alt="">
                     </td>
                 </tr>
 			</table>

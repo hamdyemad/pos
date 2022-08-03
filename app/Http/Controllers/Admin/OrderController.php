@@ -12,6 +12,7 @@ use App\Models\Currency;
 use App\Models\Language;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\OrderView;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -22,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use PDF;
+use Mpdf\Mpdf;
 
 class OrderController extends Controller
 {
@@ -56,9 +58,6 @@ class OrderController extends Controller
             $orders = $orders->where('status_id', 'like', '%' . $request->status_id .'%');
         }
         $orders = $orders->paginate(10);
-        foreach($orders as $order) {
-            $order->update(['viewed' => true]);
-        }
         return view('orders.index', compact('orders', 'statuses', 'branches'));
     }
 
@@ -235,7 +234,15 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->update(['viewed' => true]);
+
+        $order_view = OrderView::where(['order_id' =>  $order->id, 'user_id' => Auth::id()])->first();
+        if(!$order_view) {
+            OrderView::create([
+                'order_id' => $order->id,
+                'user_id' => Auth::id()
+            ]);
+        }
+
         Carbon::setLocale(app()->getLocale());
         $statuses_history = StatusHistory::where('order_id', $order->id)->latest()->get();
         return view('orders.show', compact('order', 'statuses_history'));
@@ -246,6 +253,25 @@ class OrderController extends Controller
         Carbon::setLocale(app()->getLocale());
         $pdf = PDF::loadView('orders.pdf', ['order' => $order, 'rtl' => $currenctLang->rtl]);
         return $pdf->stream($order->id. '.pdf');
+    }
+
+
+    public function all_pdf(Request $request) {
+        $currenctLang = Language::where('code', app()->getLocale())->first();
+        Carbon::setLocale(app()->getLocale());
+        if(!isset($request->orders)) {
+            return redirect()->back()->with('error', translate('you should choose a 1 minimum of orders'));
+        } else {
+            $orders = Order::whereIn('id', $request->orders)->get();
+            $mpdf = new Mpdf();
+            $mpdf->autoScriptToLang = true;
+            $mpdf->autoLangToFont = true;
+            foreach ($orders as $order) {
+                $mpdf->WriteHTML(view('orders.pdf', ['order' => $order,'rtl' => $currenctLang->rtl])->render());
+            }
+            $mpdf->Output('invoices/orders.pdf');
+            return redirect()->to(asset('invoices/' . 'orders' . '.pdf'));
+        }
     }
 
     /**
@@ -350,12 +376,12 @@ class OrderController extends Controller
         }
     }
 
+    // Update Order Status
     public function updateStatus(Request $request) {
         $order = Order::find($request->order_id);
         if($order) {
             $order->update([
-                'status_id' => $request->status_id,
-                'client_status_viewed' => 0
+                'status_id' => $request->status_id
             ]);
             StatusHistory::create([
                 'user_id' => Auth::id(),
@@ -369,6 +395,39 @@ class OrderController extends Controller
                 'status_name' => $order->status->name
             ]));
             return response()->json(['msg' => translate('updated successfully'), 'status' => true]);
+        }
+    }
+
+    // Update Orders Status
+    public function updateStatusOfOrders(Request $request) {
+        if(!isset($request->orders)) {
+            return redirect()->back()->with('error', translate('you should choose a 1 minimum of orders'));
+        } else {
+            $status = Status::find($request->status_id);
+            if(!$status) {
+                return redirect()->back()->with('error', translate('you should choose status'));
+            }
+            $orders = explode(',', $request->orders);
+            foreach ($orders as $order_id) {
+                $order = Order::find($order_id);
+                if($order) {
+                    $order->update([
+                        'status_id' => $request->status_id,
+                    ]);
+                    StatusHistory::create([
+                        'user_id' => Auth::id(),
+                        'order_id' => $order->id,
+                        'status_id' => $request->status_id
+                    ]);
+                    event(new changeOrderStatus([
+                        'user_id' => Auth::id(),
+                        'status_id' => $request->status_id,
+                        'order' => $order,
+                        'status_name' => $order->status->name
+                    ]));
+                }
+            }
+            return redirect()->back()->with('success', translate('updated successfuly'));
         }
     }
 

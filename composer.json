@@ -19,6 +19,7 @@
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0",
         "mcamara/laravel-localization": "^1.7",
+        "milon/barcode": "^7.0",
         "mpdf/mpdf": "^8.0",
         "nexmo/laravel": "^3.0",
         "pusher/pusher-php-server": "^4.1",

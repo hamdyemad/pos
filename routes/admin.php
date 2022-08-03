@@ -70,10 +70,13 @@ Route::group([
                 Route::get('/', 'OrderController@index')->name('index');
                 Route::post('/', 'OrderController@store')->name('store');
                 Route::post('/status', 'OrderController@updateStatus')->name('status_update');
+                Route::post('/statuses', 'OrderController@updateStatusOfOrders')->name('status_all_update');
                 Route::get('/create', 'OrderController@create')->name('create');
                 Route::get('/edit/{order}', 'OrderController@edit')->name('edit');
+                Route::post('/pdfs', 'OrderController@all_pdf')->name('all_pdf');
                 Route::get('/{order}', 'OrderController@show')->name('show');
                 Route::get('/{order}/pdf', 'OrderController@pdf')->name('pdf');
+
                 Route::patch('/{order}', 'OrderController@update')->name('update');
                 Route::delete('/{order}', 'OrderController@destroy')->name('destroy');
             });

@@ -1,5 +1,7 @@
 @extends('layouts.master')
-
+@section('title')
+{{ translate('cities') }}
+@endsection
 @section('content')
     @component('common-components.breadcrumb')
         @slot('title') {{ $country->name }} @endslot
@@ -80,7 +82,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2">
+                                <td colspan="5">
                                     <ul>
                                         @foreach ($city->prices as $price)
                                             <li>

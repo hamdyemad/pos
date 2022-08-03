@@ -20,7 +20,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="d-print-none">
-                            <div class="float-right">
+                            <div class="mb-2">
                                 <a href="javascript:window.print()" class="btn btn-success waves-effect waves-light mr-2"><i class="fa fa-print"></i></a>
                                 <a href="{{ route('orders.pdf', $order) }}" class="btn btn-info waves-effect waves-light mr-2"><i class="fa fa-file"></i></a>
                             </div>
@@ -31,9 +31,9 @@
                             <div class="table-responsive">
                                 <table class="table">
                                     <thead>
-                                        <th>{{ translate('name of the user who changed the status') }}</th>
-                                        <th>{{ translate('status') }}</th>
-                                        <th>{{ translate('creation date') }}</th>
+                                        <th><span class="max">{{ translate('name of the user who changed the status') }}</span></th>
+                                        <th><span class="max">{{ translate('status') }}</span></th>
+                                        <th><span class="max">{{ translate('creation date') }}</span></th>
                                     </thead>
                                     <tbody>
                                         @foreach ($statuses_history as $status_history)

@@ -1,5 +1,7 @@
 @extends('layouts.master')
-
+@section('title')
+{{ translate('create new city') }}
+@endsection
 @section('content')
     @component('common-components.breadcrumb')
         @slot('title') {{ $country->name }} @endslot

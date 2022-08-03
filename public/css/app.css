@@ -4113,6 +4113,15 @@ body {
   }
 }
 
+.admin .all_orders button {
+  padding: 10px !important;
+}
+
+.admin .all_orders th input[type=checkbox] {
+  width: 20px;
+  height: 20px;
+}
+
 .admin .all_orders th span {
   display: block;
   width: -webkit-max-content;

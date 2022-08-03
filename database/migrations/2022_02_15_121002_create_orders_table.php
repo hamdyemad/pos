@@ -29,9 +29,6 @@ class CreateOrdersTable extends Migration
             $table->double('total_discount')->nullable();
             $table->double('shipping')->nullable();
             $table->double('grand_total');
-            $table->boolean('viewed')->default(0);
-            $table->boolean('client_viewed')->default(0);
-            $table->boolean('client_status_viewed')->default(0);
             $table->foreign('city_id')->on('cities')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('status_id')->on('statuses')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('currency_id')->on('currencies')->references('id')->onDelete('cascade')->onUpdate('cascade');

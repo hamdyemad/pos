@@ -1,5 +1,12 @@
 .all_orders {
+    button {
+        padding: 10px !important;
+    }
     th {
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
         span {
             display: block;
             width: max-content;

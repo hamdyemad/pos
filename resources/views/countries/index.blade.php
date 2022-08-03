@@ -55,71 +55,75 @@
             </form>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table mb-0">
+            @if(count($countries) < 1)
+                <div class="alert alert-info">{{ translate('there is no countries') }}</div>
+            @else
+                <div class="table-responsive">
+                    <table class="table mb-0">
 
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>{{ translate('country name') }}</th>
-                            <th>{{ translate('country code') }}</th>
-                            <th>{{ translate('country cities') }}</th>
-                            <th>{{ translate('available') }}</th>
-                            <th>{{ translate('creation date') }}</th>
-                            <th>{{ translate('last update date') }}</th>
-                            <th>{{ translate('settings') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($countries as $country)
+                        <thead>
                             <tr>
-                                <th scope="row">{{ $country->id }}</th>
-                                <td>
-                                    <a
-                                        href="{{ route('countries.cities.index', $country->id) }}">{{ $country->name }}</a>
-                                </td>
-                                <td>{{ $country->code }}</td>
-                                <td>{{ $country->cities->count() }}</td>
-                                <td>
-                                    @if ($country->active)
-                                        <span class="badge badge-success">{{ translate('available') }}</span>
-                                    @else
-                                        <span class="badge badge-danger">{{ translate('not available') }}</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    {{ $country->created_at->diffForHumans() }}
-                                </td>
-                                <td>
-                                    {{ $country->updated_at->diffForHumans() }}
-                                </td>
-                                <td>
-                                    <div class="options d-flex">
-                                        @can('countries.edit')
-                                            <a class="btn btn-info mr-1" href="{{ route('countries.edit', $country) }}">
-                                                <span>{{ translate('edit') }}</span>
-                                                <span class="mdi mdi-circle-edit-outline"></span>
-                                            </a>
-                                        @endcan
-                                        @can('countries.destroy')
-                                            <button class="btn btn-danger" data-toggle="modal"
-                                                data-target="#modal_{{ $country->id }}">
-                                                <span>{{ translate('delete') }}</span>
-                                                <span class="mdi mdi-delete-outline"></span>
-                                            </button>
-                                            <!-- Modal -->
-                                            @include('layouts.partials.modal', [
-                                            'id' => $country->id,
-                                            'route' => route('countries.destroy', $country->id)
-                                            ])
-                                        @endcan
-                                </td>
+                                <th>#</th>
+                                <th>{{ translate('country name') }}</th>
+                                <th>{{ translate('country code') }}</th>
+                                <th>{{ translate('country cities') }}</th>
+                                <th>{{ translate('available') }}</th>
+                                <th>{{ translate('creation date') }}</th>
+                                <th>{{ translate('last update date') }}</th>
+                                <th>{{ translate('settings') }}</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                {{ $countries->links() }}
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach ($countries as $country)
+                                <tr>
+                                    <th scope="row">{{ $country->id }}</th>
+                                    <td>
+                                        <a
+                                            href="{{ route('countries.cities.index', $country->id) }}">{{ $country->name }}</a>
+                                    </td>
+                                    <td>{{ $country->code }}</td>
+                                    <td>{{ $country->cities->count() }}</td>
+                                    <td>
+                                        @if ($country->active)
+                                            <span class="badge badge-success">{{ translate('available') }}</span>
+                                        @else
+                                            <span class="badge badge-danger">{{ translate('not available') }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        {{ $country->created_at->diffForHumans() }}
+                                    </td>
+                                    <td>
+                                        {{ $country->updated_at->diffForHumans() }}
+                                    </td>
+                                    <td>
+                                        <div class="options d-flex">
+                                            @can('countries.edit')
+                                                <a class="btn btn-info mr-1" href="{{ route('countries.edit', $country) }}">
+                                                    <span>{{ translate('edit') }}</span>
+                                                    <span class="mdi mdi-circle-edit-outline"></span>
+                                                </a>
+                                            @endcan
+                                            @can('countries.destroy')
+                                                <button class="btn btn-danger" data-toggle="modal"
+                                                    data-target="#modal_{{ $country->id }}">
+                                                    <span>{{ translate('delete') }}</span>
+                                                    <span class="mdi mdi-delete-outline"></span>
+                                                </button>
+                                                <!-- Modal -->
+                                                @include('layouts.partials.modal', [
+                                                'id' => $country->id,
+                                                'route' => route('countries.destroy', $country->id)
+                                                ])
+                                            @endcan
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    {{ $countries->links() }}
+                </div>
+            @endif
         </div>
     </div>
 @endsection

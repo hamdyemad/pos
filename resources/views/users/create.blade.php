@@ -31,7 +31,7 @@
                                         <label for="branch_id">{{ translate('the branch') }}</label>
                                         <select class="form-control select2" name="branch_id">
                                             @foreach ($branches as $branch)
-                                            <option value="{{ $branch->id }}" @if (old('branch_id') ==  $branch->id) selected @endif>{{ $branch->name }}</option>
+                                            <option value="{{ $branch->id }}" @if (old('branch_id') ==  $branch->id) selected @endif>{{ translate($branch->name) }}</option>
                                             @endforeach
                                         </select>
                                         @error('branch_id')
