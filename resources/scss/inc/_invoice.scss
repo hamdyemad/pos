@@ -1,17 +1,190 @@
 .invoice {
-    img {
-        width: 100px;
-        height: 100px;
-        @media (max-width: 991px) {
-            width: 70px;
-            height: 70px;
+    .client_info {
+        margin: 10px 0;
+        .client_head {
+                display: flex;
+                justify-content: space-between;
+                @media(max-width: 991px) {
+                    align-items: center;
+                }
+            .first {
+                display: flex;
+                align-items: center;
+                width: max-content;
+                background-color: #f2f2f2;
+                color: #969696;
+                font-weight: bold;
+                padding: 10px;
+                border-radius: 25px 5px 0 0;
+                h4 {
+                    margin: 0;
+                    width: max-content;
+                    @media(max-width: 991px) {
+                        font-size: 14px;
+                    }
+                }
+                img {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    margin-right: 5px;
+                }
+            }
+            .barcode {
+                margin: 5px 0;
+                width: 250px;
+                height: 40px;
+                @media(max-width: 991px) {
+                    width: 130px;
+                    height: 30px;
+                }
+            }
+        }
+        .infos {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f2f2f2;
+            color: #969696;
+            font-weight: bold;
+            @media(max-width: 991px) {
+                flex-direction: column;
+                align-items: inherit;
+                font-size: 12px;
+            }
+            .info {
+                padding: 15px;
+                @media(max-width: 991px) {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+
+                }
+                .second_line {
+                    color: #000;
+                    margin-top: 10px;
+                    display: flex;
+                    align-items: center;
+                    i {
+                        margin-right: 5px;
+                        background: #b1b1b1;
+                        width: 30px;
+                        height: 30px;
+                        line-height: 30px;
+                        text-align: center;
+                        font-size: 16px;
+                        border-radius: 50%;
+                        color: #fff;
+                    }
+                }
+            }
         }
     }
-    .line {
-        padding-right: 10px;
+    .cards {
+        .card {
+            margin: 10px 0;
+            .card-body {
+                img {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 50%;
+                    margin-left: 15px;
+                }
+                .info_of_user {
+                    h3 {
+                        font-weight: bold;
+                        font-size: 18px;
+                        margin-bottom: 3px;
+                        @media(max-width: 991px) {
+                            font-size: 14px;
+                        }
+                    }
+                    .mobile {
+                        span {
+                            color: #ed7615;
+                        }
+                        a {
+                            text-decoration: none;
+                            color: #fff;
+                            background: #ed7615;
+                            border-radius: 25px;
+                            padding: 1px 8px;
+                            font-size: 13px;
+                            font-weight: bold;
+                            letter-spacing: 1px;
+                            span {
+                                color: #fff;
+                            }
+                        }
+                    }
+                    a {
+                        display: inline-block;
+                        margin-top: 8px;
+                        text-decoration: none;
+                        color: #ed7615;
+                        padding: 1px 8px;
+                        font-size: 13px;
+                        font-weight: bold;
+                        letter-spacing: 1px;
+                    }
+                }
+            }
+        }
     }
-    strong {
-        display: inline-block;
-        width: max-content;
+    .products {
+        thead tr {
+            @media(max-width: 991px) {
+                display: none;
+            }
+        }
+        tbody {
+            td,tr {
+                @media(max-width: 991px) {
+                    display: block !important;
+                }
+            }
+            @media(max-width: 991px) {
+                display: block;
+            }
+            .box {
+                box-shadow: 0px 0px 8px 4px #ececec;
+                padding: 5px;
+                border-radius: 5px;
+                margin-bottom: 5px;
+            }
+            .comp-title {
+                @media(max-width: 991px) {
+                    display: none;
+                }
+            }
+            .mobile {
+                @media(min-width: 992px) {
+                    display: none;
+                }
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-weight: bold;
+                margin: 0;
+                box-shadow: 0px 0px 4px 3px #f1f1f1;
+                padding: 3px 10px;
+            }
+            .comp-td {
+                @media(max-width: 991px) {
+                    display: none !important;
+                }
+            }
+            .media {
+                @media(max-width: 991px) {
+                    align-items: center;
+                    flex-direction: column;
+                }
+                img {
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50%;
+                }
+            }
+        }
     }
 }

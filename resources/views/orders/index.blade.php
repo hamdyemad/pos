@@ -144,179 +144,177 @@
                 @if (count($orders) < 1)
                     <div class="alert alert-info">{{ translate('there is no orders') }}</div>
                 @else
-                    <div class="table-responsive">
-                        <table class="table mb-0">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <input class="form-control select_all" type="checkbox">
-                                    </th>
-                                    <th><span>{{ translate('order number') }}</span></th>
-                                    <th><span>{{ translate('currency') }}</span></th>
-                                    <th><span>{{ translate('customer name') }}</span></th>
-                                    <th><span>{{ translate('customer address') }}</span></th>
-                                    <th><span>{{ translate('city') }}</span></th>
-                                    <th><span>{{ translate('customer phone') }}</span></th>
-                                    <th><span>{{ translate('order status') }}</span></th>
-                                    <th><span>{{ translate('paid') }}</span></th>
-                                    <th><span>{{ translate('order branch') }}</span></th>
-                                    <th><span>{{ translate('creation date') }}</span></th>
-                                    <th><span>{{ translate('last update date') }}</span></th>
-                                    <th><span>{{ translate('settings') }}</span></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($orders as $order)
-                                    <tr id="{{ $order->id }}" data-value="{{ $order }}">
-                                        <th><input class="form-control" name="orders[]" value="{{ $order->id }}"  form="shipping_invoice" type="checkbox"></th>
-                                        <th>{{ $order->id }}</th>
-                                        <th>{{ $order->currency->code }}</th>
-                                        @if($order->customer_name)
-                                            <td>{{ $order->customer_name }}</td>
+                    <table class="table table-hover d-block overflow-auto mb-0">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input class="form-control select_all" type="checkbox">
+                                </th>
+                                <th><span>{{ translate('order number') }}</span></th>
+                                <th><span>{{ translate('currency') }}</span></th>
+                                <th><span>{{ translate('customer name') }}</span></th>
+                                <th><span>{{ translate('customer address') }}</span></th>
+                                <th><span>{{ translate('city') }}</span></th>
+                                <th><span>{{ translate('customer phone') }}</span></th>
+                                <th><span>{{ translate('order status') }}</span></th>
+                                <th><span>{{ translate('paid') }}</span></th>
+                                <th><span>{{ translate('order branch') }}</span></th>
+                                <th><span>{{ translate('creation date') }}</span></th>
+                                <th><span>{{ translate('last update date') }}</span></th>
+                                <th><span>{{ translate('settings') }}</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($orders as $order)
+                                <tr id="{{ $order->id }}" data-value="{{ $order }}">
+                                    <th><input class="form-control" name="orders[]" value="{{ $order->id }}"  form="shipping_invoice" type="checkbox"></th>
+                                    <th>{{ $order->id }}</th>
+                                    <th>{{ $order->currency->code }}</th>
+                                    @if($order->customer_name)
+                                        <td>{{ $order->customer_name }}</td>
+                                    @else
+                                        <td>
+                                            --
+                                        </td>
+                                    @endif
+                                    @if($order->customer_address)
+                                        <td>{{ $order->customer_address }}</td>
+                                    @else
+                                        <td>
+                                            --
+                                        </td>
+                                    @endif
+                                    @if($order->city)
+                                        <td>
+                                            {{ $order->city->name }}
+                                        </td>
+                                    @else
+                                        <td>
+                                            --
+                                        </td>
+                                    @endif
+                                    @if($order->customer_phone)
+                                        <td>{{ $order->customer_phone }}</td>
+                                    @else
+                                        <td>
+                                            --
+                                        </td>
+                                    @endif
+                                    <td>
+                                        <select class="form-control status select2">
+                                            @foreach ($statuses as $status)
+                                                <option value="{{ $status->id }}" @if($order->status_id == $status->id) selected @endif>{{ $status->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        @if($order->paid)
+                                        <span class="badge badge-success">{{ translate('yes') }}</span>
                                         @else
-                                            <td>
-                                                --
-                                            </td>
+                                        <span class="badge badge-danger">{{ translate('no') }}</span>
                                         @endif
-                                        @if($order->customer_address)
-                                            <td>{{ $order->customer_address }}</td>
-                                        @else
-                                            <td>
-                                                --
-                                            </td>
+                                    </td>
+                                    <td>
+                                        <div class="badge badge-primary p-2">({{ translate($order->branch->name) }})</div>
+                                        @if($order->type == 'online')
+                                            <div class="badge badge-info mt-2">{{ translate('online order') }}</div>
                                         @endif
-                                        @if($order->city)
-                                            <td>
-                                                {{ $order->city->name }}
-                                            </td>
-                                        @else
-                                            <td>
-                                                --
-                                            </td>
-                                        @endif
-                                        @if($order->customer_phone)
-                                            <td>{{ $order->customer_phone }}</td>
-                                        @else
-                                            <td>
-                                                --
-                                            </td>
-                                        @endif
-                                        <td>
-                                            <select class="form-control status select2">
-                                                @foreach ($statuses as $status)
-                                                    <option value="{{ $status->id }}" @if($order->status_id == $status->id) selected @endif>{{ $status->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <td>
-                                            @if($order->paid)
-                                            <span class="badge badge-success">{{ translate('yes') }}</span>
-                                            @else
-                                            <span class="badge badge-danger">{{ translate('no') }}</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="badge badge-primary p-2">({{ translate($order->branch->name) }})</div>
-                                            @if($order->type == 'online')
-                                                <div class="badge badge-info mt-2">{{ translate('online order') }}</div>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span>{{ $order->created_at->diffForHumans() }}</span>
-                                        </td>
-                                        <td>
-                                            <span>{{ $order->updated_at->diffForHumans() }}</span>
-                                        </td>
-                                        <td>
-                                            <div class="options d-flex">
-                                                @can('orders.show')
-                                                    <a class="btn btn-success mr-1" href="{{ route('orders.show', $order) }}">
-                                                        <span>{{ translate('show') }}</span>
-                                                        <span class="mdi mdi-eye"></span>
-                                                    </a>
-                                                @endcan
-                                                @can('orders.edit')
-                                                    <a class="btn btn-info mr-1" href="{{ route('orders.edit', $order) }}">
-                                                        <span>{{ translate('edit') }}</span>
-                                                        <span class="mdi mdi-circle-edit-outline"></span>
-                                                    </a>
+                                    </td>
+                                    <td>
+                                        <span>{{ $order->created_at->diffForHumans() }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ $order->updated_at->diffForHumans() }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="options d-flex">
+                                            @can('orders.show')
+                                                <a class="btn btn-success mr-1" href="{{ route('orders.show', $order) }}">
+                                                    <span>{{ translate('show') }}</span>
+                                                    <span class="mdi mdi-eye"></span>
+                                                </a>
+                                            @endcan
+                                            @can('orders.edit')
+                                                <a class="btn btn-info mr-1" href="{{ route('orders.edit', $order) }}">
+                                                    <span>{{ translate('edit') }}</span>
+                                                    <span class="mdi mdi-circle-edit-outline"></span>
+                                                </a>
 
-                                                @endcan
-                                                @can('orders.destroy')
-                                                    <button class="btn btn-danger" data-toggle="modal"
-                                                        data-target="#modal_{{ $order->id }}">
-                                                        <span>{{ translate('delete') }}</span>
-                                                        <span class="mdi mdi-delete-outline"></span>
-                                                    </button>
-                                                    <!-- Modal -->
-                                                    @include('layouts.partials.modal', [
-                                                    'id' => $order->id,
-                                                    'route' => route('orders.destroy', $order->id)
-                                                    ])
-                                                @endcan
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="8">
-                                            <div class="products d-flex">
-                                                <div class="product-variants d-flex">
-                                                    @foreach ($order->order_details->groupBy('product_id') as $key => $orderProduct)
-                                                        @if(isset($orderProduct->groupBy('variant_type')['']))
-                                                            @foreach ($orderProduct->groupBy('variant_type')[''] as $variant)
-                                                                <ul class="variants">
-                                                                    <li><h6>{{ translate('name') }} : </h6><div class="badge badge-secondary rounded">{{ $variant->product->name }}</div></li>
-                                                                    <li><h6>{{ translate('price') }} :</h6> <div class="badge badge-info rounded">{{ $variant->price }}</div></li>
-                                                                    <li><h6>{{ translate('quantity') }} : </h6><div class="badge badge-info rounded">{{ $variant->qty }}</div></li>
-                                                                    <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ $variant->total_price }}</div></li>
-                                                                </ul>
-                                                            @endforeach
-                                                        @else
+                                            @endcan
+                                            @can('orders.destroy')
+                                                <button class="btn btn-danger" data-toggle="modal"
+                                                    data-target="#modal_{{ $order->id }}">
+                                                    <span>{{ translate('delete') }}</span>
+                                                    <span class="mdi mdi-delete-outline"></span>
+                                                </button>
+                                                <!-- Modal -->
+                                                @include('layouts.partials.modal', [
+                                                'id' => $order->id,
+                                                'route' => route('orders.destroy', $order->id)
+                                                ])
+                                            @endcan
+                                    </td>
+                                </tr>
+                                <tr id="{{ $order->id }}">
+                                    <td colspan="13">
+                                        <div class="products d-flex">
+                                            <div class="product-variants d-flex">
+                                                @foreach ($order->order_details->groupBy('product_id') as $key => $orderProduct)
+                                                    @if(isset($orderProduct->groupBy('variant_type')['']))
+                                                        @foreach ($orderProduct->groupBy('variant_type')[''] as $variant)
                                                             <ul class="variants">
-                                                                <li><h6>{{ translate('name') }} : </h6><div class="badge badge-secondary rounded">{{ \App\Models\Product::find($key)->name }}</div></li>
+                                                                <li><h6>{{ translate('name') }} : </h6><div class="badge badge-secondary rounded">{{ $variant->product->name }}</div></li>
+                                                                <li><h6>{{ translate('price') }} :</h6> <div class="badge badge-info rounded">{{ $variant->price }}</div></li>
+                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="badge badge-info rounded">{{ $variant->qty }}</div></li>
+                                                                <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ $variant->total_price }}</div></li>
                                                             </ul>
-                                                        @endif
-                                                        @if(isset($orderProduct->groupBy('variant_type')['size']))
-                                                            @foreach ($orderProduct->groupBy('variant_type')['size'] as $variant)
-                                                                <ul class="variants">
-                                                                    <li><h6>{{ translate('size') }} : </h6><div class="badge badge-info rounded">{{ $variant->variant }}</div></li>
-                                                                    <li><h6>{{ translate('price') }} :</h6> <div class="badge badge-info rounded">{{ $variant->price }}</div></li>
-                                                                    <li><h6>{{ translate('quantity') }} : </h6><div class="badge badge-info rounded">{{ $variant->qty }}</div></li>
-                                                                    <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ $variant->total_price }}</div></li>
-                                                                </ul>
-                                                            @endforeach
-                                                        @endif
-                                                        @if(isset($orderProduct->groupBy('variant_type')['extra']))
-                                                            @foreach ($orderProduct->groupBy('variant_type')['extra'] as $variant)
-                                                                <ul class="variants">
-                                                                    <li><h6>{{ translate('extra') }} : </h6><div class="badge badge-info rounded">{{ $variant->variant }}</div></li>
-                                                                    <li><h6>{{ translate('price') }} :</h6> <div class="badge badge-info rounded">{{ $variant->price }}</div></li>
-                                                                    <li><h6>{{ translate('quantity') }} : </h6><div class="badge badge-info rounded">{{ $variant->qty }}</div></li>
-                                                                    <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ $variant->total_price }}</div></li>
-                                                                </ul>
-                                                            @endforeach
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                                <div class="product-variants d-flex">
-                                                    <ul class="variants">
-                                                            <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ ($order->grand_total - $order->shipping )+ $order->total_discount }}</div></li>
-                                                            @if($order->shipping)
-                                                                <li><h6>{{ translate('shipping') }}: </h6><div class="badge badge-info rounded">{{ $order->shipping }}</div></li>
-                                                            @endif
-                                                            @if($order->total_discount)
-                                                                <li><h6>{{ translate('discount') }}: </h6><div class="badge badge-info rounded">{{ $order->total_discount }}</div></li>
-                                                            @endif
-                                                            <li><h6>{{ translate('final price') }} : </h6><div class="badge badge-info rounded">{{ $order->grand_total }}</div></li>
-                                                    </ul>
-                                                </div>
+                                                        @endforeach
+                                                    @else
+                                                        <ul class="variants">
+                                                            <li><h6>{{ translate('name') }} : </h6><div class="badge badge-secondary rounded">{{ \App\Models\Product::find($key)->name }}</div></li>
+                                                        </ul>
+                                                    @endif
+                                                    @if(isset($orderProduct->groupBy('variant_type')['size']))
+                                                        @foreach ($orderProduct->groupBy('variant_type')['size'] as $variant)
+                                                            <ul class="variants">
+                                                                <li><h6>{{ translate('size') }} : </h6><div class="badge badge-info rounded">{{ $variant->variant }}</div></li>
+                                                                <li><h6>{{ translate('price') }} :</h6> <div class="badge badge-info rounded">{{ $variant->price }}</div></li>
+                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="badge badge-info rounded">{{ $variant->qty }}</div></li>
+                                                                <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ $variant->total_price }}</div></li>
+                                                            </ul>
+                                                        @endforeach
+                                                    @endif
+                                                    @if(isset($orderProduct->groupBy('variant_type')['extra']))
+                                                        @foreach ($orderProduct->groupBy('variant_type')['extra'] as $variant)
+                                                            <ul class="variants">
+                                                                <li><h6>{{ translate('extra') }} : </h6><div class="badge badge-info rounded">{{ $variant->variant }}</div></li>
+                                                                <li><h6>{{ translate('price') }} :</h6> <div class="badge badge-info rounded">{{ $variant->price }}</div></li>
+                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="badge badge-info rounded">{{ $variant->qty }}</div></li>
+                                                                <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ $variant->total_price }}</div></li>
+                                                            </ul>
+                                                        @endforeach
+                                                    @endif
+                                                @endforeach
                                             </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                        {{ $orders->links() }}
-                    </div>
+                                            <div class="product-variants d-flex">
+                                                <ul class="variants">
+                                                        <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ ($order->grand_total - $order->shipping )+ $order->total_discount }}</div></li>
+                                                        @if($order->shipping)
+                                                            <li><h6>{{ translate('shipping') }}: </h6><div class="badge badge-info rounded">{{ $order->shipping }}</div></li>
+                                                        @endif
+                                                        @if($order->total_discount)
+                                                            <li><h6>{{ translate('discount') }}: </h6><div class="badge badge-info rounded">{{ $order->total_discount }}</div></li>
+                                                        @endif
+                                                        <li><h6>{{ translate('final price') }} : </h6><div class="badge badge-info rounded">{{ $order->grand_total }}</div></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    {{ $orders->links() }}
                 @endif
             </div>
         </div>
@@ -326,6 +324,11 @@
 
 @section('footerScript')
     <script>
+
+
+        $("tr").on('dblclick', function() {
+            location.assign("/admin/orders/" + $(this).attr('id'));
+        });
 
         $('#statusModal').on('shown.bs.modal', function () {
             console.log("yes")
