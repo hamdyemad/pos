@@ -31,22 +31,22 @@
                                     @enderror
                                 </div>
                             </div>
-                            @if(Auth::user()->type == 'admin')
-                            <div class="col-6">
-                                <div class="form-group">
-                                    <label for="category">{{ translate('the branch') }}</label>
-                                    <select class="form-control select2" name="branch_id">
-                                        <option value="">{{ translate('choose') }}</option>
-                                        @foreach ($branches as $branch)
-                                        <option value="{{ $branch->id }}" @if (old('branch_id') == $branch->id) selected @endif>{{ $branch->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('branch_id')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                            @if(Auth::user()->type == 'admin' || Auth::user()->role_type == 'online')
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="category">{{ translate('the branch') }}</label>
+                                        <select class="form-control select2" name="branch_id">
+                                            <option value="">{{ translate('choose') }}</option>
+                                            @foreach ($branches as $branch)
+                                            <option value="{{ $branch->id }}" @if (old('branch_id') == $branch->id) selected @endif>{{ $branch->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('branch_id')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
-                            @else
+                            @elseif(Auth::user()->role_type == 'inhouse')
                                 <input type="hidden" name="branch_id" value="{{ Auth::user()->branch_id }}">
                             @endif
                             <div class="col-6">

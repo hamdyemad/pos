@@ -32,4 +32,12 @@
             border-radius: 5px;
         }
     }
+
+    table {
+        @media(max-width: 991px) {
+            input  {
+                width: 150px;
+            }
+        }
+    }
 }

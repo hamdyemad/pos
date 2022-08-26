@@ -53,10 +53,13 @@ File: Main dark Css File
   width: 240px;
 }
 
+.logo a {
+  display: block;
+}
+
 .logo img {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
+  width: 100%;
+  height: 140px;
 }
 
 .logo .logo-sm {
@@ -4069,6 +4072,12 @@ body {
   border-radius: 5px;
 }
 
+@media (max-width: 991px) {
+  .admin .create_order table input {
+    width: 150px;
+  }
+}
+
 @media print {
   .admin .show_order .statuses_history {
     display: none;
@@ -4163,14 +4172,6 @@ body {
   border-radius: 50%;
 }
 
-.admin .all_users span {
-  width: -webkit-max-content;
-  width: -moz-max-content;
-  width: max-content;
-  -webkit-padding-start: 10px;
-          padding-inline-start: 10px;
-}
-
 .admin .all_users a,
 .admin .all_users button {
   display: flex;
@@ -4191,13 +4192,13 @@ body {
   }
 }
 
-.admin .all_users img {
+.admin .all_roles img {
   width: 70px;
   height: 70px;
   border-radius: 50%;
 }
 
-.admin .all_users span {
+.admin .all_roles span {
   width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
@@ -4205,8 +4206,8 @@ body {
           padding-inline-start: 10px;
 }
 
-.admin .all_users a,
-.admin .all_users button {
+.admin .all_roles a,
+.admin .all_roles button {
   display: flex;
   align-items: center;
   height: 100%;

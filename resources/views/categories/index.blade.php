@@ -61,14 +61,14 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>{{ translate('category name') }}</th>
-                                    <th>{{ translate('the branch') }}</th>
-                                    <th>{{ translate('products count') }}</th>
-                                    <th>{{ translate('available') }}</th>
-                                    <th>{{ translate('appearance number') }}</th>
-                                    <th>{{ translate('creation date') }}</th>
-                                    <th>{{ translate('last update date') }}</th>
-                                    <th>{{ translate('settings') }}</th>
+                                    <th><span class="max">{{ translate('category name') }}</span></th>
+                                    <th><span class="max">{{ translate('the branch') }}</span></th>
+                                    <th><span class="max">{{ translate('products count') }}</span></th>
+                                    <th><span class="max">{{ translate('available') }}</span></th>
+                                    <th><span class="max">{{ translate('appearance number') }}</span></th>
+                                    <th><span class="max">{{ translate('creation date') }}</span></th>
+                                    <th><span class="max">{{ translate('last update date') }}</span></th>
+                                    <th><span class="max">{{ translate('settings') }}</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -86,10 +86,15 @@
                                                 @endif
                                             </div>
                                         </td>
-                                        <td>{{ translate($category->branch->name) }}</td>
                                         <td>
-                                            <a
-                                                href="{{ route('products.index', ['category_id' => $category->id]) }}">{{ $category->products->count() }}</a>
+                                            @foreach ($category->branches as $branch)
+                                                {{ $branch->name }}
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('products.index', ['category_id' => $category->id]) }}">
+                                                {{ $category->products->count() }}
+                                            </a>
                                         </td>
                                         <td>
                                             @if($category->active)

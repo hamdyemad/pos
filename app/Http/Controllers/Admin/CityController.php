@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\City;
-use App\Models\CityPrice;
 use App\Models\Country;
-use App\Models\Currency;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -39,12 +37,7 @@ class CityController extends Controller
     public function create(Country $country)
     {
         $this->authorize('countries.create');
-        $currencies = Currency::all();
-        if(count($currencies) > 0) {
-            return view('countries.cities.create', compact('country', 'currencies'));
-        } else {
-            return redirect()->back()->with('error', translate('you should add currency first'));
-        }
+        return view('countries.cities.create', compact('country'));
     }
 
     /**
@@ -58,20 +51,20 @@ class CityController extends Controller
         $this->authorize('countries.create');
         $creation =  [
             'name' => $request->name,
+            'price' => $request->price,
             'country_id' => $request->country_id
         ];
         $rules = [
             'name' => 'required|string|unique:cities,name',
-            'prices.*.price' => 'required|regex:/^\d+(\.\d{1,2})?$/',
-            'prices.*.currency_id' => 'required|exists:currencies,id',
+            'price' => 'required|regex:/^\d+(\.\d{1,2})?$/',
             'country_id' => 'required|exists:countries,id'
         ];
         $messages = [
             'name.required' => translate('the name is required'),
             'name.unique' => translate('you should choose a name is not already exists'),
             'name.regex' => translate('the price should be a number'),
-            'prices.*.price.required' => translate('the price is required'),
-            'prices.*.price.regex' => translate('the price should be a number'),
+            'price.required' => translate('the price is required'),
+            'price.regex' => translate('the price should be a number'),
             'country_id.required' => translate('the country is required'),
             'country_id.exists' => translate('the name is required'),
         ];
@@ -80,13 +73,6 @@ class CityController extends Controller
             return redirect()->back()->withErrors($validator->errors())->with('error', translate('there is something error'))->withInput($request->all());
         }
         $city = City::create($creation);
-        foreach ($request->prices as $price) {
-            CityPrice::create([
-                'city_id' => $city->id,
-                'currency_id' => $price['currency_id'],
-                'price' => $price['price'],
-            ]);
-        }
         return redirect()->back()->with('success', translate('created successfully'));
     }
 
@@ -125,20 +111,20 @@ class CityController extends Controller
         $this->authorize('countries.edit');
         $creation =  [
             'name' => $request->name,
+            'price' => $request->price,
             'country_id' => $request->country_id
         ];
         $rules = [
             'name' => ['required','string', Rule::unique('cities', 'name')->ignore($city->id)],
-            'prices.*.price' => 'required|regex:/^\d+(\.\d{1,2})?$/|min:2',
-            'prices.*.currency_id' => 'required|exists:currencies,id',
+            'price' => 'required|regex:/^\d+(\.\d{1,2})?$/|min:2',
             'country_id' => 'required|exists:countries,id'
         ];
         $messages = [
             'name.required' => translate('the name is required'),
             'name.unique' => translate('you should choose a name is not already exists'),
             'name.regex' => translate('the price should be a number'),
-            'prices.*.price.required' => translate('the price is required'),
-            'prices.*.price.regex' => translate('the price should be a number'),
+            'price.required' => translate('the price is required'),
+            'price.regex' => translate('the price should be a number'),
             'country_id.required' => translate('the country is required'),
             'country_id.exists' => translate('the name is required'),
         ];
@@ -147,14 +133,6 @@ class CityController extends Controller
             return redirect()->back()->withErrors($validator->errors())->with('error', translate('there is something error'))->withInput($request->all());
         }
         $city->update($creation);
-        CityPrice::where('city_id', $city->id)->delete();
-        foreach ($request->prices as $price) {
-            CityPrice::create([
-                'city_id' => $city->id,
-                'currency_id' => $price['currency_id'],
-                'price' => $price['price'],
-            ]);
-        }
         return redirect()->back()->with('info', translate('updated successfully'));
     }
 

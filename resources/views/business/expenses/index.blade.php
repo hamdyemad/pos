@@ -9,7 +9,7 @@
 
     <div class="card">
         <div class="card-header">
-            <div class="d-flex justify-content-between">
+            <div class="d-block d-md-flex justify-content-between">
                 <h2>{{ $business->name . ' - ' . $business->branch->name}}</h2>
                 @can('expenses.create')
                     <a href="{{ route('expenses.create', ['type' => request('type')]) }}" class="btn btn-primary mb-2">{{ translate('create') }}</a>
@@ -18,7 +18,7 @@
             <form action="{{ route('expenses.index') }}" method="GET">
                 <input type="text" name="type" hidden value="{{ request('type') }}">
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-12 col-md-6">
                         <div class="form-group">
                             @if ($business->type == 'income')
                                 <label for="name">{{ translate('income name') }}</label>
@@ -28,7 +28,7 @@
                             <input class="form-control" name="name" type="text" value="{{ request('name') }}">
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-12 col-md-6">
                         <div class="form-group">
                             @if ($business->type == 'income')
                                 <label for="name">{{ translate("incomes owner's name") }}</label>
@@ -39,19 +39,19 @@
                                 value="{{ request('expense_for') }}">
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-12 col-md-6">
                         <div class="form-group">
                             <label for="name">{{ translate("phone") }}</label>
                             <input class="form-control" name="phone" type="text" value="{{ request('phone') }}">
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-12 col-md-6">
                         <div class="form-group">
                             <label for="name">{{ translate('the amount') }}</label>
                             <input class="form-control" name="price" type="text" value="{{ request('price') }}">
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-12 col-md-6">
                         <div class="form-group">
                             <label for="name"></label>
                             <input type="submit" value="{{ translate('search') }}" class="form-control btn btn-primary mt-1">
@@ -61,25 +61,27 @@
             </form>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table mb-0">
+            @if(count($expenses) < 1)
+                <div class="alert alert-info">{{ translate('there is no results') }}</div>
+            @else
+                <table class="table d-block overflow-auto d-md-table mb-0">
 
                     <thead>
                         <tr>
                             <th>#</th>
                             @if ($business->type == 'income')
-                                <th>{{ translate('income name') }}</th>
-                                <th>{{ translate("incomes owner's name") }}</th>
+                                <th><span class="max">{{ translate('income name') }}</span></th>
+                                <th><span class="max">{{ translate("incomes owner's name") }}</span></th>
                             @else
-                                <th>{{ translate('expense name') }}</th>
-                                <th>{{ translate("expenses owner's name") }}</th>
+                                <th><span class="max">{{ translate('expense name') }}</span></th>
+                                <th><span class="max">{{ translate("expenses owner's name") }}</span></th>
                             @endif
-                            <th>{{ translate('the phone') }}</th>
-                            <th>{{ translate('the amount') }}</th>
-                            <th>{{ translate('the notes') }}</th>
-                            <th>{{ translate('creation date') }}</th>
-                            <th>{{ translate('last update date') }}</th>
-                            <th>{{ translate('settings') }}</th>
+                            <th><span class="max">{{ translate('the phone') }}</span></th>
+                            <th><span class="max">{{ translate('the amount') }}</span></th>
+                            <th><span class="max">{{ translate('the notes') }}</span></th>
+                            <th><span class="max">{{ translate('creation date') }}</span></th>
+                            <th><span class="max">{{ translate('last update date') }}</span></th>
+                            <th><span class="max">{{ translate('settings') }}</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -124,7 +126,7 @@
                     </tbody>
                 </table>
                 {{ $expenses->links() }}
-            </div>
+            @endif
         </div>
     </div>
 @endsection

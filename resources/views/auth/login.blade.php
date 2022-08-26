@@ -24,12 +24,12 @@
                                 <form method="POST" class="form-horizontal mt-4" action="{{ route('login') }}">
                                     @csrf
                                     <div class="form-group">
-                                        <label for="username">{{ translate('email') }}</label>
-                                        <input id="email" type="text"
-                                            class="form-control @error('email') is-invalid @enderror" name="email"
-                                            value="{{ old('email') }}" autocomplete="email" autofocus
-                                            placeholder="{{ translate('email') }}">
-                                        @error('email')
+                                        <label for="username">{{ translate('username') }}</label>
+                                        <input id="username" type="text"
+                                            class="form-control @error('username') is-invalid @enderror" name="username"
+                                            value="{{ old('username') }}" autocomplete="username" autofocus
+                                            placeholder="{{ translate('username') }}">
+                                        @error('username')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
                                             </span>

@@ -17,7 +17,6 @@ class CreateOrdersTable extends Migration
             $table->id();
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->unsignedBigInteger('status_id');
-            $table->unsignedBigInteger('currency_id');
             $table->unsignedBigInteger('city_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->boolean('paid')->default(0);
@@ -31,7 +30,6 @@ class CreateOrdersTable extends Migration
             $table->double('grand_total');
             $table->foreign('city_id')->on('cities')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('status_id')->on('statuses')->references('id')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('currency_id')->on('currencies')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('branch_id')->on('branches')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('user_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();

@@ -68,6 +68,9 @@ Route::group([
             // Orders
             Route::group(['prefix' => 'orders', 'as' => 'orders.'], function() {
                 Route::get('/', 'OrderController@index')->name('index');
+
+                Route::get('/with_bin_codes', 'OrderController@with_bin_codes')->name('with_bin_codes');
+
                 Route::post('/', 'OrderController@store')->name('store');
                 Route::post('/status', 'OrderController@updateStatus')->name('status_update');
                 Route::post('/statuses', 'OrderController@updateStatusOfOrders')->name('status_all_update');
@@ -77,8 +80,19 @@ Route::group([
                 Route::get('/{order}', 'OrderController@show')->name('show');
                 Route::get('/{order}/pdf', 'OrderController@pdf')->name('pdf');
 
+                Route::post('/{order}/approve', 'OrderController@approve')->name('approve');
+
                 Route::patch('/{order}', 'OrderController@update')->name('update');
                 Route::delete('/{order}', 'OrderController@destroy')->name('destroy');
+            });
+
+            // Coupons
+            Route::group(['prefix' => 'coupons', 'as' => 'coupons.'], function() {
+                Route::get('/', 'CouponController@index')->name('index');
+                Route::get('/create', 'CouponController@create')->name('create');
+                Route::post('/', 'CouponController@store')->name('store');
+                Route::post('/coupon_getter', 'CouponController@show')->name('show');
+                Route::delete('/{coupon}', 'CouponController@destroy')->name('destroy');
             });
 
             // Statuses
@@ -112,12 +126,6 @@ Route::group([
                 Route::get('/edit/{business}', 'BusinessController@edit')->name('edit');
                 Route::patch('/{business}', 'BusinessController@update')->name('update');
                 Route::delete('/{business}', 'BusinessController@destroy')->name('destroy');
-            });
-
-            // Currencies
-            Route::group(['prefix' => 'currencies', 'as' => 'currencies.'], function() {
-                Route::get('/', 'CurrencyController@index')->name('index');
-                Route::patch('/{currency}', 'CurrencyController@update')->name('update');
             });
 
 

@@ -32,7 +32,7 @@
                                     <tr>
                                         <td>{{ $status_history->user->name }}</td>
                                         <td>{{ $status_history->status->name }}</td>
-                                        <td>{{ $status_history->created_at->diffForHumans() }}</td>
+                                        <td>{{ $status_history->created_at }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

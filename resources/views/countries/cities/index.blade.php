@@ -43,6 +43,7 @@
                         <tr>
                             <th>#</th>
                             <th><div class="full_width">{{ translate('city name') }}</div></th>
+                            <th><div class="full_width">{{ translate('price') }}</div></th>
                             <th><div class="full_width">{{ translate('creation date') }}</div></th>
                             <th><div class="full_width">{{ translate('last update date') }}</div></th>
                             <th><div class="full_width">{{ translate('settings') }}</div></th>
@@ -54,6 +55,9 @@
                                 <th scope="row">{{ $city->id }}</th>
                                 <td>
                                     {{ $city->name }}
+                                </td>
+                                <td>
+                                    {{ $city->price }}
                                 </td>
                                 <td>
                                     <div class="full_width">{{ $city->created_at->diffForHumans() }}</div>
@@ -79,18 +83,6 @@
                                         'route' => route('countries.cities.destroy', ['country' => $country->id, 'city' =>
                                         $city->id])
                                         ])
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="5">
-                                    <ul>
-                                        @foreach ($city->prices as $price)
-                                            <li>
-                                                <span class="code">{{ $price->currency->code }}</span>
-                                                <span>{{ $price->price }}</span>
-                                            </li>
-                                        @endforeach
-                                    </ul>
                                 </td>
                             </tr>
                         @endforeach

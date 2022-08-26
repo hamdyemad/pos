@@ -42,11 +42,24 @@
                                 <input class="form-control" name="phone" type="text" value="{{ request('phone') }}">
                             </div>
                         </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <label for="category">{{ translate('role type') }}</label>
+                                <select class="form-control role_type_select select2 select2-multiple" name="role_type">
+                                    <option value="">{{ translate('choose') }}</option>
+                                    <option value="online" @if(request('role_type') == 'online') selected @endif>{{ translate('online') }}</option>
+                                    <option value="inhouse" @if(request('role_type') == 'inhouse') selected @endif>{{ translate('inhouse') }}</option>
+                                </select>
+                                @error('role_type')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                         @if(Auth::user()->type == 'admin')
-                            <div class="col-12 col-md-6">
+                            <div class="col-12 col-md-6 branch_col d-none">
                                 <div class="form-group">
                                     <label for="branch_id">{{ translate('the branch') }}</label>
-                                    <select class="form-control" name="branch_id">
+                                    <select class="form-control select2" name="branch_id">
                                         <option value="">{{ translate('choose') }}</option>
                                         @foreach ($branches as $branch)
                                         <option value="{{ $branch->id }}" @if (request('branch_id') ==  $branch->id) selected @endif>{{ $branch->name }}</option>
@@ -61,7 +74,7 @@
                         <div class="col-12 col-md-6">
                             <div class="form-group">
                                 <label for="banned">{{ translate('banned') }}</label>
-                                <select class="form-control" name="banned">
+                                <select class="form-control select2" name="banned">
                                     <option value="">{{ translate('choose') }}</option>
                                     <option value="1" @if (request('banned') == 1) selected @endif>{{ translate('banned') }}</option>
                                     <option value="2" @if (request('banned') == 2) selected @endif>{{ translate('not banned') }}</option>
@@ -78,21 +91,23 @@
                 </form>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table mb-0">
+                @if(count($users) < 1)
+                    <div class="alert alert-info">{{ translate ('there is no results') }}</div>
+                @else
+                    <table class="table d-block overflow-auto mb-0">
 
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>{{ translate('branch') }}</th>
-                                <th>{{ translate('employee name') }}</th>
-                                <th>{{ translate('email') }}</th>
-                                <th>{{ translate('permessions') }}</th>
-                                <th>{{ translate('phone') }}</th>
-                                <th>{{ translate('address') }}</th>
-                                <th>{{ translate('banned') }}</th>
-                                <th>{{ translate('creation date') }}</th>
-                                <th>{{ translate('last update date') }}</th>
+                                <th><span class="max">{{ translate('branch') }}</span></th>
+                                <th><span class="max">{{ translate('role type') }}</span></th>
+                                <th><span class="max">{{ translate('employee name') }}</span></th>
+                                <th><span class="max">{{ translate('email') }}</span></th>
+                                <th><span class="max">{{ translate('permessions') }}</span></th>
+                                <th><span class="max">{{ translate('phone') }}</span></th>
+                                <th><span class="max">{{ translate('address') }}</span></th>
+                                <th><span class="max">{{ translate('banned') }}</span></th>
+                                <th><span class="max">{{ translate('creation date') }}</span></th>
                                 <th>{{ translate('settings') }}</th>
                             </tr>
                         </thead>
@@ -102,9 +117,16 @@
                                     <th scope="row">{{ $user->id }}</th>
                                     @if($user->branch)
                                         <td>
-                                            <div class="badge badge-primary p-2">{{ translate('employee in') }} : ({{ $user->branch->name }})</div>
+                                            <div class="max p-2 font-size-16">{{ translate('employee in') }} : <div class="badge badge-primary p-2 font-size-16">({{ $user->branch->name }})</div></div>
                                         </td>
+                                    @else
+                                    <td>
+                                        --
+                                    </td>
                                     @endif
+                                    <td>
+                                        {{ translate($user->role_type) }}
+                                    </td>
                                     <td>
                                         <div class="d-flex">
                                             @if ($user->avatar)
@@ -141,9 +163,6 @@
                                         {{ $user->created_at->diffForHumans() }}
                                     </td>
                                     <td>
-                                        {{ $user->updated_at->diffForHumans() }}
-                                    </td>
-                                    <td>
                                         <div class="options d-flex">
                                             @can('users.edit')
                                                 <a class="btn btn-info mr-1" href="{{ route('users.edit', $user) . '?type=' . $user->type }}">
@@ -169,8 +188,26 @@
                         </tbody>
                     </table>
                     {{ $users->links() }}
-                </div>
+                @endif
             </div>
         </div>
     </div>
+@endsection
+
+
+@section('footerScript')
+    <script>
+        if($(".role_type_select").val() == 'inhouse') {
+            $(".branch_col").removeClass('d-none');
+        } else {
+            $(".branch_col").addClass('d-none');
+        }
+        $(".role_type_select").on('change', function() {
+            if($(this).val() == 'inhouse') {
+                $(".branch_col").removeClass('d-none');
+            } else {
+                $(".branch_col").addClass('d-none');
+            }
+        });
+    </script>
 @endsection

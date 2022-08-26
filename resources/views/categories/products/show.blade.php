@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-معلومات عن ({{ $product->name }})
+{{ translate('information about') . ' ' . $product->name }}
 @endsection
 
 @section('content')
@@ -17,7 +17,7 @@
         <div class="card">
             <div class="card-header text-center text-md-left flex-column-reverse d-flex flex-md-row justify-content-between">
                 <div class="text-left">
-                    <h1>معلومات عن ({{ $product->name }})</h1>
+                    <h1>{{ translate('information about') . ' ' . $product->name }}</h1>
                 </div>
             </div>
             <div class="card-body">
@@ -37,18 +37,18 @@
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
-                                <th>الحجم</th>
-                                <th>السعر</th>
-                                <th>الخصم</th>
-                                <th><span class="max">السعر بعد الخصم</span></th>
+                                <th>{{ translate('size') }}</th>
+                                <th>{{ translate('price') }}</th>
+                                <th>{{ translate('discount') }}</th>
+                                <th><span class="max">{{ translate('price after discount') }}</span></th>
                             </thead>
                             <tbody>
                                 @foreach ($product->variants->groupBy('type')['size'] as $variant)
                                     <tr>
                                         <td>{{ $variant->variant }}</td>
-                                        <td>{{ $variant->price }}</td>
-                                        <td>{{ $variant->discount }}</td>
-                                        <td>{{ $variant->price_after_discount }}</td>
+                                        <td>{{ $variant->price->price }}</td>
+                                        <td>{{ $variant->price->discount }}</td>
+                                        <td>{{ $variant->price->price_after_discount }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -59,14 +59,14 @@
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
-                                <th>الأضافة</th>
-                                <th>السعر</th>
+                                <th>{{ translate('extra') }}</th>
+                                <th>{{ translate('price') }}</th>
                             </thead>
                             <tbody>
                                 @foreach ($product->variants->groupBy('type')['extra'] as $variant)
                                     <tr>
                                         <td>{{ $variant->variant }}</td>
-                                        <td>{{ $variant->price_after_discount }}</td>
+                                        <td>{{ $variant->price->price_after_discount }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -75,7 +75,7 @@
                     @endif
                 @endif
                 <a class="btn btn-info btn-block" href="{{ route('products.index') }}">
-                    الرجوع الى الأكلات
+                   {{ translate('back to products') }}
                 </a>
             </div>
         </div>

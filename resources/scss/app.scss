@@ -125,6 +125,7 @@ body {
     @import "./admin/orders/create";
     @import "./admin/orders/show";
     @import "./admin/orders/index";
+    @import "./admin/orders/edit";
 
     // Settings
     @import "./admin/settings/edit";
@@ -144,17 +145,6 @@ body {
     @import "./inc/invoice";
 }
 
-/*  Front End   */
-@import "./frontend/navbar";
-@import "./frontend/home";
-@import "./frontend/branch";
-@import "./frontend/product";
-@import "./frontend/cart";
-@import "./frontend/payment";
-@import "./frontend/order_confirmed";
-@import "./frontend/user/profile";
-@import "./frontend/inc/user_side_nav";
-@import "./frontend/footer";
 
 .select2 .select2-container, .select2-container--default, .select2-container--below {
     display: block !important;
@@ -205,6 +195,6 @@ body {
 
 
 .max {
-    display: block;
-    width: max-content;
+    display: block !important;
+    width: max-content !important;
 }

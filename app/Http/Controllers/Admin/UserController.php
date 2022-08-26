@@ -34,6 +34,9 @@ class UserController extends Controller
         if($request->name) {
             $users->where('name', 'like', '%' . $request->name . '%');
         }
+        if($request->role_type) {
+            $users->where('role_type', 'like', '%' . $request->role_type . '%');
+        }
         if($request->branch_id) {
             $users->where('branch_id', 'like', '%' . $request->branch_id . '%');
         }
@@ -50,15 +53,9 @@ class UserController extends Controller
         if(Auth::user()->type !== 'admin') {
             $users->where('branch_id', Auth::user()->branch_id);
         }
-        if($request->type == 'user') {
-            $users->where('type', 'user');
-            $users = $users->latest()->paginate(10);
-            return view('users.users_index', compact('users'));
-        } else {
-            $users->where('type', '!=' ,'user');
-            $users = $users->latest()->paginate(10);
-            return view('users.employee_index', compact('users', 'roles', 'branches'));
-        }
+        $users->where('type', '!=' ,'user');
+        $users = $users->latest()->paginate(10);
+        return view('users.employee_index', compact('users', 'roles', 'branches'));
 
     }
 
@@ -91,26 +88,34 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+
         $this->authorize('users.create');
         $creation = [
             'name' => $request->name,
+            'bin_code' => rand(1000, 10000),
             'email' => $request->email,
+            'role_type' => $request->role_type,
+            'username' => $request->username,
             'type' => $request->type,
             'address' => $request->address,
             'phone' => $request->phone,
             'password' => Hash::make($request->password)
         ];
-        if($request->order_type) {
-            $creation['order_type'] = $request->order_type;
-        }
-        if($request->branch_id) {
-            $creation['branch_id'] = $request->branch_id;
+        if($request->role_type == 'online') {
+            $request['branch_id'] = null;
         } else {
-            $creation['branch_id'] = 0;
+            if($request->branch_id) {
+                $creation['branch_id'] = $request->branch_id;
+            } else {
+                $creation['branch_id'] = null;
+            }
         }
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'bin_code' => ['unique:users,bin_code'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'username' => ['required', 'string','max:255', 'unique:users,username'],
+            'role_type' => ['required', 'in:inhouse,online'],
             'type' => ['required'],
             'branch_id' => 'nullable|exists:branches,id',
             'password' => ['required', 'string', 'min:8', 'confirmed'],
@@ -120,10 +125,19 @@ class UserController extends Controller
             'type.required' => translate('the type is required'),
             'name.string' => translate('the name should be letters'),
             'name.max' => translate('you should enter a letters at least 255'),
+
             'email.required' => translate('the email is required'),
             'email.string' => translate('the email sould be letters'),
             'email.max' => translate('you should enter a letters at least 255'),
             'email.unique' => translate('the email is already exists'),
+
+            'username.required' => translate('the username is required'),
+            'username.string' => translate('the username sould be letters'),
+            'username.max' => translate('you should enter a letters at least 255'),
+            'username.unique' => translate('the username is already exists'),
+
+            'role_type.required' => translate('role type is required'),
+            'role_type.in' => translate('role type is not exists'),
             'password.required' =>translate('the password is required'),
             'password.string' =>translate('the password sould be letters'),
             'password.min' =>translate('you should enter a password bigger than 8 letters'),
@@ -231,7 +245,7 @@ class UserController extends Controller
         if($request->branch_id) {
             $updateArray['branch_id'] = $request->branch_id;
         } else {
-            $updateArray['branch_id'] = 0;
+            $updateArray['branch_id'] = null;
         }
         $validator = Validator::make($request->all(), $rules, $messages);
         if($validator->fails()) {

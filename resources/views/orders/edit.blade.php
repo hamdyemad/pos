@@ -12,18 +12,42 @@
         @slot('route2') {{ route('orders.index') }} @endslot
         @slot('li3') {{ translate('edit order') }} @endslot
     @endcomponent
-    <div class="create_order">
+    <div class="create_order edit_order">
         <div class="container">
             <div class="card">
                 <div class="card-header">
                     {{ translate('edit order') }}
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('orders.update', $order) }}" method="POST">
+                    <form action="{{ route('orders.update', $order) }}" method="POST" enctype="multipart/form-data">
                         @method("PATCH")
                         @csrf
                         <div class="row">
-                            @if(Auth::user()->type == 'admin')
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="payment_method">{{ translate('payment method') }}</label>
+                                    <select class="form-control select2" name="payment_method">
+                                        <option value="cash" @if($order->payment_method == 'cash') selected @endif>{{ translate('cash') }}</option>
+                                        <option value="credit" @if($order->payment_method == 'credit') selected @endif>{{ translate('credit') }}</option>
+                                    </select>
+                                    @error('payment_method')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            @if(Auth::user()->type == 'admin' ||Auth::user()->role_type == 'online')
+                                <div class="col-12 col-md-6">
+                                    <div class="form-group">
+                                        <label for="type">{{ translate('order type') }}</label>
+                                        <select class="form-control order_type select2" name="type">
+                                            <option value="inhouse" @if($order->type == 'inhouse') selected @endif>{{ translate('receipt from the branch') }}</option>
+                                            <option value="online" @if($order->type == 'online') selected @endif>{{ translate('online order') }}</option>
+                                        </select>
+                                        @error('type')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                                 <div class="col-12 col-md-6 branch_col">
                                     <div class="form-group">
                                         <label for="branch_id">{{ translate('order branch creation') }}</label>
@@ -32,20 +56,15 @@
                                                 <option value="{{ $branch->id }}" @if($order->branch_id == $branch->id) selected @endif>{{ translate($branch->name) }}</option>
                                             @endforeach
                                         </select>
+                                        @error('branch_id')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
-                            @else
+                            @elseif(Auth::user()->role_type == 'inhouse')
+                                <input type="hidden" name="type" value="inhouse">
                                 <input type="hidden" name="branch_id" value="{{ Auth::user()->branch_id }}">
                             @endif
-                            <div class="col-12 col-md-6">
-                                <div class="form-group">
-                                    <label for="type">{{ translate('order type') }}</label>
-                                    <select class="form-control order_type select2" name="type">
-                                        <option value="inhouse" @if($order->type == 'inhouse') selected @endif>{{ translate('receipt from the branch') }}</option>
-                                        <option value="online" @if($order->type == 'online') selected @endif>{{ translate('online order') }}</option>
-                                    </select>
-                                </div>
-                            </div>
                             @if($order->type == 'online')
                                 <div class="col-12 col-md-6 country_col">
                                     <div class="form-group">
@@ -111,6 +130,31 @@
                                     @enderror
                                 </div>
                             </div>
+                            @if(Auth::user()->type == 'admin' || Auth::user()->role_type == 'online')
+                                <div class="col-12">
+                                    <div class="customized_files">
+                                        <div class="form-group">
+                                            <label for="name">{{translate('custom files')}}</label>
+                                            <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="customized_files[]">
+                                            <button type="button" class="btn btn-primary form-control files">
+                                                <span class="mdi mdi-plus btn-lg"></span>
+                                            </button>
+                                        </div>
+                                        @if($order->customized_files)
+                                            <h4>{{ translate('all files') }}</h4>
+                                            <ul class="all_files list-unstyled">
+                                                @foreach (json_decode($order->customized_files) as $customized_file)
+                                                    <li>
+                                                        <a target="_blank" href="{{ asset($customized_file) }}">
+                                                            {{ $loop->index + 1 }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
                             <div class="col-12">
                                 <div class="form-group">
                                     <label for="notes">{{ translate('notes') }}</label>
@@ -128,81 +172,68 @@
                                             <th>{{ translate('food name') }}</th>
                                             <th>{{ translate('price') }}</th>
                                             <th>{{ translate('quantity') }}</th>
+                                            <th>{{ translate('discount') }}</th>
                                             <th>{{ translate('total price') }}</th>
-                                            <th>{{ translate('size') }}</th>
-                                            <th>{{ translate('extra') }}</th>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
                                         </thead>
                                         <tbody>
                                             @foreach ($order->order_details->groupBy('product_id') as $key => $orderProductDetails)
                                                 @php
                                                     $product = \App\Models\Product::find($key);
                                                 @endphp
-                                                <tr class="{{ $product->id }}">
-                                                    <input type="hidden" value="products[{{ $product->id }}}]">
-                                                    <td>
-                                                        <div class="d-flex align-items-center">
-                                                            @if($product->photos)
-                                                                <img src="{{ asset(json_decode($product->photos)[0]) }}" alt="">
-                                                            @else
-                                                                <img src="{{ asset('/images/product_avatar.png') }}" alt="">
+                                                @if($product)
+                                                    <tr class="{{ $product->id }}">
+                                                        <input type="hidden" value="products[{{ $product->id }}}]">
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                @if($product->photos)
+                                                                    <img src="{{ asset(json_decode($product->photos)[0]) }}" alt="">
+                                                                @else
+                                                                    <img src="{{ asset('/images/product_avatar.png') }}" alt="">
+                                                                @endif
+                                                                <span>{{ $product->name }}</span>
+                                                            </div>
+                                                        </td>
+                                                        @php
+                                                            $nullableOrderDetail = $orderProductDetails->where('variant_type', null)->first();
+                                                        @endphp
+                                                        @if($nullableOrderDetail)
+                                                            <td>
+                                                                <div class="price">{{ $nullableOrderDetail->price }}</div>
+                                                            </td>
+                                                            <td>
+                                                                <input class="form-control amount" value="{{ $nullableOrderDetail->qty }}" min="1" type="number" name="products[{{ $product->id }}][amount]">
+                                                            </td>
+                                                            <td>
+                                                                <input class="form-control product_discount" value="{{ $nullableOrderDetail->discount }}" type="number" name="products[{{ $product->id }}][discount]">
+                                                            </td>
+                                                            <td>
+                                                                <div class="total_price">{{ $nullableOrderDetail->total_price - $nullableOrderDetail->discount }}</div>
+                                                            </td>
+                                                        @endif
+                                                        <td>
+                                                            @if(count($product->variants->where('type', 'size')) > 0)
+                                                                <ul class="select_variant size_select">
+                                                                    @foreach ($product->variants->where('type', 'size') as $variant)
+                                                                        <li class="variant @if($order->order_details->where('variant', $variant->variant)->first()) active @endif" data-variant="{{ $variant->type }}" data-variant_value='{{ $variant }}' data-variant_price="{{ $variant->currenctPriceOfVariant }}" data-product_value='{{ $product }}' data-id="size-{{ $variant->id }}">
+                                                                            {{ $variant->variant }}
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
                                                             @endif
-                                                            <span>{{ $product->name }}</span>
-                                                        </div>
-                                                    </td>
-                                                    @php
-                                                        $nullableOrderDetail = $orderProductDetails->where('variant_type', null)->first();
-                                                    @endphp
-                                                    @if($nullableOrderDetail)
-                                                        <td>
-                                                            <div class="price">{{ $nullableOrderDetail->price }}</div>
                                                         </td>
                                                         <td>
-                                                            <input class="form-control amount" value="{{ $nullableOrderDetail->qty }}" min="1" type="number" name="products[{{ $product->id }}][amount]">
+                                                            @if(count($product->variants->where('type', 'extra')) > 0)
+                                                                <ul class="select_variant extra_select">
+                                                                    @foreach ($product->variants->where('type', 'extra') as $variant)
+                                                                        <li class="variant @if($order->order_details->where('variant', $variant->variant)->first()) active @endif" data-variant="{{ $variant->type }}" data-variant_value='{{ $variant }}' data-variant_price="{{ $variant->currenctPriceOfVariant }}" data-product_value='{{ $product }}' data-id="extra-{{ $variant->id }}">
+                                                                            {{ $variant->variant }}
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @endif
                                                         </td>
-                                                        <td>
-                                                            <div class="total_price">{{ $nullableOrderDetail->total_price }}</div>
-                                                        </td>
-                                                    @else
-                                                        <td>
-                                                            {{ translate('there is no price') }}
-                                                        </td>
-                                                        <td>
-                                                            {{ translate('there is no quantity') }}
-                                                        </td>
-                                                        <td>
-                                                            {{ translate('there is no total price') }}
-                                                        </td>
-                                                    @endif
-                                                    <td>
-                                                        @if(count($product->variants->where('type', 'size')) > 0)
-                                                            <ul class="select_variant size_select">
-                                                                @foreach ($product->variants->where('type', 'size') as $variant)
-                                                                    <li class="variant @if($order->order_details->where('variant', $variant->variant)->first()) active @endif" data-variant="{{ $variant->type }}" data-variant_value='{{ $variant }}' data-product_value='{{ $product }}' data-id="size-{{ $variant->id }}">
-                                                                        {{ $variant->variant }}
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        @else
-                                                        {{ translate('there is no sizes') }}
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if(count($product->variants->where('type', 'extra')) > 0)
-                                                            <ul class="select_variant extra_select">
-                                                                @foreach ($product->variants->where('type', 'extra') as $variant)
-                                                                    <li class="variant @if($order->order_details->where('variant', $variant->variant)->first()) active @endif" data-variant="{{ $variant->type }}" data-variant_value='{{ $variant }}' data-product_value='{{ $product }}' data-id="extra-{{ $variant->id }}">
-                                                                        {{ $variant->variant }}
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        @else
-                                                        {{ translate('there is no extras') }}
-                                                        @endif
-                                                    </td>
-                                                </tr>
+                                                    </tr>
+                                                @endif
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -213,43 +244,50 @@
                                                 <th>{{ translate('sizes') }}</th>
                                                 <th>{{ translate('price') }}</th>
                                                 <th>{{ translate('quantity') }}</th>
+                                                <th>{{ translate('discount') }}</th>
                                                 <th>{{ translate('total price') }}</th>
-                                                <th></th>
-                                                <th></th>
                                             </thead>
                                             <tbody>
                                                 @foreach ($order->order_details->where('variant_type', '!=', null)->where('variant_type', 'size') as $order_detail)
-                                                    <tr class="{{ $order_detail->product_id }}" id="{{ \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id}}">
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                @if($order_detail->product->photos)
-                                                                    <img src="{{ asset(json_decode($order_detail->product->photos)[0]) }}" alt="">
-                                                                @else
-                                                                    <img src="{{ asset('/images/product_avatar.png') }}" alt="">
-                                                                @endif
-                                                                <span>{{ $order_detail->product->name }}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            {{ $order_detail->variant }}
-                                                        </td>
-                                                        <td>
-                                                            <div class="price">{{ $order_detail->price }}</div>
-                                                        </td>
-                                                        <td>
-                                                            @php
-                                                                $variant = \App\Models\ProductVariant::where('product_id', $order_detail->product_id)->where('variant', $order_detail->variant)->first();
-                                                            @endphp
-                                                            <input class="form-control amount" name="products[{{ $order_detail->product_id }}][variants][{{ $variant->id }}][amount]" type="number" placeholder="{{ translate('quantity') }}" value="{{ $order_detail->qty }}" min="1">
-                                                            @error("products.*.$order_detail->variant_type.amount")
+                                                    @php
+                                                        $variant = \App\Models\ProductVariant::where('product_id', $order_detail->product_id)->where('variant', $order_detail->variant)->first();
+                                                    @endphp
+                                                    @if($variant)
+                                                        <tr class="{{ $order_detail->product_id }}" id="{{ \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id}}">
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    @if($order_detail->product->photos)
+                                                                        <img src="{{ asset(json_decode($order_detail->product->photos)[0]) }}" alt="">
+                                                                    @else
+                                                                        <img src="{{ asset('/images/product_avatar.png') }}" alt="">
+                                                                    @endif
+                                                                    <span>{{ $order_detail->product->name }}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                {{ $order_detail->variant }}
+                                                            </td>
+                                                            <td>
+                                                                <div class="price">{{ $order_detail->price }}</div>
+                                                            </td>
+                                                            <td>
+                                                                <input class="form-control amount" name="products[{{ $order_detail->product_id }}][variants][{{ $variant->id }}][amount]" type="number" placeholder="{{ translate('quantity') }}" value="{{ $order_detail->qty }}" min="1">
+                                                                @error("products.*.$order_detail->variant_type.amount")
                                                                 <div class="text-danger">{{ $message }}</div>
-                                                            @enderror
-                                                        </td>
+                                                                @enderror
+                                                            </td>
+                                                            <td>
+                                                                <input class="form-control product_discount" name="products[{{ $order_detail->product_id }}][variants][{{ $variant->id }}][discount]"  type="number" placeholder="{{ translate('discount') }}" value="{{ $order_detail->discount }}">
+                                                                @error("products.*.$order_detail->variant_type.discount")
+                                                                    <div class="text-danger">{{ $message }}</div>
+                                                                @enderror
+                                                            </td>
 
-                                                        <td>
-                                                            <div class="total_price">{{ $order_detail->total_price }}</div>
-                                                        </td>
-                                                    </tr>
+                                                            <td>
+                                                                <div class="total_price">{{ $order_detail->total_price }}</div>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
                                                 @endforeach
                                             </tbody>
                                         </table>
@@ -261,43 +299,52 @@
                                                 <th>{{ translate('extras') }}</th>
                                                 <th>{{ translate('price') }}</th>
                                                 <th>{{ translate('quantity') }}</th>
+                                                <th>{{ translate('discount') }}</th>
                                                 <th>{{ translate('total price') }}</th>
-                                                <th></th>
-                                                <th></th>
                                             </thead>
                                             <tbody>
                                                 @foreach ($order->order_details->where('variant_type', '!=', null)->where('variant_type', 'extra') as $order_detail)
-                                                    <tr class="{{ $order_detail->product_id }}" id="{{ \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id}}">
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                @if($order_detail->product->photos)
-                                                                    <img src="{{ asset(json_decode($order_detail->product->photos)[0]) }}" alt="">
-                                                                @else
-                                                                    <img src="{{ asset('/images/product_avatar.png') }}" alt="">
-                                                                @endif
-                                                                <span>{{ $order_detail->product->name }}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            {{ $order_detail->variant }}
-                                                        </td>
-                                                        <td>
-                                                            <div class="price">{{ $order_detail->price }}</div>
-                                                        </td>
-                                                        @php
-                                                            $variant = \App\Models\ProductVariant::where('product_id', $order_detail->product_id)->where('variant', $order_detail->variant)->first();
-                                                        @endphp
-                                                        <td>
-                                                            <input class="form-control amount" name="products[{{ $order_detail->product_id }}][variants][{{ $variant->id }}][amount]" type="number" placeholder="{{ translate('quantity') }}" value="{{ $order_detail->qty }}" min="1">
-                                                            @error("products.*.$order_detail->variant_type.amount")
-                                                                <div class="text-danger">{{ $message }}</div>
-                                                            @enderror
-                                                        </td>
+                                                    @php
+                                                        $variant = \App\Models\ProductVariant::where('product_id', $order_detail->product_id)->where('variant', $order_detail->variant)->first();
+                                                    @endphp
+                                                    @if($variant)
+                                                        <tr class="{{ $order_detail->product_id }}"
+                                                            id="{{ \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id }}"
+                                                            >
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    @if($order_detail->product->photos)
+                                                                        <img src="{{ asset(json_decode($order_detail->product->photos)[0]) }}" alt="">
+                                                                    @else
+                                                                        <img src="{{ asset('/images/product_avatar.png') }}" alt="">
+                                                                    @endif
+                                                                    <span>{{ $order_detail->product->name }}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                {{ $order_detail->variant }}
+                                                            </td>
+                                                            <td>
+                                                                <div class="price">{{ $order_detail->price }}</div>
+                                                            </td>
+                                                            <td>
+                                                                <input class="form-control amount" name="products[{{ $order_detail->product_id }}][variants][{{ $variant->id }}][amount]" type="number" placeholder="{{ translate('quantity') }}" value="{{ $order_detail->qty }}" min="1">
+                                                                @error("products.*.$order_detail->variant_type.amount")
+                                                                    <div class="text-danger">{{ $message }}</div>
+                                                                @enderror
+                                                            </td>
+                                                            <td>
+                                                                <input class="form-control product_discount" name="products[{{ $order_detail->product_id }}][variants][{{ $variant->id }}][discount]" type="number" placeholder="{{ translate('discount') }}" value="{{ $order_detail->discount }}">
+                                                                @error("products.*.$order_detail->variant_type.discount")
+                                                                    <div class="text-danger">{{ $message }}</div>
+                                                                @enderror
+                                                            </td>
 
-                                                        <td>
-                                                            <div class="total_price">{{ $order_detail->total_price }}</div>
-                                                        </td>
-                                                    </tr>
+                                                            <td>
+                                                                <div class="total_price">{{ $order_detail->total_price }}</div>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
                                                 @endforeach
                                             </tbody>
                                         </table>
@@ -314,7 +361,6 @@
                                                     <td>{{ translate('total price') }}</td>
                                                     <td class="d-flex">
                                                         <div class="total_prices">{{ ($order->grand_total - $order->shipping) + $order->total_discount }}</div>
-                                                        <div class="currency">{{ $order->currency->code }}</div>
                                                     </td>
                                                 </tr>
                                                 @if($order->shipping)
@@ -322,7 +368,6 @@
                                                         <td>{{ translate('shipping') }}</td>
                                                         <td class="d-flex">
                                                             <div class="shipping">{{ $order->shipping }}</div>
-                                                            <div class="currency">{{ $order->currency->code }}</div>
                                                         </td>
                                                     </tr>
                                                 @endif
@@ -334,7 +379,6 @@
                                                     <td>{{ translate('price after discount') }}</td>
                                                     <td class="d-flex">
                                                         <div class="grand_total">{{ $order->grand_total - $order->total_discount }}</div>
-                                                        <div class="currency">{{ $order->currency->code }}</div>
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -391,6 +435,7 @@
         $(".order_type").on('change', function() {
             arrayOfValues = $(this).val();
             if (arrayOfValues.includes('online')) {
+                $(".branch_col").addClass('d-none');
                 $(this).parent().parent().after(address_col);
                 $(this).parent().parent().after(country_col);
                 $(".select_country").select2();
@@ -399,6 +444,7 @@
                 @endforeach
                 getCitiesByCountryId()
             } else {
+                $(".branch_col").removeClass('d-none');
                 $('.shipping_tr').addClass('d-none');
                 $(".address_col").remove();
                 $(".country_col").remove();
@@ -410,6 +456,15 @@
             getFullPrice();
         })
 
+
+        arrayOfValues = $('.order_type').val();
+        if (arrayOfValues.includes('online')) {
+            $(".branch_col").addClass('d-none');
+        } else {
+            $(".branch_col").removeClass('d-none');
+
+        }
+
         $(".branch_select").on('change', function() {
             $(".products_table").empty();
             $(".select_products").empty();
@@ -418,6 +473,8 @@
             getFullPrice();
             getProductsByBranchId($(".branch_select").val());
         });
+
+
         function getProductsByBranchId(branch_id) {
             let token = $("meta[name=_token]").attr('content');
             $.ajax({
@@ -435,6 +492,7 @@
                             <option value="${obj.id}" @if(is_array(old('products_search')) && in_array(${obj.id}, old('products_search'))) selected @endif>${obj.name}</option>
                             `);
                         })
+
                     } else {
                         toastr.error(res.message);
                     }
@@ -445,6 +503,12 @@
             });
         }
 
+        $(".branch_select").on('change', function() {
+            getProductsByBranchId($(this).val());
+        })
+        @if(Auth::user()->role_type == 'inhouse')
+            getProductsByBranchId($("[name=branch_id]").val());
+        @endif
 
         $(".select_city").on('change', function() {
             $(".shipping_tr .shipping").text($(".select_city option:selected").data('shipping'));
@@ -457,8 +521,7 @@
                 'method': 'POST',
                 'data': {
                     '_token': token,
-                    country_id: country_id,
-                    currency_id: $("[name=currency_id]").val()
+                    country_id: country_id
                 },
                 'url' : `{{ route('countries.cities.all') }}`,
                 'success': function(res) {
@@ -494,7 +557,7 @@
             });
         }
 
-    function getTrOfProductVariantTable(product,obj) {
+    function getTrOfProductVariantTable(product,obj, variant_price) {
         let photo = '';
         if(product.photos) {
             photo = ` <img src="{{ asset('${JSON.parse(product.photos)[0]}') }}" alt="">`;
@@ -512,7 +575,7 @@
                     ${obj.variant }
                 </td>
                 <td>
-                    <div class="price">${obj.currenct_price_of_variant.price_after_discount }</div>
+                    <div class="price">${variant_price.price_after_discount }</div>
                 </td>
                 <td>
                     <input class="form-control amount" name="products[${product.id}][variants][${obj.id}][amount]" min="1" type="number" placeholder="{{ translate('quantity') }}" value="1">
@@ -520,9 +583,12 @@
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
                 </td>
+                <td>
+                    <input class="form-control product_discount" name="products[${product.id}][variants][${obj.id}][discount]"  type="number" placeholder="{{ translate('quantity') }}" value="0">
+                </td>
 
                 <td>
-                    <div class="total_price">${obj.currenct_price_of_variant.price_after_discount }</div>
+                    <div class="total_price">${variant_price.price_after_discount }</div>
                 </td>
             </tr>
         `;
@@ -537,6 +603,7 @@
                     <th>{{ translate('sizes') }}</th>
                     <th>{{ translate('price') }}</th>
                     <th>{{ translate('quantity') }}</th>
+                    <th>{{ translate('discount') }}</th>
                     <th>{{ translate('total price') }}</th>
                     <th></th>
                     <th></th>
@@ -553,6 +620,7 @@
                     <th>{{ translate('extras') }}</th>
                     <th>{{ translate('price') }}</th>
                     <th>{{ translate('quantity') }}</th>
+                    <th>{{ translate('discount') }}</th>
                     <th>{{ translate('total price') }}</th>
                     <th></th>
                     <th></th>
@@ -589,11 +657,12 @@
         <table class="table variant_table">
             <thead>
                 <th>{{ translate('food name') }}</th>
-                <th>{{ translate('price') }}</th>
-                <th>{{ translate('quantity') }}</th>
-                <th>{{ translate('total price') }}</th>
-                <th>{{ translate('size') }}</th>
-                <th>{{ translate('extra') }}</th>
+                <th class="noraml_th">{{ translate('price') }}</th>
+                <th class="noraml_th">{{ translate('quantity') }}</th>
+                <th class="noraml_th">{{ translate('discount') }}</th>
+                <th class="noraml_th">{{ translate('total price') }}</th>
+                <th class="size_th d-none">{{ translate('size') }}</th>
+                <th class="extra_th d-none">{{ translate('extra') }}</th>
             </thead>
             <tbody>
             </tbody>
@@ -601,27 +670,18 @@
         `;
     }
 
-    $(".select_products").on('change', function() {
-        if($(".select_products").val().length !== 0) {
-            $('.cart-of-total-container').removeClass('d-none');
-            $('.cart-of-total-container').addClass('d-block d-md-flex flex-row-reverse');
-        } else {
-            $('.cart-of-total-container').addClass('d-none');
-            $('.cart-of-total-container').removeClass('d-block d-md-flex flex-row-reverse');
-        }
-        getFullPrice();
-    });
+
 
     function getProductsWithAjax(productsIds) {
 
         $.ajax({
             'method': 'GET',
             'data': {
-                ids: productsIds,
-                currency_id: "{{ $order->currency_id }}"
+                ids: productsIds
             },
             'url' : "{{ route('products.all_by_ids') }}",
             'success': function(products) {
+
                 if(products.length !== 0) {
                     products.forEach(product => {
                         if(product.variants.length !==0) {
@@ -635,10 +695,22 @@
                             let sizeTypeArray = product.variants.filter((obj) => {
                                 return obj.type == 'size';
                             });
+
+                            if(sizeTypeArray.length !==0 && extraTypeArray.length !==0) {
+                                $(".noraml_th").addClass('d-none');
+                                $(".size_th").removeClass('d-none');
+                                $(".extra_th").removeClass('d-none');
+                            }
+                            if(sizeTypeArray.length !==0  && extraTypeArray.length ==0) {
+                                $(".noraml_th").addClass('d-none');
+                                $(".size_th").removeClass('d-none');
+                                $(".extra_th").removeClass('d-none');
+                            }
+                            if(extraTypeArray.length !== 0) {
+                                $(".extra_th").removeClass('d-none');
+                            }
+
                             if(sizeTypeArray.length !==0) {
-                                $(`.${product.id}`).append(`<td>{{ translate('there is no price') }}</td>`);
-                                $(`.${product.id}`).append(`<td>{{ translate('there is no quantity') }}</td>`);
-                                $(`.${product.id}`).append(`<td>{{ translate('there is no total price') }}</td>`);
                                 $(`.${product.id}`).append(`
                                     <td><ul class="select_variant size_select"></ul></td>
                                 `);
@@ -652,8 +724,8 @@
                             } else {
                                 $(`.${product.id}`).append(`<td><div class="price">${product.price_of_currency.price_after_discount}</div></td>`);
                                 $(`.${product.id}`).append(`<td><input class="form-control amount" value="1" min="1" type="number" name="products[${product.id}][amount]"></td>`);
+                                $(`.${product.id}`).append(`<td><input class="form-control product_discount" type="number" name="products[${product.id}][discount]"></td>`);
                                 $(`.${product.id}`).append(`<td><div class="total_price">${product.price_of_currency.price_after_discount}</div></td>`);
-                                $(`.${product.id}`).append(`<td>{{ translate('there is no sizes') }}</td>`);
                             }
                             if(extraTypeArray.length !==0) {
                                 $(`.${product.id}`).append(`
@@ -667,7 +739,7 @@
                                     `);
                                 });
                             } else {
-                                $(`.${product.id}`).append(`<td>{{ translate('there is no extras') }}</td>`);
+                                // $(`.${product.id}`).append(`<td>{{ translate('there is no extras') }}</td>`);
                             }
 
                         } else {
@@ -677,16 +749,17 @@
                             $(".products_table .variant_table tbody").append(getProductVariantHeadingTr(product))
                             $(`.${product.id}`).append(`<td><div class="price">${product.price_of_currency.price_after_discount}</div></td>`);
                             $(`.${product.id}`).append(`<td><input class="form-control amount" value="1" min="1" type="number" name="products[${product.id}][amount]"></td>`);
+                            $(`.${product.id}`).append(`<td><input class="form-control product_discount" type="number" name="products[${product.id}][discount]"></td>`);
                             $(`.${product.id}`).append(`<td><div class="total_price">${product.price_of_currency.price_after_discount}</div></td>`);
-                            $(`.${product.id}`).append(`<td>{{ translate('there is no sizes') }}</td>`);
-                            $(`.${product.id}`).append(`<td>{{ translate('there is no extras') }}</td>`);
-                            getFullPrice();
                         }
+                        getFullPrice();
+                        product_price();
                     });
                     $(".variant").click('click', function() {
                         let product = $(this).data('product_value');
                         $(this).toggleClass("active");
                         let variant = $(this).data('variant');
+                        console.log(variant)
                         if($(".products_table").find(`.${variant}-table`).length == 0) {
                             $(".products_table").append(getProductVariantTable(variant))
                         }
@@ -699,6 +772,7 @@
                             $(`.products_table .${variant}-table`).remove();
                         }
                         amountChange();
+                        product_price();
                         getFullPrice();
                     })
                     getFullPrice();
@@ -723,7 +797,7 @@
                 $(".products_table").append(getProductVariantTable(variant))
             }
             if($(this).hasClass("active")) {
-                $(`.products_table .${variant}-table tbody`).append(getTrOfProductVariantTable(product,$(this).data('variant_value')));
+                $(`.products_table .${variant}-table tbody`).append(getTrOfProductVariantTable(product,$(this).data('variant_value'), $(this).data('variant_price')));
             } else {
                 $(`.products_table .${variant}-table tbody #${$(this).data('variant_value').id}`).remove();
             }
@@ -731,6 +805,7 @@
                 $(`.products_table .${variant}-table`).remove();
             }
             amountChange();
+            product_price();
             getFullPrice();
         })
     }
@@ -766,6 +841,7 @@
         array.push($(child).val());
     })
 
+
     $(".select_products").on('change', function() {
         let arrayOfValues = $(this).val();
 
@@ -787,6 +863,16 @@
                 getProductsWithAjax(arrayOfValues);
             }
         }
+
+        if($(".select_products").val().length !== 0) {
+            $('.cart-of-total-container').removeClass('d-none');
+            $('.cart-of-total-container').addClass('d-block d-md-flex flex-row-reverse');
+        } else {
+            $('.cart-of-total-container').addClass('d-none');
+            $('.cart-of-total-container').removeClass('d-block d-md-flex flex-row-reverse');
+        }
+        getFullPrice();
+
         choice_on_click();
     });
 
@@ -826,7 +912,7 @@
 
         total_prices.text(prices);
         grandTotal.text((prices + shippping) - discount);
-        total_discount.on('keyup', function() {
+        total_discount.on('change', function() {
             let full_price = (prices +  shippping);
             full_price = full_price - $(this).val();
             grandTotal.text(full_price);
@@ -835,13 +921,29 @@
     getFullPrice();
 
     function amountChange() {
-        $(".amount").on('keyup', function() {
+        $(".amount").on('change', function() {
             let priceVal = parseFloat($(this).parent().parent().find('.price').text()),
             amountVal = parseFloat($(this).val());
             $(this).parent().parent().find('.total_price').text(priceVal * amountVal);
             getFullPrice();
         });
     }
+
+    function product_price() {
+        console.log("hello")
+        $(".product_discount").on('keyup', function() {
+            let priceVal = parseFloat($(this).parent().parent().find('.price').text()),
+                amount = parseFloat($(this).parent().parent().find('.amount').val()),
+                discountVal = parseFloat($(this).val()),
+                full_price = priceVal * amount;
+            $(this).parent().parent().find('.total_price').text(full_price - discountVal);
+            if(isNaN(full_price - discountVal)) {
+                $(this).parent().parent().find('.total_price').text(full_price);
+            }
+            getFullPrice();
+        });
+    }
+    product_price();
 
     </script>
 @endsection

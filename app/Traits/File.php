@@ -9,6 +9,7 @@ trait File
     public $categoriesPath = 'uploads/categories/';
     public $subCategoriesPath = 'uploads/sub-categories/';
     public $productsPath = 'uploads/products/';
+    public $ordersPath = 'uploads/orders/';
     public $usersPath = 'uploads/users/';
     public $projectPath = 'uploads/project/';
   /**

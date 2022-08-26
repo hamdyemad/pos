@@ -48,11 +48,7 @@
             @php
                 $status = App\Models\Status::where('default_val', 1)->first();
                 $orders_views_ids = App\Models\OrderView::where('user_id', Auth::id())->pluck('order_id');
-                if(Auth::user()->type == 'admin') {
-                    $orders = App\Models\Order::whereNotIn('id', $orders_views_ids)->latest()->get();
-                } else {
-                    $orders = App\Models\Order::whereNotIn('id', $orders_views_ids)->where('branch_id', Auth::user()->branch_id)->latest()->get();
-                }
+                $orders = App\Models\Order::whereNotIn('id', $orders_views_ids)->latest()->get();
             @endphp
             <div class="dropdown d-inline-block ml-1">
                 <button type="button" class="btn header-item noti-icon waves-effect"
@@ -131,7 +127,7 @@
                                         <h6 class="mt-0 mb-1">{{ translate('new order') }}</h6>
                                         <h6 class="mt-0 mb-1">{{ translate('status') }} : ({{ $order->status->name }})</h6>
                                         <div class="text-muted">
-                                            <p class="mb-1">{{ translate('foods count') }} : ({{ $order->order_details->groupBy('product_id')->count() }})</p>
+                                            <p class="mb-1">{{ translate('products count') }} : ({{ $order->order_details->groupBy('product_id')->count() }})</p>
                                         </div>
                                     </div>
                                 </div>

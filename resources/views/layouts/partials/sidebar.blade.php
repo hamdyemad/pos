@@ -1,11 +1,7 @@
  <!-- ========== Left Sidebar Start ========== -->
  @php
     $orders_views_ids = App\Models\OrderView::where('user_id', Auth::id())->pluck('order_id');
-    if(Auth::user()->type == 'admin') {
-        $orders_count = App\Models\Order::whereNotIn('id', $orders_views_ids)->latest()->get()->count();
-    } else {
-        $orders_count = App\Models\Order::whereNotIn('id', $orders_views_ids)->where('branch_id', Auth::user()->branch_id)->latest()->get()->count();
-    }
+    $orders_count = App\Models\Order::whereNotIn('id', $orders_views_ids)->latest()->get()->count();
 @endphp
  <div class="vertical-menu">
 
@@ -22,6 +18,9 @@
                      @endif
                  </a>
                  <span class="badge badge-primary d-block mt-2">{{ Auth::user()->name }}</span>
+                 @if(Auth::user()->bin_code)
+                    <span class="badge badge-primary d-block mt-2">{{ translate('bin code') }} {{ Auth::user()->bin_code }}</span>
+                 @endif
              </div>
              <!-- Left Menu Start -->
              <ul class="metismenu list-unstyled" id="side-menu">
@@ -47,13 +46,6 @@
                              <span>{{ translate('financial transactions') }}</span>
                          </a>
                          <ul class="sub-menu" aria-expanded="false">
-                            @can('currencies.index')
-                                <li>
-                                    <a href="{{ route('currencies.index') }}" class="waves-effect">
-                                        <span>{{ translate('currencies') }}</span>
-                                    </a>
-                                </li>
-                            @endcan
                              @can('business.all')
                                  <li>
                                      <a href="{{ route('business.all') }}" class="waves-effect">
@@ -83,28 +75,44 @@
                          </ul>
                      </li>
                  @endcan
-                 <li class="orders">
-                     <a href="javascript: void(0);" class="has-arrow waves-effect">
-                         <i class="mdi mdi-cart-outline"></i>
-                         @if($orders_count !== 0)
-                            <span class="badge badge-pill badge-primary float-right">{{ $orders_count }}</span>
-                         @endif
-                         <span>{{ translate('orders') }}</span>
-                        </a>
-                        <ul class="sub-menu" aria-expanded="false">
-                             @can('orders.index')
-                                <li><a href="{{ route('orders.index') }}">{{ translate('all orders') }}</a></li>
-                             @endcan
-                             @can('orders.create')
-                                 <li><a href="{{ route('orders.create') }}">{{ translate('create order') }}</a></li>
-                             @endcan
-                             @can('statuses.index')
-                             <li><a href="{{ route('statuses.index') }}">{{ translate('orders statuses') }}</a></li>
-                             @endcan
-                             @can('statuses.create')
-                                <li><a href="{{ route('statuses.create') }}">{{ translate('create orders statuses') }}</a></li>
-                             @endcan
-                         </ul>
+                <li class="orders">
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="mdi mdi-cart-outline"></i>
+                        @if($orders_count !== 0)
+                        <span class="badge badge-pill badge-primary float-right">{{ $orders_count }}</span>
+                        @endif
+                        <span>{{ translate('orders') }}</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                            @can('orders.index')
+                            <li><a href="{{ route('orders.index') }}">{{ translate('all orders') }}</a></li>
+                            @endcan
+                            @can('orders.index')
+                            <li><a href="{{ route('orders.with_bin_codes') }}">{{ translate('orders given to employees') }}</a></li>
+                            @endcan
+                            @can('orders.create')
+                                <li><a href="{{ route('orders.create') }}">{{ translate('create order') }}</a></li>
+                            @endcan
+                            @can('statuses.index')
+                            <li><a href="{{ route('statuses.index') }}">{{ translate('orders statuses') }}</a></li>
+                            @endcan
+                            @can('statuses.create')
+                            <li><a href="{{ route('statuses.create') }}">{{ translate('create orders statuses') }}</a></li>
+                            @endcan
+                    </ul>
+                </li>
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="mdi mdi-barcode"></i>
+                        <span>{{ translate('coupons') }}</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                            {{-- @can('orders.index') --}}
+                            <li><a href="{{ route('coupons.index') }}">{{ translate('all coupons') }}</a></li>
+                            {{-- @endcan --}}
+                            <li><a href="{{ route('coupons.create') }}">{{ translate('create coupon') }}</a></li>
+
+                    </ul>
                 </li>
 
                  @can('categories.index')
@@ -125,14 +133,14 @@
                  @can('products.index')
                      <li>
                          <a href="javascript: void(0);" class="has-arrow waves-effect">
-                             <i class="mdi mdi-food"></i>
+                             <i class="mdi mdi-inbox"></i>
 
-                             <span>{{ translate('foods') }}</span>
+                             <span>{{ translate('products') }}</span>
                          </a>
                          <ul class="sub-menu" aria-expanded="false">
-                             <li><a href="{{ route('products.index') }}">{{ translate('all foods') }}</a></li>
+                             <li><a href="{{ route('products.index') }}">{{ translate('all products') }}</a></li>
                              @can('products.create')
-                                 <li><a href="{{ route('products.create') }}">{{ translate('create food') }}</a></li>
+                                 <li><a href="{{ route('products.create') }}">{{ translate('create product') }}</a></li>
                              @endcan
                          </ul>
                      </li>
@@ -156,11 +164,10 @@
                          <a href="javascript: void(0);" class="has-arrow waves-effect">
                              <i class="mdi mdi-account-supervisor-outline"></i>
 
-                             <span>{{ translate('staff and users') }}</span>
+                             <span>{{ translate('staff') }}</span>
                          </a>
                          <ul class="sub-menu" aria-expanded="false">
                              <li><a href="{{ route('users.index') }}">{{ translate('all staff') }}</a></li>
-                             <li><a href="{{ route('users.index') . '?type=user' }}">{{ translate('all users') }}</a></li>
                          </ul>
                      </li>
                  @endcan

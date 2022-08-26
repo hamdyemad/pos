@@ -42,7 +42,7 @@
                                     <div class="imgs mt-2 d-flex"></div>
                                 </div>
                             </div>
-                            @if(Auth::user()->type == 'admin')
+                            @if(Auth::user()->type == 'admin' || Auth::user()->role_type == 'online')
                                 <div class="col-12 col-md-6">
                                     <div class="form-group">
                                         <label for="category">{{ translate('the branch') }}</label>
@@ -56,7 +56,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                            @else
+                            @elseif(Auth::user()->role_type == 'inhouse')
                             <input type="hidden" name="branch_id" value="{{ Auth::user()->branch_id }}">
                             @endif
                             <div class="col-12 col-md-6">

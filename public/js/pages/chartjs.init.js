@@ -321,7 +321,7 @@ function ($) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\xampp\htdocs\resturant\resources\js\pages\chartjs.init.js */"./resources/js/pages/chartjs.init.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\pos\resources\js\pages\chartjs.init.js */"./resources/js/pages/chartjs.init.js");
 
 
 /***/ })

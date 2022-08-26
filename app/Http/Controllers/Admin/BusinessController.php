@@ -26,7 +26,11 @@ class BusinessController extends Controller
         if(Auth::user()->type == 'admin') {
             $businesses = Business::latest();
         } else {
-            $businesses = Business::where('branch_id', Auth::user()->branch_id)->latest();
+            if(Auth::user()->role_type == 'inhouse') {
+                $businesses = Business::where('branch_id', Auth::user()->branch_id)->latest();
+            } else {
+                $businesses = Business::latest();
+            }
         }
         if($request->name) {
             $businesses->where('name', 'like', '%' . $request->name . '%');
@@ -154,7 +158,11 @@ class BusinessController extends Controller
         if(Auth::user()->type == 'admin') {
             $branches = Branch::orderBy('name')->get();
         } else {
-            $branches = Branch::where('id', Auth::user()->branch_id)->orderBy('name')->get();
+            if(Auth::user()->role_type == 'inhouse') {
+                $branches = Branch::where('id', Auth::user()->branch_id)->orderBy('name')->get();
+            } else {
+                $branches = Branch::orderBy('name')->get();
+            }
         }
         return view('business.all', compact('branches'));
     }

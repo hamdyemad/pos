@@ -45,8 +45,8 @@
             <div class="col-12 col-md-6 col-lg-3">
                 @component('common-components.widget')
                     @slot('route') {{ route('products.index') }} @endslot
-                    @slot('icons') mdi mdi-food float-right @endslot
-                    @slot('title') {{translate('foods')}} @endslot
+                    @slot('icons')  mdi mdi-inbox-multiple float-right  @endslot
+                    @slot('title') {{translate('products')}} @endslot
                     @slot('price') {{ $productsCount }} @endslot
                     @slot('badgeClass') badge-info @endslot
                 @endcomponent

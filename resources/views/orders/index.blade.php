@@ -48,7 +48,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="d-flex flex-column flex-md-row text-center text-md-right justify-content-between">
-                    <h2>{{ translate('orders') }}</h2>
+                    <h2>{{ translate('orders') . ' ('. $orders->count() . ')' }}</h2>
                     <div class="d-flex">
                         <div class="dropdown mr-2">
                             <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
@@ -56,9 +56,13 @@
                                 <span>{{ translate('quick edit') }}</span>
                             </button>
                             <div class="dropdown-menu">
-                                <button class="dropdown-item" href="#" form="shipping_invoice">
+                                <button class="dropdown-item shipping_invoice_btn" type="button" data-name="online" href="#" form="shipping_invoice">
                                     <i class="fas fa-file-pdf"></i>
-                                    <span>{{ translate('order invoice') }}</span>
+                                    <span>{{ translate('online invoice') }}</span>
+                                </button>
+                                <button class="dropdown-item shipping_invoice_btn" type="button" data-name="pos" href="#" form="shipping_invoice">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span>{{ translate('pos invoice') }}</span>
                                 </button>
                                 <button class="dropdown-item" href="#" data-toggle="modal" data-target="#statusModal">
                                     <i class="fas fa-edit"></i>
@@ -131,6 +135,18 @@
                             @endif
                             <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
+                                    <label for="from">{{ translate('creation from') }}</label>
+                                    <input class="form-control" id="from" name="from" type="date" value="{{ request('from') }}">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="to">{{ translate('creation to') }}</label>
+                                    <input class="form-control" id="to" name="to" type="date" value="{{ request('to') }}">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <div class="form-group">
                                     <label class="d-none d-md-inline-block" for="name"></label>
                                     <input type="submit" value="{{ translate('search') }}" class="form-control btn btn-primary mt-1">
                                 </div>
@@ -151,16 +167,15 @@
                                     <input class="form-control select_all" type="checkbox">
                                 </th>
                                 <th><span>{{ translate('order number') }}</span></th>
-                                <th><span>{{ translate('currency') }}</span></th>
+                                <th><span>{{ translate('order type') }}</span></th>
+                                <th><span>{{ translate('employee order') }}</span></th>
                                 <th><span>{{ translate('customer name') }}</span></th>
-                                <th><span>{{ translate('customer address') }}</span></th>
                                 <th><span>{{ translate('city') }}</span></th>
                                 <th><span>{{ translate('customer phone') }}</span></th>
                                 <th><span>{{ translate('order status') }}</span></th>
-                                <th><span>{{ translate('paid') }}</span></th>
+                                {{-- <th><span>{{ translate('paid') }}</span></th> --}}
                                 <th><span>{{ translate('order branch') }}</span></th>
                                 <th><span>{{ translate('creation date') }}</span></th>
-                                <th><span>{{ translate('last update date') }}</span></th>
                                 <th><span>{{ translate('settings') }}</span></th>
                             </tr>
                         </thead>
@@ -169,16 +184,19 @@
                                 <tr id="{{ $order->id }}" data-value="{{ $order }}">
                                     <th><input class="form-control" name="orders[]" value="{{ $order->id }}"  form="shipping_invoice" type="checkbox"></th>
                                     <th>{{ $order->id }}</th>
-                                    <th>{{ $order->currency->code }}</th>
+                                    <th>
+                                        {{ $order->type }}
+                                        {{ $order->payment_method }}
+                                    </th>
+                                    <th>
+                                        @if($order->user)
+                                        {{ $order->user->name }}
+                                        @else
+                                        --
+                                        @endif
+                                    </th>
                                     @if($order->customer_name)
                                         <td>{{ $order->customer_name }}</td>
-                                    @else
-                                        <td>
-                                            --
-                                        </td>
-                                    @endif
-                                    @if($order->customer_address)
-                                        <td>{{ $order->customer_address }}</td>
                                     @else
                                         <td>
                                             --
@@ -207,24 +225,22 @@
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td>
+                                    {{-- <td>
                                         @if($order->paid)
                                         <span class="badge badge-success">{{ translate('yes') }}</span>
                                         @else
                                         <span class="badge badge-danger">{{ translate('no') }}</span>
                                         @endif
-                                    </td>
+                                    </td> --}}
                                     <td>
-                                        <div class="badge badge-primary p-2">({{ translate($order->branch->name) }})</div>
-                                        @if($order->type == 'online')
-                                            <div class="badge badge-info mt-2">{{ translate('online order') }}</div>
+                                        @if($order->branch)
+                                            <div class="badge badge-primary p-2">({{ translate($order->branch->name) }})</div>
+                                        @else
+                                        --
                                         @endif
                                     </td>
                                     <td>
                                         <span>{{ $order->created_at->diffForHumans() }}</span>
-                                    </td>
-                                    <td>
-                                        <span>{{ $order->updated_at->diffForHumans() }}</span>
                                     </td>
                                     <td>
                                         <div class="options d-flex">
@@ -263,34 +279,35 @@
                                                     @if(isset($orderProduct->groupBy('variant_type')['']))
                                                         @foreach ($orderProduct->groupBy('variant_type')[''] as $variant)
                                                             <ul class="variants">
-                                                                <li><h6>{{ translate('name') }} : </h6><div class="badge badge-secondary rounded">{{ $variant->product->name }}</div></li>
-                                                                <li><h6>{{ translate('price') }} :</h6> <div class="badge badge-info rounded">{{ $variant->price }}</div></li>
-                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="badge badge-info rounded">{{ $variant->qty }}</div></li>
-                                                                <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ $variant->total_price }}</div></li>
+                                                                <li><h6>{{ translate('name') }} : </h6><div class="">{{ $variant->product->name }}</div></li>
+                                                                <li><h6>{{ translate('price') }} :</h6> <div class="font-weight-bold ">{{ $variant->price }}</div></li>
+                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="font-weight-bold ">{{ $variant->qty }}</div></li>
+                                                                <li><h6>{{ translate('discount') }} : </h6><div class="font-weight-bold ">{{ $variant->discount }}</div></li>
+                                                                <li><h6>{{ translate('total price') }} : </h6><div class="font-weight-bold ">{{ $variant->total_price }}</div></li>
                                                             </ul>
                                                         @endforeach
                                                     @else
                                                         <ul class="variants">
-                                                            <li><h6>{{ translate('name') }} : </h6><div class="badge badge-secondary rounded">{{ \App\Models\Product::find($key)->name }}</div></li>
+                                                            <li><h6>{{ translate('name') }} : </h6><div class="font-weight-bold ">{{ \App\Models\Product::find($key)->name }}</div></li>
                                                         </ul>
                                                     @endif
                                                     @if(isset($orderProduct->groupBy('variant_type')['size']))
                                                         @foreach ($orderProduct->groupBy('variant_type')['size'] as $variant)
                                                             <ul class="variants">
-                                                                <li><h6>{{ translate('size') }} : </h6><div class="badge badge-info rounded">{{ $variant->variant }}</div></li>
-                                                                <li><h6>{{ translate('price') }} :</h6> <div class="badge badge-info rounded">{{ $variant->price }}</div></li>
-                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="badge badge-info rounded">{{ $variant->qty }}</div></li>
-                                                                <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ $variant->total_price }}</div></li>
+                                                                <li><h6>{{ translate('size') }} : </h6><div class="font-weight-bold">{{ $variant->variant }}</div></li>
+                                                                <li><h6>{{ translate('price') }} :</h6> <div class="font-weight-bold">{{ $variant->price }}</div></li>
+                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="font-weight-bold">{{ $variant->qty }}</div></li>
+                                                                <li><h6>{{ translate('total price') }} : </h6><div class="font-weight-bold">{{ $variant->total_price }}</div></li>
                                                             </ul>
                                                         @endforeach
                                                     @endif
                                                     @if(isset($orderProduct->groupBy('variant_type')['extra']))
                                                         @foreach ($orderProduct->groupBy('variant_type')['extra'] as $variant)
                                                             <ul class="variants">
-                                                                <li><h6>{{ translate('extra') }} : </h6><div class="badge badge-info rounded">{{ $variant->variant }}</div></li>
-                                                                <li><h6>{{ translate('price') }} :</h6> <div class="badge badge-info rounded">{{ $variant->price }}</div></li>
-                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="badge badge-info rounded">{{ $variant->qty }}</div></li>
-                                                                <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ $variant->total_price }}</div></li>
+                                                                <li><h6>{{ translate('extra') }} : </h6><div class="font-weight-bold ">{{ $variant->variant }}</div></li>
+                                                                <li><h6>{{ translate('price') }} :</h6> <div class="font-weight-bold ">{{ $variant->price }}</div></li>
+                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="font-weight-bold ">{{ $variant->qty }}</div></li>
+                                                                <li><h6>{{ translate('total price') }} : </h6><div class="font-weight-bold ">{{ $variant->total_price }}</div></li>
                                                             </ul>
                                                         @endforeach
                                                     @endif
@@ -298,14 +315,23 @@
                                             </div>
                                             <div class="product-variants d-flex">
                                                 <ul class="variants">
-                                                        <li><h6>{{ translate('total price') }} : </h6><div class="badge badge-info rounded">{{ ($order->grand_total - $order->shipping )+ $order->total_discount }}</div></li>
+                                                        @if($order->coupon)
+                                                            <li><h6>{{ translate('coupon discount') }} : </h6><div class="font-weight-bold ">
+                                                                @if($order->coupon->type == 'price')
+                                                                    {{ $order->coupon->price }}
+                                                                @else
+                                                                    {{ $order->coupon->price . '%' }}
+                                                                @endif
+                                                            </div></li>
+                                                        @endif
+                                                        <li><h6>{{ translate('total price') }} : </h6><div class="font-weight-bold ">{{ ($order->grand_total - $order->shipping )+ $order->total_discount }}</div></li>
                                                         @if($order->shipping)
-                                                            <li><h6>{{ translate('shipping') }}: </h6><div class="badge badge-info rounded">{{ $order->shipping }}</div></li>
+                                                            <li><h6>{{ translate('shipping') }}: </h6><div class="font-weight-bold ">{{ $order->shipping }}</div></li>
                                                         @endif
                                                         @if($order->total_discount)
-                                                            <li><h6>{{ translate('discount') }}: </h6><div class="badge badge-info rounded">{{ $order->total_discount }}</div></li>
+                                                            <li><h6>{{ translate('discount') }}: </h6><div class="font-weight-bold ">{{ $order->total_discount }}</div></li>
                                                         @endif
-                                                        <li><h6>{{ translate('final price') }} : </h6><div class="badge badge-info rounded">{{ $order->grand_total }}</div></li>
+                                                        <li><h6>{{ translate('final price') }} : </h6><div class="font-weight-bold ">{{ $order->grand_total }}</div></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -326,7 +352,15 @@
     <script>
 
 
-        $("tr").on('dblclick', function() {
+        $(".shipping_invoice_btn").on('click', function() {
+            let type = $(this).data('name');
+            $("#shipping_invoice").append(`
+                <input type="hidden" name="type" value="${type}">
+            `);
+            $("#shipping_invoice").submit();
+        })
+
+        $("tbody tr").on('dblclick', function() {
             location.assign("/admin/orders/" + $(this).attr('id'));
         });
 

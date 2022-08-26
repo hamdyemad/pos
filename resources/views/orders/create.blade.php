@@ -20,20 +20,34 @@
                     {{ translate('create new order') }}
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('orders.store') }}" method="POST">
+                    <form class="order_store" action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-12 col-md-6">
                                 <div class="form-group">
-                                    <label for="country">{{ translate('currency') }}</label>
-                                    <select class="form-control select2 currency_select" name="currency_id">
-                                        @foreach ($currencies as $currency)
-                                        <option data-code="{{ $currency->code }}" value="{{ $currency->id }}" @if(old('currency_id') == $currency->id) selected @endif>{{ $currency->code }}</option>
-                                        @endforeach
+                                    <label for="payment_method">{{ translate('payment method') }}</label>
+                                    <select class="form-control select2" name="payment_method">
+                                        <option value="cash" @if(old('payment_method') == 'cash') selected @endif>{{ translate('cash') }}</option>
+                                        <option value="credit" @if(old('payment_method') == 'credit') selected @endif>{{ translate('credit') }}</option>
                                     </select>
+                                    @error('payment_method')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
-                            @if(Auth::user()->type == 'admin')
+                            @if(Auth::user()->type == 'admin' ||Auth::user()->role_type == 'online')
+                                <div class="col-12 col-md-6">
+                                    <div class="form-group">
+                                        <label for="type">{{ translate('order type') }}</label>
+                                        <select class="form-control order_type select2" name="type">
+                                            <option value="inhouse" @if(old('type') == 'inhouse') selected @endif>{{ translate('receipt from the branch') }}</option>
+                                            <option value="online" @if(old('type') == 'online') selected @endif>{{ translate('online order') }}</option>
+                                        </select>
+                                        @error('type')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                                 <div class="col-12 col-md-6 branch_col">
                                     <div class="form-group">
                                         <label for="branch_id">{{ translate('order branch creation') }}</label>
@@ -42,20 +56,15 @@
                                             <option value="{{ $branch->id }}" @if(old('branch_id') == $branch->id) selected @endif>{{ translate($branch->name) }}</option>
                                             @endforeach
                                         </select>
+                                        @error('branch_id')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
-                            @else
+                            @elseif(Auth::user()->role_type == 'inhouse')
+                                <input type="hidden" name="type" value="inhouse">
                                 <input type="hidden" name="branch_id" value="{{ Auth::user()->branch_id }}">
                             @endif
-                            <div class="col-12 col-md-6">
-                                <div class="form-group">
-                                    <label for="type">{{ translate('order type') }}</label>
-                                    <select class="form-control order_type select2" name="type">
-                                        <option value="inhouse" @if(old('type') == 'inhouse') selected @endif>{{ translate('receipt from the branch') }}</option>
-                                        <option value="online" @if(old('type') == 'online') selected @endif>{{ translate('online order') }}</option>
-                                    </select>
-                                </div>
-                            </div>
                             @if(old('type') == 'online')
                                 <div class="col-12 col-md-6 country_col">
                                     <div class="form-group">
@@ -104,7 +113,29 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-12">
+                            @if(Auth::user()->type == 'admin' || Auth::user()->role_type == 'online')
+                                <div class="col-12">
+                                    <div class="customized_files">
+                                        <div class="form-group">
+                                            <label for="name">{{translate('custom files')}}</label>
+                                            <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="customized_files[]">
+                                            <button type="button" class="btn btn-primary form-control files">
+                                                <span class="mdi mdi-plus btn-lg"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="bin_code">{{ translate('bin code') }}</label>
+                                    <input type="text" class="form-control" name="bin_code" value="{{ old('bin_code') }}">
+                                    @error('bin_code')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
                                 <div class="form-group">
                                     <label for="notes">{{ translate('notes') }}</label>
                                     <textarea id="textarea" class="form-control" name="notes" maxlength="225"
@@ -127,14 +158,12 @@
                                                     <td>{{ translate('total price') }}</td>
                                                     <td class="d-flex">
                                                         <div class="total_prices">0</div>
-                                                        <div class="currency"></div>
                                                     </td>
                                                 </tr>
                                                 <tr class="shipping_tr d-none">
                                                     <td>{{ translate('shipping') }}</td>
                                                     <td class="d-flex">
                                                         <div class="shipping">0</div>
-                                                        <div class="currency"></div>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -142,10 +171,28 @@
                                                     <td><input class="form-control total_discount" name="total_discount" type="number" placeholder="{{ translate('discount') }}" value="{{ old('total_discount') }}" min="0"></td>
                                                 </tr>
                                                 <tr>
+                                                    <td>{{ translate('coupon') }}</td>
+                                                    <td class="coupon_checked d-none">
+                                                        <div class="code"></div>
+                                                        <div class="price_div">
+                                                            <span>{{ translate('price') . ': ' }}</span>
+                                                            <span class="price">15</span>
+                                                        </div>
+                                                        <div class="percent_div d-none">
+                                                            <span>{{ translate('percent') . ': ' }}</span>
+                                                            <span class="percent">10</span>
+                                                        </div>
+                                                        <button class="btn btn-danger coupon_remove" type="button">{{ translate('remove') }}</button>
+                                                    </td>
+                                                    <td class="coupon_form">
+                                                        <input class="form-control coupon" type="text" placeholder="{{ translate('coupon') }}" value="{{ old('coupon_id') }}">
+                                                        <button class="btn btn-success coupon_submit mt-2 btn-block" type="button">{{ translate('submit coupon') }}</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
                                                     <td>{{ translate('price after discount') }}</td>
                                                     <td class="d-flex">
                                                         <div class="grand_total"></div>
-                                                        <div class="currency"></div>
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -169,6 +216,8 @@
 @endsection
 @section('footerScript')
     <script>
+
+
         let address_col = `
             <div class="col-12 col-md-6 address_col">
                 <div class="form-group">
@@ -199,9 +248,11 @@
                 </div>
             </div>
             `;
+
     $(".order_type").on('change', function() {
         arrayOfValues = $(this).val();
         if (arrayOfValues.includes('online')) {
+            $(".branch_col").addClass('d-none');
             $(this).parent().parent().after(address_col);
             $(this).parent().parent().after(country_col);
             $(".select_country").select2();
@@ -210,6 +261,7 @@
             @endforeach
             getCitiesByCountryId();
         } else {
+            $(".branch_col").removeClass('d-none');
             $('.shipping_tr').addClass('d-none');
             $(".address_col").remove();
             $(".country_col").remove();
@@ -220,23 +272,75 @@
         }
         getFullPrice();
     })
+    arrayOfValues = $('.order_type').val();
+    if (arrayOfValues.includes('online')) {
+        $(".branch_col").addClass('d-none');
+    } else {
+        $(".branch_col").removeClass('d-none');
 
-    $(".currency").text($("[name=currency_id]").find(":selected").data('code'));
+    }
 
-    $(".branch_select,.currency_select").on('change', function() {
-        // Change Currency Code
-        $(".currency").text($("[name=currency_id]").find(":selected").data('code'));
-        // Get Products By Branch id
-        getProductsByBranchId($(".branch_select").val());
-        // Get Cities By Country id
-        getCitiesByCountryIdAjax($(".select_country").val());
-        $('.cart-of-total-container').addClass('d-none');
-        $('.cart-of-total-container').removeClass('d-block d-md-flex flex-row-reverse ');
-        $(".products_table").empty();
-        $(".select_products").empty();
 
-        getFullPrice();
+    $(".coupon_submit").on('click', function() {
+        getPriceOfCoupon();
+    })
+
+    $(".coupon_remove").on('click', function() {
+        let grand_total = parseFloat($(".grand_total").text());
+        $(".grand_total").text(grand_total + parseFloat($(".coupon_checked .price").text()));
+        $(".coupon_form").removeClass('d-none');
+        $(".coupon_checked").addClass('d-none');
+        $(".coupon_checked .percent_div").addClass('d-none');
+        $(".total_discount").removeAttr('disabled');
+
     });
+
+    function getPriceOfCoupon() {
+        let token = $("meta[name=_token]").attr('content'),
+        coupon_code = $(".coupon").val();
+        $.ajax({
+            'method': 'POST',
+            'data': {
+                '_token': token,
+                'coupon_code': coupon_code
+            },
+            'url': "{{ route('coupons.show') }}",
+            'success': function(res) {
+                console.log(res);
+                if(res.status) {
+                    let coupon = res.data;
+                    $(".order_store").find('.coupon_id').remove();
+                    $(".order_store").prepend(`
+                        <input type="hidden" class="coupon_id" name="coupon_id" value="${coupon.id}">
+                    `);
+                    $(".total_discount").attr('disabled', 'disabled');
+                    $(".coupon_form").addClass('d-none');
+                    $(".coupon_checked").removeClass('d-none');
+                    $(".coupon_checked .code").text(coupon.code);
+                    let grand_total = parseFloat($(".grand_total").text()),
+                    price = parseFloat(coupon.price);
+                    if(coupon.type == 'price') {
+                        $(".coupon_checked .price").text(coupon.price);
+                        $(".grand_total").text(grand_total - coupon.price);
+
+                    } else if(coupon.type == 'percent') {
+                        console.log(coupon.price + '%')
+                        let coupon_discount = grand_total * (price / 100);
+                        $(".coupon_checked .percent_div").removeClass('d-none');
+                        $(".coupon_checked .percent_div .percent").text(coupon.price + '%');
+                        $(".coupon_checked .price").text(coupon_discount);
+                        $(".grand_total").text(grand_total - coupon_discount);
+                    }
+                } else {
+                    toastr.error(res.message);
+                }
+            },
+            'erorr' : function(err) {
+                console.log(err);
+            }
+        });
+    }
+
 
     function getProductsByBranchId(branch_id) {
         let token = $("meta[name=_token]").attr('content');
@@ -248,11 +352,11 @@
             },
             'url': "{{ route('products.all') }}",
             'success': function(res) {
+                $(".select_products").select2().html('');
                 if(res.status) {
-                    $(".select_products").select2().html('');
                     res.data.forEach((obj) => {
                         $(".select_products").append(`
-                            <option value="${obj.id}">${obj.name}</option>
+                            <option value="${obj.id}" data-name="${obj.name}">${obj.name}</option>
                         `);
                     });
 
@@ -265,6 +369,10 @@
             }
         });
     }
+
+    $(".branch_select").on('change', function() {
+        getProductsByBranchId($(this).val());
+    })
     getProductsByBranchId($("[name=branch_id]").val());
 
     function getCitiesByCountryIdAjax(country_id) {
@@ -274,14 +382,13 @@
             'data': {
                 '_token': token,
                 country_id: country_id,
-                currency_id: $("[name=currency_id]").val()
             },
             'url' : `{{ route('countries.cities.all') }}`,
             'success': function(res) {
                 if(res.status) {
                     $(".select_city").select2().html('');
                     res.data.forEach((obj) => {
-                        $(".select_city").append(`<option value="${obj.id}" data-shipping="${obj.current_price.price}">${obj.name}</option>`);
+                        $(".select_city").append(`<option value="${obj.id}" data-shipping="${obj.price}">${obj.name}</option>`);
                     });
                     $('.shipping_tr').removeClass('d-none');
                     $(".shipping_tr .shipping").text($(".select_city option:selected").data('shipping'))
@@ -339,6 +446,9 @@
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
                 </td>
+                <td>
+                    <input class="form-control product_discount" name="products[${product.id}][variants][${obj.id}][discount]"  type="number" placeholder="{{ translate('quantity') }}" value="0">
+                </td>
 
                 <td>
                     <div class="total_price">${obj.currenct_price_of_variant.price_after_discount }</div>
@@ -356,6 +466,7 @@
                     <th>{{ translate('sizes') }}</th>
                     <th>{{ translate('price') }}</th>
                     <th>{{ translate('quantity') }}</th>
+                    <th>{{ translate('discount') }}</th>
                     <th>{{ translate('total price') }}</th>
                     <th></th>
                     <th></th>
@@ -372,6 +483,7 @@
                     <th>{{ translate('extras') }}</th>
                     <th>{{ translate('price') }}</th>
                     <th>{{ translate('quantity') }}</th>
+                    <th>{{ translate('discount') }}</th>
                     <th>{{ translate('total price') }}</th>
                     <th></th>
                     <th></th>
@@ -410,11 +522,12 @@
             <table class="table variant_table">
                 <thead>
                     <th>{{ translate('food name') }}</th>
-                    <th>{{ translate('price') }}</th>
-                    <th>{{ translate('quantity') }}</th>
-                    <th>{{ translate('total price') }}</th>
-                    <th>{{ translate('size') }}</th>
-                    <th>{{ translate('extra') }}</th>
+                    <th class="noraml_th">{{ translate('price') }}</th>
+                    <th class="noraml_th">{{ translate('quantity') }}</th>
+                    <th class="noraml_th">{{ translate('discount') }}</th>
+                    <th class="noraml_th">{{ translate('total price') }}</th>
+                    <th class="size_th d-none">{{ translate('size') }}</th>
+                    <th class="extra_th d-none">{{ translate('extra') }}</th>
                 </thead>
                 <tbody>
                 </tbody>
@@ -431,18 +544,18 @@
     }
 
     function getProductsWithAjax(productsIds) {
+        console.log(productsIds)
         $.ajax({
             'method': 'GET',
             'data': {
-                ids: productsIds,
-                currency_id: $("[name=currency_id]").val()
+                ids: productsIds
             },
             'url' : "{{ route('products.all_by_ids') }}",
             'success': function(products) {
-                console.log(products);
                 if(products.length !== 0) {
                     $(".products_table").empty();
                     products.forEach(product => {
+
                         if(product.variants.length !==0) {
                             if($(".products_table").find('.variant_table').length == 0) {
                                 $(".products_table").append(getProductVariantHeadingTable());
@@ -454,11 +567,22 @@
                             let sizeTypeArray = product.variants.filter((obj) => {
                                 return obj.type == 'size';
                             });
-                            console.log(product)
+
+                            if(sizeTypeArray.length !==0 && extraTypeArray.length !==0) {
+                                $(".noraml_th").addClass('d-none');
+                                $(".size_th").removeClass('d-none');
+                                $(".extra_th").removeClass('d-none');
+                            }
+                            if(sizeTypeArray.length !==0  && extraTypeArray.length ==0) {
+                                $(".noraml_th").addClass('d-none');
+                                $(".size_th").removeClass('d-none');
+                                $(".extra_th").removeClass('d-none');
+                            }
+                            if(extraTypeArray.length !== 0) {
+                                $(".extra_th").removeClass('d-none');
+                            }
+
                             if(sizeTypeArray.length !==0) {
-                                $(`.${product.id}`).append(`<td>{{ translate('there is no price') }}</td>`);
-                                $(`.${product.id}`).append(`<td>{{ translate('there is no quantity') }}</td>`);
-                                $(`.${product.id}`).append(`<td>{{ translate('there is no total price') }}</td>`);
                                 $(`.${product.id}`).append(`
                                     <td><ul class="select_variant size_select"></ul></td>
                                 `);
@@ -472,8 +596,8 @@
                             } else {
                                 $(`.${product.id}`).append(`<td><div class="price">${product.price_of_currency.price_after_discount}</div></td>`);
                                 $(`.${product.id}`).append(`<td><input class="form-control amount" value="1" min="1" type="number" name="products[${product.id}][amount]"></td>`);
+                                $(`.${product.id}`).append(`<td><input class="form-control product_discount" type="number" name="products[${product.id}][discount]"></td>`);
                                 $(`.${product.id}`).append(`<td><div class="total_price">${product.price_of_currency.price_after_discount}</div></td>`);
-                                $(`.${product.id}`).append(`<td>{{ translate('there is no sizes') }}</td>`);
                             }
                             if(extraTypeArray.length !==0) {
                                 $(`.${product.id}`).append(`
@@ -487,7 +611,6 @@
                                     `);
                                 });
                             } else {
-                                $(`.${product.id}`).append(`<td>{{ translate('there is no extras') }}</td>`);
                             }
 
                         } else {
@@ -497,11 +620,11 @@
                             $(".products_table .variant_table tbody").append(getProductVariantHeadingTr(product))
                             $(`.${product.id}`).append(`<td><div class="price">${product.price_of_currency.price_after_discount}</div></td>`);
                             $(`.${product.id}`).append(`<td><input class="form-control amount" value="1" min="1" type="number" name="products[${product.id}][amount]"></td>`);
+                            $(`.${product.id}`).append(`<td><input class="form-control product_discount" type="number" name="products[${product.id}][discount]"></td>`);
                             $(`.${product.id}`).append(`<td><div class="total_price">${product.price_of_currency.price_after_discount}</div></td>`);
-                            $(`.${product.id}`).append(`<td>{{ translate('there is no sizes') }}</td>`);
-                            $(`.${product.id}`).append(`<td>{{ translate('there is no extras') }}</td>`);
-                            getFullPrice();
                         }
+                        getFullPrice();
+                        product_price();
                     });
                     $(".variant").click('click', function() {
                         let product = $(this).data('product_value');
@@ -519,6 +642,7 @@
                             $(`.products_table .${variant}-table`).remove();
                         }
                         amountChange();
+                        product_price();
                         getFullPrice();
                     })
                     getFullPrice();
@@ -575,7 +699,7 @@
         }
         total_prices.text(prices);
         grandTotal.text(prices + shippping);
-        total_discount.on('keyup', function() {
+        total_discount.on('change', function() {
             let full_price = (prices +  shippping);
             full_price = full_price - $(this).val();
             grandTotal.text(full_price);
@@ -583,10 +707,24 @@
     }
     getFullPrice();
     function amountChange() {
-        $(".amount").on('keyup', function() {
+        $(".amount").on('change', function() {
             let priceVal = parseFloat($(this).parent().parent().find('.price').text()),
             amountVal = parseFloat($(this).val());
             $(this).parent().parent().find('.total_price').text(priceVal * amountVal);
+            getFullPrice();
+        });
+    }
+
+    function product_price() {
+        $(".product_discount").on('keyup', function() {
+            let priceVal = parseFloat($(this).parent().parent().find('.price').text()),
+                amount = parseFloat($(this).parent().parent().find('.amount').val()),
+                discountVal = parseFloat($(this).val()),
+                full_price = priceVal * amount;
+            $(this).parent().parent().find('.total_price').text(full_price - discountVal);
+            if(isNaN(full_price - discountVal)) {
+                $(this).parent().parent().find('.total_price').text(full_price);
+            }
             getFullPrice();
         });
     }

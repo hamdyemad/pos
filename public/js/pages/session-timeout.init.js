@@ -119,7 +119,7 @@ $.sessionTimeout({
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\xampp\htdocs\resturant\resources\js\pages\session-timeout.init.js */"./resources/js/pages/session-timeout.init.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\pos\resources\js\pages\session-timeout.init.js */"./resources/js/pages/session-timeout.init.js");
 
 
 /***/ })

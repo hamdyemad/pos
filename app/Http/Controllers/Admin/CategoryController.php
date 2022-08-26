@@ -27,14 +27,23 @@ class CategoryController extends Controller
         if(Auth::user()->type == 'admin') {
             $categories = Category::latest();
         } else {
-            $categories = Category::where('branch_id', Auth::user()->branch_id)->latest();
+            if(Auth::user()->role_type == 'inhouse') {
+                $categories = Category::latest();
+                $categories->whereHas('branches', function ($query) use($request) {
+                    $query->where('branch_id', Auth::user()->branch_id);
+                });
+            } else {
+                $categories = Category::latest();
+            }
         }
         $branches = Branch::orderBy('name')->get();
         if($request->name) {
             $categories->where('name', 'like', '%' . $request->name . '%');
         }
         if($request->branch_id) {
-            $categories->where('branch_id', 'like', '%' . $request->branch_id . '%');
+            $categories->whereHas('branches', function ($query) use($request) {
+                $query->where('branch_id', $request->branch_id);
+            });
         }
         $categories = $categories->paginate(10);
         return view('categories.index', compact('categories', 'branches'));
@@ -78,22 +87,26 @@ class CategoryController extends Controller
         if($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors())->withInput($request->all())->with('error', translate('there is something error'));
         }
+        $creation = [
+            'name' => $request->name,
+            'viewed_number' => $request->viewed_number
+        ];
         if($request->has('photo')) {
             $photo = $this->uploadFile($request, $this->categoriesPath, 'photo');
-        }
-        foreach ($request->branch_id as $value) {
-            $creation = [
-                'name' => $request->name,
-                'branch_id' => $value,
-                'viewed_number' => $request->viewed_number
-            ];
             $creation['photo'] = $photo;
-            if($request->active) {
-                $creation['active'] = 1;
-            } else {
-                $creation['active'] = 0;
+        }
+        if($request->active) {
+            $creation['active'] = 1;
+        } else {
+            $creation['active'] = 0;
+        }
+        $category = Category::create($creation);
+        if(is_array($request->branch_id)) {
+            foreach ($request->branch_id as $value) {
+                $category->branches()->attach($value);
             }
-            Category::create($creation);
+        } else {
+            $category->branches()->attach($request->branch_id);
         }
         return redirect()->back()->with('success', translate('created successfully'));
     }
@@ -144,7 +157,6 @@ class CategoryController extends Controller
         ]);
         $updateTable = [
             'name' => $request->name,
-            'branch_id' => $request->branch_id,
             'viewed_number' => $request->viewed_number
         ];
         if($request->active) {
@@ -165,12 +177,27 @@ class CategoryController extends Controller
             }
         }
         $category->update($updateTable);
+
+        // Remove Branches
+        foreach ($category->branches as $branch) {
+            $category->branches()->detach($branch);
+        }
+        // Add Branches
+        if(is_array($request->branch_id)) {
+            foreach ($request->branch_id as $value) {
+                $category->branches()->attach($value);
+            }
+        } else {
+            $category->branches()->attach($request->branch_id);
+        }
         return redirect()->back()->with('info', translate('updated successfully'));
     }
 
 
     public function allCategories(Request $request) {
-        $categories = Category::where('branch_id', $request->branch_id)->orderBy('name')->get();
+        $categories = Category::whereHas('branches', function ($query) use($request) {
+            return $query->where('branch_id', $request->branch_id);
+        })->orderBy('name')->get();
         if($categories) {
             return response()->json(['status' => true, 'data' => $categories]);
         } else {

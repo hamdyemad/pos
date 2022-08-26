@@ -17,6 +17,9 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->string('name');
+            $table->string('bin_code');
+            $table->string('username')->unique();
+            $table->enum('role_type', ['online', 'inhouse']);
             $table->enum('type', ['admin', 'user', 'sub-admin']);
             $table->string('phone')->nullable();
             $table->string('address')->nullable();

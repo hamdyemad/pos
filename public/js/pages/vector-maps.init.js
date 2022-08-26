@@ -270,7 +270,7 @@ function ($) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\xampp\htdocs\resturant\resources\js\pages\vector-maps.init.js */"./resources/js/pages/vector-maps.init.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\pos\resources\js\pages\vector-maps.init.js */"./resources/js/pages/vector-maps.init.js");
 
 
 /***/ })

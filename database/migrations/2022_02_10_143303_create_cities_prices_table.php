@@ -15,12 +15,9 @@ class CreateCitiesPricesTable extends Migration
     {
         Schema::create('cities_prices', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('city_id');
-            $table->unsignedBigInteger('currency_id');
+            $table->unsignedBigInteger('city_id')->unique();
             $table->double('price');
-            $table->unique(['city_id', 'currency_id']);
             $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('currency_id')->references('id')->on('currencies')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }
