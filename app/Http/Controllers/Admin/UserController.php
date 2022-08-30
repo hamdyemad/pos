@@ -50,10 +50,7 @@ class UserController extends Controller
             $users->where('banned', 'like', '%' . $request->banned . '%');
         }
 
-        if(Auth::user()->type !== 'admin') {
-            $users->where('branch_id', Auth::user()->branch_id);
-        }
-        $users->where('type', '!=' ,'user');
+        // $users->where('type', '!=' ,'user');
         $users = $users->latest()->paginate(10);
         return view('users.employee_index', compact('users', 'roles', 'branches'));
 
@@ -70,14 +67,10 @@ class UserController extends Controller
      */
     public function create(Request $request)
     {
-        if($request->type) {
-            $this->authorize('users.create');
-            $branches = Branch::orderBy('name')->get();
-            $roles = Role::latest()->get();
-            return view('users.create', compact('roles', 'branches'));
-        } else {
-            return redirect()->back();
-        }
+        $this->authorize('users.create');
+        $branches = Branch::orderBy('name')->get();
+        $roles = Role::latest()->get();
+        return view('users.create', compact('roles', 'branches'));
     }
 
     /**
@@ -88,10 +81,10 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-
         $this->authorize('users.create');
         $creation = [
             'name' => $request->name,
+            'type' => $request->type,
             'bin_code' => rand(1000, 10000),
             'email' => $request->email,
             'role_type' => $request->role_type,
@@ -101,6 +94,7 @@ class UserController extends Controller
             'phone' => $request->phone,
             'password' => Hash::make($request->password)
         ];
+
         if($request->role_type == 'online') {
             $request['branch_id'] = null;
         } else {
@@ -110,12 +104,23 @@ class UserController extends Controller
                 $creation['branch_id'] = null;
             }
         }
+
+        if($request->type == 'sub-admin') {
+            $creation['role_type'] = null;
+            $creation['branch_id'] = null;
+        }
+
+        if(Auth::user()->type == 'sub-admin' || Auth::user()->type == 'user') {
+            $creation['type'] = 'user';
+        }
+
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'bin_code' => ['unique:users,bin_code'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'username' => ['required', 'string','max:255', 'unique:users,username'],
             'role_type' => ['required', 'in:inhouse,online'],
+            'roles' => 'required|exists:roles,id',
             'type' => ['required'],
             'branch_id' => 'nullable|exists:branches,id',
             'password' => ['required', 'string', 'min:8', 'confirmed'],
@@ -146,10 +151,9 @@ class UserController extends Controller
         ];
 
         if($request->type == 'sub-admin') {
-            $rules['roles'] = 'required|exists:roles,id';
-            $messages['roles.required'] = translate('the permessions is required');
-            $messages['roles.exists'] = translate('the permessions is not in the infos');
+            unset($rules['role_type']);
         }
+
         $validator = Validator::make($request->all(), $rules, $messages);
         if($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors())->with('error', translate('there is something error'))->withInput($request->all());
@@ -210,6 +214,8 @@ class UserController extends Controller
             'email' => $request->email,
             'address' => $request->address,
             'phone' => $request->phone,
+            'role_type' => $request->role_type,
+            'username' => $request->username,
         ];
         $rules = [
             'name' => ['required', 'string', 'max:255'],
@@ -245,6 +251,10 @@ class UserController extends Controller
         if($request->branch_id) {
             $updateArray['branch_id'] = $request->branch_id;
         } else {
+            $updateArray['branch_id'] = null;
+        }
+
+        if($request->role_type == 'online') {
             $updateArray['branch_id'] = null;
         }
         $validator = Validator::make($request->all(), $rules, $messages);

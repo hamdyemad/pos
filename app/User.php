@@ -47,4 +47,18 @@ class User extends Authenticatable
         return $this->belongsTo(Branch::class, 'branch_id');
     }
 
+
+
+    public function statuses_permessions() {
+        $permessions = [];
+        foreach ($this->roles as $role) {
+            foreach ($role->permessions as $permession) {
+                if($permession['group_by'] == 'الحالات') {
+                    array_push($permessions, $permession->key);
+                }
+            }
+        }
+        return $permessions;
+    }
+
 }

@@ -42,7 +42,7 @@
                                     <div class="imgs mt-2 d-flex"></div>
                                 </div>
                             </div>
-                            @if(Auth::user()->type == 'admin' || Auth::user()->role_type == 'online')
+                            @if(Auth::user()->type == 'admin' ||  Auth::user()->type == 'sub-admin' || Auth::user()->role_type == 'online')
                                 <div class="col-12 col-md-6">
                                     <div class="form-group">
                                         <label for="category">{{ translate('the branch') }}</label>
@@ -57,9 +57,9 @@
                                     </div>
                                 </div>
                             @elseif(Auth::user()->role_type == 'inhouse')
-                            <input type="hidden" name="branch_id" value="{{ Auth::user()->branch_id }}">
+                                <input type="hidden" name="branch_id" value="{{ Auth::user()->branch_id }}">
                             @endif
-                            <div class="col-12 col-md-6">
+                            {{-- <div class="col-12 col-md-6">
                                 <div class="form-group">
                                     <label for="name">{{ translate('appearance number') }}</label>
                                     <input type="integer" class="form-control" name="viewed_number" value="{{ old('viewed_number') }}">
@@ -67,7 +67,7 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-12 col-md-6">
                                 <label for="{{ translate('available') }}">{{ translate('available') }}</label>
                                 <div class="form-group">

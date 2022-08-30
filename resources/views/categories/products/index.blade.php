@@ -116,8 +116,8 @@
                         <table class="table mb-0">
                             <thead>
                                 <tr>
-                                    <th><span>{{ translate('order number') }}</span></th>
-                                    <th><span>{{ translate('food name') }}</span></th>
+                                    <th><span>{{ translate('sku') }}</span></th>
+                                    <th><span>{{ translate('product name') }}</span></th>
                                     <th><span>{{ translate('categories') }}</span></th>
                                     {{-- <th><span>{{ translate('description') }}</span></th> --}}
                                     <th><span>{{ translate('available') }}</span></th>
@@ -130,19 +130,12 @@
                             <tbody>
                                 @foreach ($products as $product)
                                     <tr class="alert-secondary">
-                                        <th scope="row">{{ $product->id }}</th>
+                                        <th scope="row">{{ $product->sku }}</th>
                                         <td>
                                             <div>
                                                 <h4 class="mr-2">
                                                     {{ $product->name }}
                                                 </h4>
-                                                @if ($product->photos !== null)
-                                                    <img class="mt-2"
-                                                        src="{{ asset(json_decode($product->photos)[0]) }}" alt="">
-                                                @else
-                                                    <img class="mt-2"
-                                                        src="{{ asset('/images/product_avatar.png') }}" alt="">
-                                                @endif
                                             </div>
                                         </td>
                                         <td>

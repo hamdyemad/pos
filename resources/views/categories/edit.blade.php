@@ -56,7 +56,7 @@
 
                                 </div>
                             </div>
-                            @if(Auth::user()->type == 'admin')
+                            @if(Auth::user()->type == 'admin' ||  Auth::user()->type == 'sub-admin')
                                 <div class="col-12 col-md-6">
                                     <div class="form-group">
                                         <label for="category">{{ translate('the branch') }}</label>
@@ -74,7 +74,7 @@
                             @else
                                 <input type="hidden" name="branch_id" value="{{ Auth::user()->branch_id }}">
                             @endif
-                            <div class="col-12 col-md-6">
+                            {{-- <div class="col-12 col-md-6">
                                 <div class="form-group">
                                     <label for="name">{{ translate('appearance number') }}</label>
                                     <input type="integer" class="form-control" name="viewed_number" value="{{ $category->viewed_number }}">
@@ -82,7 +82,7 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-12 col-md-6">
                                 <label for="{{ translate('available') }}">{{ translate('available') }}</label>
                                 <div class="form-group">

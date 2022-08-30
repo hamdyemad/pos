@@ -16,7 +16,7 @@ class Admin
      */
     public function handle($request, Closure $next)
     {
-        if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin') {
+        if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin' || Auth::user()->type == 'user') {
             return $next($request);
         } else {
             return redirect(route('frontend.home'));

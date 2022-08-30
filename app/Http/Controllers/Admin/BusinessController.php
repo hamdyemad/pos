@@ -23,7 +23,7 @@ class BusinessController extends Controller
         $this->authorize('business.index');
         Carbon::setLocale(app()->getLocale());
         $branches = Branch::orderBy('name')->get();
-        if(Auth::user()->type == 'admin') {
+        if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin') {
             $businesses = Business::latest();
         } else {
             if(Auth::user()->role_type == 'inhouse') {

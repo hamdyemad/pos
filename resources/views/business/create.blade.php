@@ -31,7 +31,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            @if(Auth::user()->type == 'admin' || Auth::user()->role_type == 'online')
+                            @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin' || Auth::user()->role_type == 'online')
                                 <div class="col-6">
                                     <div class="form-group">
                                         <label for="category">{{ translate('the branch') }}</label>

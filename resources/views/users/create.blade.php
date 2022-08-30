@@ -25,6 +25,21 @@
                         <input type="hidden" name="type" value="{{ request('type') }}">
                         @csrf
                         <div class="row">
+                            @if(Auth::user()->type == 'admin')
+                                <div class="col-12 col-md-6">
+                                    <div class="form-group">
+                                        <label for="category">{{ translate('staff type') }}</label>
+                                        <select class="form-control select2 staff_select" name="type"
+                                            data-placeholder="{{ translate('choose') }}">
+                                            <option value="sub-admin">{{ translate('sub admin') }}</option>
+                                            <option value="user">{{ translate('user') }}</option>
+                                        </select>
+                                        @error('type')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            @endif
                             <div class="col-12 col-md-6 roles_col">
                                 <div class="form-group">
                                     <label for="category">{{ translate('role type') }}</label>
@@ -51,7 +66,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-12 col-md-6 roles_col">
+                            <div class="col-12 col-md-6">
                                 <div class="form-group">
                                     <label for="category">{{ translate('permessions') }}</label>
                                     <select class="form-control select2 select2-multiple" name="roles[]"
@@ -116,7 +131,7 @@
                                         class="form-control">
                                 </div>
                             </div>
-                            <div class="col-12 col-md-6">
+                            <div class="col-12">
                                 <div class="form-group">
                                     <label for="username">{{ translate('address') }}</label>
                                     <input type="text" name="address" value="{{ old('address') }}"
@@ -157,6 +172,14 @@
 
 @section('footerScript')
     <script>
+
+        if($(".staff_select").val() == 'sub-admin') {
+            $(".roles_col").addClass('d-none');
+        } else {
+            $(".roles_col").removeClass('d-none');
+        }
+
+
         if($(".role_type_select").val() == 'inhouse') {
             $(".branch_col").removeClass('d-none');
         } else {

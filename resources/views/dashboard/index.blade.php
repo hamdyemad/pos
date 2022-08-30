@@ -4,7 +4,6 @@
 
 @section('content')
 
-    @if(Auth::user()->type == 'admin')
         <!-- start page title -->
         <div class="row">
 
@@ -64,7 +63,7 @@
         <!-- end row -->
 
         <div class="row">
-            <div class="col">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">{{translate('total orders of statuses')}}</h4>
@@ -72,6 +71,108 @@
                     </div>
                 </div>
             </div>
+            @if(count($orders_online) > 0)
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="m-0">{{translate('total orders of online')}}</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th><span>{{ translate('order number') }}</span></th>
+                                        <th><span>{{ translate('employee order') }}</span></th>
+                                        <th><span>{{ translate('customer') }}</span></th>
+                                        <th><span>{{ translate('order status') }}</span></th>
+                                        <th><span>{{ translate('creation date') }}</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($orders_online as $order)
+                                        <tr id="{{ $order->id }}" data-value="{{ $order }}">
+                                            <th>{{ $order->id }}</th>
+                                            <th>
+                                                @if($order->user)
+                                                {{ $order->user->name }}
+                                                @else
+                                                --
+                                                @endif
+                                            </th>
+                                            @if($order->customer)
+                                                <td>{{ $order->customer->name }}</td>
+                                            @else
+                                                <td>--</td>
+                                            @endif
+                                            <td>
+                                                {{ $order->status->name }}
+                                            </td>
+                                            <td>
+                                                <span>{{ $order->created_at->diffForHumans() }}</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            @if(count($orders_branches) > 0)
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="m-0">{{translate('total orders of branches')}}</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th><span>{{ translate('order number') }}</span></th>
+                                        <th><span>{{ translate('employee order') }}</span></th>
+                                        <th><span>{{ translate('customer') }}</span></th>
+                                        <th><span>{{ translate('order status') }}</span></th>
+                                        <th><span>{{ translate('order branch') }}</span></th>
+                                        <th><span>{{ translate('creation date') }}</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($orders_branches as $order)
+                                        <tr id="{{ $order->id }}" data-value="{{ $order }}">
+                                            <th>{{ $order->id }}</th>
+                                            <th>
+                                                @if($order->user)
+                                                {{ $order->user->name }}
+                                                @else
+                                                --
+                                                @endif
+                                            </th>
+                                            @if($order->customer)
+                                                <td>{{ $order->customer->name }}</td>
+                                            @else
+                                                <td>--</td>
+                                            @endif
+                                            <td>
+                                                {{ $order->status->name }}
+                                            </td>
+                                            <td>
+                                                @if($order->branch)
+                                                    <div class="badge badge-primary p-2">({{ translate($order->branch->name) }})</div>
+                                                @else
+                                                --
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span>{{ $order->created_at->diffForHumans() }}</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             {{-- <div class="col-xl-6">
                 <div class="card">
@@ -520,7 +621,6 @@
             </div>
         </div> --}}
         <!-- end row -->
-    @endif
 @endsection
 
 @section('footerScript')

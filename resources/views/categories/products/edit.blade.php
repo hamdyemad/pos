@@ -1,14 +1,14 @@
 @extends('layouts.master')
 
 @section('title')
-{{ translate('edit food') }}
+{{ translate('edit product') }}
 @endsection
 
 @section('content')
     @component('common-components.breadcrumb')
         @slot('title') {{ $product->name }} @endslot
         @slot('li1') {{ translate('dashboard') }} @endslot
-        @slot('li2') {{ translate('foods') }} @endslot
+        @slot('li2') {{ translate('products') }} @endslot
         @slot('route1') {{ route('dashboard') }} @endslot
         @slot('route2') {{ route('products.index') }} @endslot
         @slot('li3') {{ $product->name }} @endslot
@@ -17,7 +17,7 @@
         <div class="container">
             <div class="card">
                 <div class="card-header">
-                    {{ translate('edit food') }}
+                    {{ translate('edit product') }}
                 </div>
                 <div class="card-body">
                     <form action="{{ route('products.update', $product) }}" method="POST" enctype="multipart/form-data">
@@ -26,7 +26,7 @@
                         <div class="row">
                             <div class="col-12 col-md-6">
                                 <div class="form-group">
-                                    <label for="name">{{ translate('food name') }}</label>
+                                    <label for="name">{{ translate('product name') }}</label>
                                     <input type="text" class="form-control @error('name')is-invalid @enderror" name="name"
                                         value="{{ $product->name }}">
                                     @error('name')
@@ -64,7 +64,7 @@
                             </div>
                             <div class="col-12 col-md-6">
                                 <div class="form-group">
-                                    <label for="name">{{ translate('food images') }}</label>
+                                    <label for="name">{{ translate('product images') }}</label>
                                     <input type="file" class="form-control input_files" accept="image/*" multiple hidden
                                         name="photos[]">
                                     <button type="button" class="btn btn-primary form-control files">
@@ -82,11 +82,26 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-6">
+                            <div class="col-12">
                                 <div class="form-group">
                                     <label for="name">{{ translate('description') }}</label>
                                     <textarea id="textarea" class="form-control description" name="description" maxlength="225"
                                         rows="3">{{ $product->description}}</textarea>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="name">{{ translate('sku') }}</label>
+                                    <input type="text" class="form-control" name="sku"
+                                        @if($product->sku)
+                                            value="{{ $product->sku }}"
+                                        @else
+                                            value="{{ 'sku-' . rand(100000, 1000000) }}"
+                                        @endif
+                                    >
+                                    @error('sku')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             @if(count($product->prices) > 0 && !old('sizes'))
@@ -125,17 +140,7 @@
                                     </div>
                                 </div>
                             @endif
-                            <div class="col-12 col-md-6">
-                                <div class="form-group">
-                                    <label for="viewed_number">{{ translate('appearance number') }}</label>
-                                    <input type="number" class="form-control" min="1" name="viewed_number"
-                                        value="{{ $product->viewed_number }}">
-                                    @error('viewed_number')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6">
+                            <div class="col-12">
                                 <div class="form-group">
                                     <label for="extras">{{ translate('extras') }}</label>
                                     <select name="extras_type[]" class="form-control extras select2 select2-multiple"
@@ -347,7 +352,7 @@
                                 <div class="form-group">
                                     <label for=""></label>
                                     <input type="submit" value="{{ translate('edit') }}" class="btn btn-success">
-                                    <a href="{{ route('products.index') }}" class="btn btn-info">{{ translate('back to foods') }}</a>
+                                    <a href="{{ route('products.index') }}" class="btn btn-info">{{ translate('back to products') }}</a>
                                 </div>
                             </div>
                         </div>
@@ -456,7 +461,7 @@
             }
             if(type == 'extra') {
                 name = 'extras';
-                variant = 'الأضافة';
+                variant = "{{ translate('extra') }}";
                 tr = `
                     <tr>
                         <td>
@@ -470,7 +475,7 @@
                 `;
             } else if(type == 'size') {
                 name = 'sizes';
-                variant = 'المقاس';
+                variant = "{{ translate('size') }}";
                 tr = `
                     <tr>
                         <td>

@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Events\changeOrderStatus;
 use App\Events\newOrder;
+use App\Exports\OrderExport;
 use App\Http\Controllers\Controller;
+use App\Models\ApprovalOrder;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Coupon;
+use App\Models\Customer;
 use App\Models\Language;
 use App\Models\Order;
 use App\Models\OrderDetail;
@@ -26,6 +29,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use PDF;
 use Mpdf\Mpdf;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller
 {
@@ -40,19 +44,23 @@ class OrderController extends Controller
         $this->authorize('orders.index');
         Carbon::setLocale(app()->getLocale());
         $orders = Order::where('under_approve', 0)->latest();
+        if(count(Auth::user()->statuses_permessions()) > 0) {
+            $orders->whereIn('status_id', Auth::user()->statuses_permessions());
+        }
         $statuses = Status::all();
         $branches = Branch::all();
-        if($request->customer_name) {
-            $orders = $orders->where('customer_name', 'like', '%' . $request->customer_name .'%');
-        }
-        if($request->customer_phone) {
-            $orders = $orders->where('customer_phone', 'like', '%' . $request->customer_phone .'%');
+        $customers = Customer::all();
+        if($request->id) {
+            $orders = $orders->where('id', 'like', '%' . $request->id .'%');
         }
         if($request->type) {
             $orders = $orders->where('type', 'like', '%' . $request->type .'%');
         }
         if($request->branch_id) {
-            $orders = $orders->where('branch_id', 'like', '%' . $request->type .'%');
+            $orders = $orders->where('branch_id', 'like', '%' . $request->branch_id .'%');
+        }
+        if($request->customer_id) {
+            $orders = $orders->where('customer_id', 'like', '%' . $request->customer_id .'%');
         }
         if($request->status_id) {
             $orders = $orders->where('status_id', 'like', '%' . $request->status_id .'%');
@@ -68,27 +76,35 @@ class OrderController extends Controller
             ->where('created_at', '<=', $request->to)
             ->where('created_at', '>=', $request->from);
         }
+
+
         $orders = $orders->paginate(10);
-        return view('orders.index', compact('orders', 'statuses', 'branches'));
+
+        return view('orders.index', compact('orders', 'statuses', 'branches', 'customers'));
     }
 
     public function with_bin_codes(Request $request) {
-        $this->authorize('orders.index');
+        $this->authorize('approval_orders.index');
         Carbon::setLocale(app()->getLocale());
         $orders = Order::where('bin_code', '!=', 'null')->latest();
+        if(count(Auth::user()->statuses_permessions()) > 0) {
+            $orders->whereIn('status_id', Auth::user()->statuses_permessions());
+        }
         $statuses = Status::all();
         $branches = Branch::all();
-        if($request->customer_name) {
-            $orders = $orders->where('customer_name', 'like', '%' . $request->customer_name .'%');
-        }
-        if($request->customer_phone) {
-            $orders = $orders->where('customer_phone', 'like', '%' . $request->customer_phone .'%');
+        $customers = Customer::all();
+
+        if($request->id) {
+            $orders = $orders->where('id', 'like', '%' . $request->id .'%');
         }
         if($request->type) {
             $orders = $orders->where('type', 'like', '%' . $request->type .'%');
         }
         if($request->branch_id) {
-            $orders = $orders->where('branch_id', 'like', '%' . $request->type .'%');
+            $orders = $orders->where('branch_id', 'like', '%' . $request->branch_id .'%');
+        }
+        if($request->customer_id) {
+            $orders = $orders->where('customer_id', 'like', '%' . $request->customer_id .'%');
         }
         if($request->status_id) {
             $orders = $orders->where('status_id', 'like', '%' . $request->status_id .'%');
@@ -99,14 +115,16 @@ class OrderController extends Controller
         if($request->to) {
             $orders = $orders->where('created_at', '<=', $request->to);
         }
+
         if($request->to && $request->from) {
             $orders = $orders
             ->where('created_at', '<=', $request->to)
             ->where('created_at', '>=', $request->from);
         }
         $orders = $orders->paginate(10);
-        return view('orders.bin_codes', compact('orders', 'statuses', 'branches'));
+        return view('orders.bin_codes', compact('orders', 'statuses', 'branches', 'customers'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -119,6 +137,11 @@ class OrderController extends Controller
         $status = Status::where('default_val', 1)->first();
         if($status) {
             $countries = Country::where('active', '1')->get();
+            $branches = Branch::orderBy('name')->get();
+            $customers = Customer::orderBy('name')->get();
+            if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin' || Auth::user()->role_type == 'online') {
+                $products = Product::latest()->get();
+            }
             if(Auth::user()->role_type == 'inhouse') {
                 $categories_ids = Category::whereHas('branches', function($query) {
                     return $query->where('branch_id', Auth::user()->branch_id);
@@ -126,11 +149,14 @@ class OrderController extends Controller
                 $products = Product::whereHas('categories', function($query) use($categories_ids) {
                     return $query->whereIn('category_id', $categories_ids);
                 })->latest()->get();
-            } else {
-                $products = null;
+                return view('orders.pos.create', compact('products', 'branches', 'countries', 'customers'));
             }
-            $branches = Branch::orderBy('name')->get();
-            return view('orders.create', compact('products', 'branches', 'countries'));
+            if(Auth::user()->role_type == 'online') {
+                return view('orders.online.create', compact('products', 'branches', 'countries', 'customers'));
+            }
+            if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin') {
+                return view('orders.create', compact('products', 'branches', 'countries', 'customers'));
+            }
         } else {
             return redirect()->back()->with('error', translate('a default status must be set'));
         }
@@ -140,6 +166,7 @@ class OrderController extends Controller
         $rules = [
             'type' => 'required|in:inhouse,online',
             'branch_id' => 'required|exists:branches,id',
+            'customer_id' => 'required|exists:customers,id',
             'products_search' => 'required',
             'products' => 'required',
             'bin_code' => 'exists:users,bin_code',
@@ -153,15 +180,19 @@ class OrderController extends Controller
             'products_search.required' => translate('you should choose a minmum 1 product'),
             'products.*.required' => translate('you should choose a minmum 1 product'),
         ];
-        if($request->type == 'online') {
-            unset($rules['branch_id']);
+        if($request->customer_id == null) {
+            unset($rules['customer_id']);
             $rules['customer_name'] = 'required';
             $rules['customer_address'] = 'required';
             $rules['customer_phone'] = 'required';
-            $rules['city_id'] = 'required';
+            $rules['customer_type'] = 'in:regular,special';
             $mesages['customer_name.required'] = translate('the name is required');
             $mesages['customer_address.required'] = translate('the address is required');
             $mesages['customer_phone.required'] =translate('the phone is required');
+        }
+        if($request->type == 'online') {
+            unset($rules['branch_id']);
+            $rules['city_id'] = 'required';
             $mesages['city_id.required'] = translate('the city is required');
         }
         if($request->products) {
@@ -226,10 +257,9 @@ class OrderController extends Controller
                 'payment_method' => $request->payment_method,
                 'status_id' => $status->id,
                 'city_id' => $request->city_id,
-                'customer_name' => $request->customer_name,
-                'customer_phone' => $request->customer_phone,
-                'customer_address' => $request->customer_address,
+                'customer_id' => $request->customer_id,
                 'notes' => $request->notes,
+                'discount_type' => $request->discount_type,
                 'total_discount' => $request->total_discount,
                 'shipping' => $request->shipping,
                 'grand_total' => 0
@@ -237,17 +267,20 @@ class OrderController extends Controller
             if($request->bin_code) {
                 $creation['under_approve'] = 1;
             }
+
             if($this->validateOrder($request)) {
                 return $this->validateOrder($request);
             }
-
-            if($request->has('customized_files')) {
-                foreach ($request->file('customized_files') as $customized_file) {
-                    $customized_files[] = $this->uploadFiles($customized_file, $this->ordersPath);
-                }
-                $creation['customized_files'] = json_encode($customized_files);
+            if($request->customer_id == null) {
+                $customer = Customer::create([
+                    'name' => $request->customer_name,
+                    'phone' => $request->customer_phone,
+                    'email' => $request->customer_email,
+                    'address' => $request->customer_address,
+                    'type' => $request->customer_type,
+                ]);
+                $creation['customer_id'] = $customer->id;
             }
-
             $grand_total = [];
             $order = Order::create($creation);
             StatusHistory::create([
@@ -260,21 +293,36 @@ class OrderController extends Controller
                 if($product) {
                     if(isset($productObj['amount'])) {
                         $price = $product->price_of_currency()->first();
-                        OrderDetail::create([
+                        $orderDetailCreation = [
                             'order_id' => $order->id,
                             'product_id' => $productId,
                             'price' => $price->price_after_discount,
                             'discount' => $productObj['discount'],
+                            'notes' => $productObj['notes'],
                             'qty' => $productObj['amount'],
                             'total_price' => $price->price_after_discount * $productObj['amount']
-                        ]);
-                        array_push($grand_total, (($price->price_after_discount * $productObj['amount']) - $productObj['discount']));
+                        ];
+                        if(isset($productObj['files'])) {
+                            foreach ($request->file("products.$productId.files") as $file) {
+                                $files[] = $this->uploadFiles($file, $this->ordersPath);
+                            }
+                            $orderDetailCreation['files'] = json_encode($files);
+                            $files = [];
+                        }
+                        OrderDetail::create($orderDetailCreation);
+                        $total_price = $price->price_after_discount * $productObj['amount'];
+                        if($request->discount_type == 'amount') {
+                            $pricePushedToGrand = ($total_price - $productObj['discount']);
+                        } else {
+                            $pricePushedToGrand = $total_price - (($total_price * $productObj['discount']) / 100);
+                        }
+                        array_push($grand_total, $pricePushedToGrand);
                     }
                     if(isset($productObj['variants'])) {
                         foreach ($productObj['variants'] as $variantId => $variant) {
                             $productVariant = ProductVariant::find($variantId);
                             if($productVariant) {
-                                OrderDetail::create([
+                                $orderDetailCreation = [
                                     'order_id' => $order->id,
                                     'product_id' => $productId,
                                     'variant' => $productVariant->variant,
@@ -282,9 +330,24 @@ class OrderController extends Controller
                                     'price' => $productVariant->currenctPriceOfVariant->price_after_discount,
                                     'qty' => $variant['amount'],
                                     'discount' => $variant['discount'],
+                                    'notes' => $variant['notes'],
                                     'total_price' => $productVariant->currenctPriceOfVariant->price_after_discount * $variant['amount']
-                                ]);
-                                array_push($grand_total, (($productVariant->currenctPriceOfVariant->price_after_discount * $variant['amount']) - $variant['discount']));
+                                ];
+                                if(isset($variant['files'])) {
+                                    foreach ($request->file("products.$productId.variants.$variantId.files") as $file) {
+                                        $files[] = $this->uploadFiles($file, $this->ordersPath);
+                                    }
+                                    $orderDetailCreation['files'] = json_encode($files);
+                                    $files = [];
+                                }
+                                OrderDetail::create($orderDetailCreation);
+                                $total_price = $productVariant->currenctPriceOfVariant->price_after_discount * $variant['amount'];
+                                if($request->discount_type == 'amount') {
+                                    $pricePushedToGrand = ($total_price - $variant['discount']);
+                                } else {
+                                    $pricePushedToGrand = $total_price - (($total_price * $variant['discount']) / 100);
+                                }
+                                array_push($grand_total, $pricePushedToGrand);
                             }
                         }
                     }
@@ -292,7 +355,13 @@ class OrderController extends Controller
             }
             $grand_total = array_reduce($grand_total,
             function($acc, $current) {return $acc + $current;});
-            $grand_total = (($grand_total + $request->shipping) - $creation['total_discount']);
+
+            $grand_total_price = $grand_total + $request->shipping;
+            if($request->discount_type == 'amount') {
+                $grand_total = ($grand_total_price - $creation['total_discount']);
+            } else {
+                $grand_total = $grand_total_price - (($grand_total_price * $creation['total_discount']) / 100);
+            }
             if($request->coupon_id) {
                 $coupon = Coupon::find($request->coupon_id);
                 if($coupon) {
@@ -338,11 +407,12 @@ class OrderController extends Controller
 
         Carbon::setLocale(app()->getLocale());
         $statuses_history = StatusHistory::where('order_id', $order->id)->latest()->get();
-        return view('orders.show', compact('order', 'statuses_history'));
+        $approval_orders = ApprovalOrder::where('order_id', $order->id)->latest()->get();
+        return view('orders.show', compact('order', 'statuses_history', 'approval_orders'));
     }
 
     public function pdf(Request $request,Order $order) {
-        $currenctLang = Language::where('code', app()->getLocale())->first();
+        $currenctLang = Language::where('regional','like', '%' . app()->getLocale() . '%')->first();
         Carbon::setLocale(app()->getLocale());
         if($request->type == 'pos') {
             $file = 'orders.pos_pdf';
@@ -356,12 +426,15 @@ class OrderController extends Controller
 
 
     public function all_pdf(Request $request) {
-        $currenctLang = Language::where('code', app()->getLocale())->first();
+        $currenctLang = Language::where('regional','like', '%' . app()->getLocale() . '%')->first();
         Carbon::setLocale(app()->getLocale());
         if(!isset($request->orders)) {
             return redirect()->back()->with('error', translate('you should choose a 1 minimum of orders'));
         } else {
             $orders = Order::whereIn('id', $request->orders)->get();
+            if($request->type == 'export') {
+                return Excel::download(new OrderExport($orders), 'orders.xlsx');
+            }
             $mpdf = new Mpdf();
             $mpdf->autoScriptToLang = true;
             $mpdf->autoLangToFont = true;
@@ -390,15 +463,34 @@ class OrderController extends Controller
         $this->authorize('orders.edit');
         $status = Status::where('default_val', 1)->first();
         if($status) {
+            $customers = Customer::orderBy('name')->get();
             $countries = Country::where('active', '1')->get();
+            $branches = Branch::orderBy('name')->get();
             if($order->city) {
                 $cities = City::where('country_id', $order->city->country_id)->get();
             } else {
                 $cities = [];
             }
-            $products = Product::orderBy('name')->get();
-            $branches = Branch::orderBy('name')->get();
-            return view('orders.edit', compact('order', 'branches', 'products', 'countries', 'cities'));
+
+            if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin' || Auth::user()->role_type == 'online') {
+                $products = Product::latest()->get();
+            }
+            if(Auth::user()->role_type == 'inhouse') {
+                $categories_ids = Category::whereHas('branches', function($query) {
+                    return $query->where('branch_id', Auth::user()->branch_id);
+                })->latest()->pluck('id');
+                $products = Product::whereHas('categories', function($query) use($categories_ids) {
+                    return $query->whereIn('category_id', $categories_ids);
+                })->latest()->get();
+                return view('orders.pos.edit', compact('order', 'branches', 'products', 'countries', 'cities', 'customers'));
+            }
+            if(Auth::user()->role_type == 'online') {
+                return view('orders.online.edit', compact('order', 'branches', 'products', 'countries', 'cities', 'customers'));
+            }
+            if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin') {
+                return view('orders.edit', compact('order', 'branches', 'products', 'countries', 'cities', 'customers'));
+            }
+
         } else {
             return redirect()->back()->with('error', translate('you should choose a default status'));
         }
@@ -413,7 +505,6 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-
         $this->authorize('orders.edit');
         $city = City::find($request->city_id);
         if($city) {
@@ -424,11 +515,14 @@ class OrderController extends Controller
             $creation = [
                 'type' => $request->type,
                 'branch_id' => $request->branch_id,
+                'coupon_id' => $request->coupon_id,
+                'user_id' => Auth::id(),
+                'payment_method' => $request->payment_method,
                 'status_id' => $status->id,
-                'customer_name' => $request->customer_name,
-                'customer_phone' => $request->customer_phone,
-                'customer_address' => $request->customer_address,
+                'city_id' => $request->city_id,
+                'customer_id' => $request->customer_id,
                 'notes' => $request->notes,
+                'discount_type' => $request->discount_type,
                 'total_discount' => $request->total_discount,
                 'shipping' => $request->shipping,
                 'grand_total' => 0
@@ -436,36 +530,69 @@ class OrderController extends Controller
             if($this->validateOrder($request)) {
                 return $this->validateOrder($request);
             }
-            $grand_total = [];
-            if($request->has('customized_files')) {
-                // Remove Current Photo
-                $this->removePhotos($order);
-                foreach ($request->file('customized_files') as $customized_file) {
-                    $customized_files[] = $this->uploadFiles($customized_file, $this->ordersPath);
-                }
-                $creation['customized_files'] = json_encode($customized_files);
+
+            if($request->customer_id == null) {
+                $customer = Customer::create([
+                    'name' => $request->customer_name,
+                    'phone' => $request->customer_phone,
+                    'email' => $request->customer_email,
+                    'address' => $request->customer_address,
+                    'type' => $request->customer_type,
+                ]);
+                $creation['customer_id'] = $customer->id;
             }
+
+            $grand_total = [];
             $order->update($creation);
-            OrderDetail::where('order_id', $order->id)->delete();
+            $all_order_details = OrderDetail::where('order_id', $order->id)->get();
+            foreach ($all_order_details as $all_order_detail) {
+                if($all_order_detail->files) {
+                    $files = json_decode($all_order_detail->files);
+                    foreach ($files as $file) {
+                        if(file_exists($file)) {
+                            unlink($file);
+                        }
+                    }
+                }
+                $all_order_detail->delete();
+            }
             foreach ($request->products as $productId => $productObj) {
                 $product = Product::find($productId);
                 if($product) {
                     if(isset($productObj['amount'])) {
-                        OrderDetail::create([
+                        $orderDetailCreation = [
                             'order_id' => $order->id,
                             'product_id' => $productId,
                             'price' => $product->price_of_currency->price_after_discount,
                             'qty' => $productObj['amount'],
                             'discount' => $productObj['discount'],
+                            'notes' => $productObj['notes'],
                             'total_price' => $product->price_of_currency->price_after_discount * $productObj['amount']
-                        ]);
-                        array_push($grand_total, (($product->price_of_currency->price_after_discount * $productObj['amount']) - $productObj['discount']));
+                        ];
+                        if(isset($productObj['files'])) {
+                            foreach ($request->file("products.$productId.files") as $file) {
+                                $files[] = $this->uploadFiles($file, $this->ordersPath);
+                            }
+                            $orderDetailCreation['files'] = json_encode($files);
+                            $files = [];
+                        } else {
+
+                        }
+                        OrderDetail::create($orderDetailCreation);
+
+                        $total_price = $product->price_of_currency->price_after_discount * $productObj['amount'];
+                        if($request->discount_type == 'amount') {
+                            $pricePushedToGrand = ($total_price - $productObj['discount']);
+                        } else {
+                            $pricePushedToGrand = $total_price - (($total_price * $productObj['discount']) / 100);
+                        }
+                        array_push($grand_total, $pricePushedToGrand);
                     }
                     if(isset($productObj['variants'])) {
                         foreach ($productObj['variants'] as $variantId => $variant) {
                             $productVariant = ProductVariant::find($variantId);
                             if($productVariant) {
-                                OrderDetail::create([
+                                $orderDetailCreation = [
                                     'order_id' => $order->id,
                                     'product_id' => $productId,
                                     'variant' => $productVariant->variant,
@@ -473,17 +600,42 @@ class OrderController extends Controller
                                     'price' => $productVariant->currenctPriceOfVariant->price_after_discount,
                                     'qty' => $variant['amount'],
                                     'discount' => $variant['discount'],
+                                    'notes' => $variant['notes'],
                                     'total_price' => $productVariant->currenctPriceOfVariant->price_after_discount * $variant['amount']
-                                ]);
-                                array_push($grand_total, (($productVariant->currenctPriceOfVariant->price_after_discount * $variant['amount']) - $variant['discount']));
+                                ];
+                                if(isset($variant['files'])) {
+                                    foreach ($request->file("products.$productId.variants.$variantId.files") as $file) {
+                                        $files[] = $this->uploadFiles($file, $this->ordersPath);
+                                    }
+                                    $orderDetailCreation['files'] = json_encode($files);
+                                    $files = [];
+                                } else {
+
+                                }
+                                OrderDetail::create($orderDetailCreation);
+                                $total_price = $productVariant->currenctPriceOfVariant->price_after_discount * $variant['amount'];
+                                if($request->discount_type == 'amount') {
+                                    $pricePushedToGrand = ($total_price - $variant['discount']);
+                                } else {
+                                    $pricePushedToGrand = $total_price - (($total_price * $variant['discount']) / 100);
+                                }
+                                array_push($grand_total, $pricePushedToGrand);
                             }
                         }
                     }
+                } else {
+                    return redirect()->back()->with('error', translate('product is not exists'));
                 }
             }
             $grand_total = array_reduce($grand_total,
             function($acc, $current) {return $acc + $current;});
-            $order->grand_total = ($grand_total + $request->shipping) - $creation['total_discount'];
+            $grand_total_price = $grand_total + $request->shipping;
+            if($request->discount_type == 'amount') {
+                $grand_total = ($grand_total_price - $creation['total_discount']);
+            } else {
+                $grand_total = $grand_total_price - (($grand_total_price * $creation['total_discount']) / 100);
+            }
+            $order->grand_total = $grand_total;
             $order->save();
             return redirect()->back()->with('info', translate('updated successfully'));
         } else {
@@ -548,9 +700,25 @@ class OrderController extends Controller
 
 
     public function approve(Request $request, Order $order) {
-        $order->update([
-            'under_approve' => 0
-        ]);
+        if($request->type == 'unapprove') {
+            $order->update([
+                'under_approve' => '1'
+            ]);
+            ApprovalOrder::create([
+                'user_id' => Auth::id(),
+                'order_id' => $order->id,
+                'approved' => '1'
+            ]);
+        } else {
+            $order->update([
+                'under_approve' => '0'
+            ]);
+            ApprovalOrder::create([
+                'user_id' => Auth::id(),
+                'order_id' => $order->id,
+                'approved' => '0'
+            ]);
+        }
         return redirect()->back()->with('success', translate('updated successfuly'));
     }
 
@@ -560,9 +728,46 @@ class OrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+
+    public function remove_files(Request $request,Order $order) {
+        if($request->variant == 'undefined') {
+            $order_detail = OrderDetail::where(['order_id' => $order->id, 'product_id' => $request->product])->first();
+        } else {
+            $order_detail = OrderDetail::find($request->variant);
+        }
+        if($order_detail->files) {
+            $files = json_decode($order_detail->files);
+            if(count($files) > 0) {
+                $index = array_search($request->file, $files);
+                if(file_exists($request->file)) {
+                    array_splice($files, $index, 1);
+                    unlink($request->file);
+                }
+                $order_detail->update([
+                    'files' => json_encode($files)
+                ]);
+            }
+        }
+        return redirect()->back()->with('success', translate('file removed successfully'));
+
+    }
+
     public function destroy(Order $order)
     {
         $this->authorize('orders.destroy');
+        foreach ($order->order_details as $detail) {
+            if($detail->files) {
+                $files = json_decode($detail->files);
+                if(count($files) > 0) {
+                    foreach ($files as $file) {
+                        if(file_exists($file)) {
+                            unlink($file);
+                        }
+                    }
+                }
+            }
+        }
         Order::destroy($order->id);
         return redirect()->back()->with('success', translate('deleted successfully'));
     }

@@ -18,7 +18,7 @@
                     <h2>{{ translate('employees') }}</h2>
                     @can('users.create')
                         <div class="d-flex justify-content-between create_links">
-                            <a href="{{ route('users.create') . '?type=sub-admin' }}" class="btn btn-primary mb-2">{{ translate('create employee') }}</a>
+                            <a href="{{ route('users.create') }}" class="btn btn-primary mb-2">{{ translate('create employee') }}</a>
                         </div>
                     @endcan
                 </div>
@@ -55,7 +55,7 @@
                                 @enderror
                             </div>
                         </div>
-                        @if(Auth::user()->type == 'admin')
+                        @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin')
                             <div class="col-12 col-md-6 branch_col d-none">
                                 <div class="form-group">
                                     <label for="branch_id">{{ translate('the branch') }}</label>
@@ -100,7 +100,9 @@
                             <tr>
                                 <th>#</th>
                                 <th><span class="max">{{ translate('branch') }}</span></th>
+                                <th><span class="max">{{ translate('type') }}</span></th>
                                 <th><span class="max">{{ translate('role type') }}</span></th>
+                                <th><span class="max">{{ translate('employee code') }}</span></th>
                                 <th><span class="max">{{ translate('employee name') }}</span></th>
                                 <th><span class="max">{{ translate('email') }}</span></th>
                                 <th><span class="max">{{ translate('permessions') }}</span></th>
@@ -124,8 +126,18 @@
                                         --
                                     </td>
                                     @endif
+                                    <td><span class="max">{{ $user->type }}</span></td>
+                                    @if($user->role_type)
+                                        <td>
+                                            {{ translate($user->role_type) }}
+                                        </td>
+                                    @else
+                                        <td>
+                                            ---
+                                        </td>
+                                    @endif
                                     <td>
-                                        {{ translate($user->role_type) }}
+                                        {{ $user->bin_code }}
                                     </td>
                                     <td>
                                         <div class="d-flex">

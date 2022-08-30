@@ -24,7 +24,7 @@ class CategoryController extends Controller
     {
         $this->authorize('categories.index');
         Carbon::setLocale(app()->getLocale());
-        if(Auth::user()->type == 'admin') {
+        if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin') {
             $categories = Category::latest();
         } else {
             if(Auth::user()->role_type == 'inhouse') {

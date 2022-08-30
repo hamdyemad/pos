@@ -64,6 +64,10 @@
                                     <i class="fas fa-file-pdf"></i>
                                     <span>{{ translate('pos invoice') }}</span>
                                 </button>
+                                <button class="dropdown-item shipping_invoice_btn" type="button" data-name="export" form="shipping_invoice">
+                                    <i class="fas fa-file-csv"></i>
+                                    <span>{{ translate('export excel') }}</span>
+                                </button>
                                 <button class="dropdown-item" href="#" data-toggle="modal" data-target="#statusModal">
                                     <i class="fas fa-edit"></i>
                                     <span>{{ translate('change order status') }}</span>
@@ -81,22 +85,24 @@
                         <div class="row">
                             <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
-                                    <label for="customer_name">{{ translate('customer name') }}</label>
-                                    <input class="form-control" name="customer_name" type="text" value="{{ request('customer_name') }}">
+                                    <label for="id">{{ translate('order id') }}</label>
+                                    <input class="form-control" name="id" type="text" value="{{ request('id') }}">
                                 </div>
                             </div>
+
                             <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
-                                    <label for="customer_phone">{{ translate('customer phone') }}</label>
-                                    <input class="form-control" name="customer_phone" type="text" value="{{ request('customer_phone') }}">
+                                    <label for="name">{{ translate('customer') }}</label>
+                                    <select class="form-control select2" name="customer_id">
+                                        <option value="">{{ translate('choose') }}</option>
+                                        @foreach ($customers as $customer)
+                                            <option value="{{ $customer->id }}" @if ($customer->id == request('customer_id')) selected @endif>
+                                                {{ $customer->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-6 col-lg-3">
-                                <div class="form-group">
-                                    <label for="customer_address">{{ translate('customer address') }}</label>
-                                    <input class="form-control" name="customer_address" type="text" value="{{ request('customer_address') }}">
-                                </div>
-                            </div>
+
                             <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
                                     <label for="name">{{ translate('order status') }}</label>
@@ -109,7 +115,7 @@
                                     </select>
                                 </div>
                             </div>
-                            @if(Auth::user()->type == 'admin')
+                            @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin')
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <div class="form-group">
                                         <label for="name">{{ translate('order type') }}</label>
@@ -169,12 +175,12 @@
                                 <th><span>{{ translate('order number') }}</span></th>
                                 <th><span>{{ translate('order type') }}</span></th>
                                 <th><span>{{ translate('employee attached order') }}</span></th>
-                                <th><span>{{ translate('customer name') }}</span></th>
+                                <th><span>{{ translate('customer') }}</span></th>
                                 <th><span>{{ translate('city') }}</span></th>
-                                <th><span>{{ translate('customer phone') }}</span></th>
                                 <th><span>{{ translate('order status') }}</span></th>
                                 <th><span>{{ translate('order branch') }}</span></th>
                                 <th><span>{{ translate('approval') }}</span></th>
+                                <th><span>{{ translate('total price') }}</span></th>
                                 <th><span>{{ translate('creation date') }}</span></th>
                                 <th><span>{{ translate('settings') }}</span></th>
                             </tr>
@@ -194,8 +200,8 @@
                                         @endphp
                                         {{ $employee_attached_order->name }}
                                     </th>
-                                    @if($order->customer_name)
-                                        <td>{{ $order->customer_name }}</td>
+                                    @if($order->customer)
+                                        <td>{{ $order->customer->name }}</td>
                                     @else
                                         <td>
                                             --
@@ -205,13 +211,6 @@
                                         <td>
                                             {{ $order->city->name }}
                                         </td>
-                                    @else
-                                        <td>
-                                            --
-                                        </td>
-                                    @endif
-                                    @if($order->customer_phone)
-                                        <td>{{ $order->customer_phone }}</td>
                                     @else
                                         <td>
                                             --
@@ -239,14 +238,23 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($order->under_approve)
-                                            <form action="{{ route('orders.approve', $order) }}" method="POST">
-                                                @csrf
-                                                <button class="btn btn-secondary btn-block max">{{ translate('not approved') }}</button>
-                                            </form>
-                                        @else
-                                            <span class="badge badge-primary">{{ translate('approved') }}</span>
-                                        @endif
+                                        @can('orders.approve')
+                                            @if($order->under_approve)
+                                                <form action="{{ route('orders.approve', $order) }}" method="POST">
+                                                    @csrf
+                                                    <button class="btn btn-secondary btn-block max">{{ translate('not approved') }}</button>
+                                                </form>
+                                            @else
+                                                <form action="{{ route('orders.approve', $order) }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="type" value="unapprove">
+                                                    <button class="btn btn-secondary btn-block max">{{ translate('approved') }}</button>
+                                                </form>
+                                            @endif
+                                        @endcan
+                                    </td>
+                                    <td>
+                                        {{ $order->grand_total }}
                                     </td>
                                     <td>
                                         <span>{{ $order->created_at->diffForHumans() }}</span>
@@ -278,72 +286,6 @@
                                                 'route' => route('orders.destroy', $order->id)
                                                 ])
                                             @endcan
-                                    </td>
-                                </tr>
-                                <tr id="{{ $order->id }}">
-                                    <td colspan="13">
-                                        <div class="products d-flex">
-                                            <div class="product-variants d-flex">
-                                                @foreach ($order->order_details->groupBy('product_id') as $key => $orderProduct)
-                                                    @if(isset($orderProduct->groupBy('variant_type')['']))
-                                                        @foreach ($orderProduct->groupBy('variant_type')[''] as $variant)
-                                                            <ul class="variants">
-                                                                <li><h6>{{ translate('name') }} : </h6><div class="">{{ $variant->product->name }}</div></li>
-                                                                <li><h6>{{ translate('price') }} :</h6> <div class="font-weight-bold ">{{ $variant->price }}</div></li>
-                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="font-weight-bold ">{{ $variant->qty }}</div></li>
-                                                                <li><h6>{{ translate('discount') }} : </h6><div class="font-weight-bold ">{{ $variant->discount }}</div></li>
-                                                                <li><h6>{{ translate('total price') }} : </h6><div class="font-weight-bold ">{{ $variant->total_price }}</div></li>
-                                                            </ul>
-                                                        @endforeach
-                                                    @else
-                                                        <ul class="variants">
-                                                            <li><h6>{{ translate('name') }} : </h6><div class="font-weight-bold ">{{ \App\Models\Product::find($key)->name }}</div></li>
-                                                        </ul>
-                                                    @endif
-                                                    @if(isset($orderProduct->groupBy('variant_type')['size']))
-                                                        @foreach ($orderProduct->groupBy('variant_type')['size'] as $variant)
-                                                            <ul class="variants">
-                                                                <li><h6>{{ translate('size') }} : </h6><div class="font-weight-bold">{{ $variant->variant }}</div></li>
-                                                                <li><h6>{{ translate('price') }} :</h6> <div class="font-weight-bold">{{ $variant->price }}</div></li>
-                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="font-weight-bold">{{ $variant->qty }}</div></li>
-                                                                <li><h6>{{ translate('total price') }} : </h6><div class="font-weight-bold">{{ $variant->total_price }}</div></li>
-                                                            </ul>
-                                                        @endforeach
-                                                    @endif
-                                                    @if(isset($orderProduct->groupBy('variant_type')['extra']))
-                                                        @foreach ($orderProduct->groupBy('variant_type')['extra'] as $variant)
-                                                            <ul class="variants">
-                                                                <li><h6>{{ translate('extra') }} : </h6><div class="font-weight-bold ">{{ $variant->variant }}</div></li>
-                                                                <li><h6>{{ translate('price') }} :</h6> <div class="font-weight-bold ">{{ $variant->price }}</div></li>
-                                                                <li><h6>{{ translate('quantity') }} : </h6><div class="font-weight-bold ">{{ $variant->qty }}</div></li>
-                                                                <li><h6>{{ translate('total price') }} : </h6><div class="font-weight-bold ">{{ $variant->total_price }}</div></li>
-                                                            </ul>
-                                                        @endforeach
-                                                    @endif
-                                                @endforeach
-                                            </div>
-                                            <div class="product-variants d-flex">
-                                                <ul class="variants">
-                                                        @if($order->coupon)
-                                                            <li><h6>{{ translate('coupon discount') }} : </h6><div class="font-weight-bold ">
-                                                                @if($order->coupon->type == 'price')
-                                                                    {{ $order->coupon->price }}
-                                                                @else
-                                                                    {{ $order->coupon->price . '%' }}
-                                                                @endif
-                                                            </div></li>
-                                                        @endif
-                                                        <li><h6>{{ translate('total price') }} : </h6><div class="font-weight-bold ">{{ ($order->grand_total - $order->shipping )+ $order->total_discount }}</div></li>
-                                                        @if($order->shipping)
-                                                            <li><h6>{{ translate('shipping') }}: </h6><div class="font-weight-bold ">{{ $order->shipping }}</div></li>
-                                                        @endif
-                                                        @if($order->total_discount)
-                                                            <li><h6>{{ translate('discount') }}: </h6><div class="font-weight-bold ">{{ $order->total_discount }}</div></li>
-                                                        @endif
-                                                        <li><h6>{{ translate('final price') }} : </h6><div class="font-weight-bold ">{{ $order->grand_total }}</div></li>
-                                                </ul>
-                                            </div>
-                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -394,7 +336,7 @@
 
         orderChannel.bind('App\\Events\\newOrder', function(data) {
             if(data) {
-                if(data.order.branch_id == "{{ Auth::user()->branch_id }}" || "{{Auth::user()->type}}" == 'admin') {
+                if(data.order.branch_id == "{{ Auth::user()->branch_id }}" || "{{Auth::user()->type}}" == 'admin' || "{{ Auth::user()->type == 'sub-admin' }}") {
                     window.location.reload();
                 }
             }

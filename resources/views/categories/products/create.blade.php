@@ -56,7 +56,12 @@
                                 <div class="form-group">
                                     <label for="count">{{ translate('product count') }}</label>
                                     <input type="text" class="form-control @error('count')is-invalid @enderror" name="count"
-                                        value="{{ old('count') }}">
+                                        @if(old('count'))
+                                        value="{{ old('count') }}"
+                                        @else
+                                        value="0"
+                                        @endif
+                                        >
                                     @error('count')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -79,6 +84,21 @@
                                     <label for="name">{{ translate('description') }}</label>
                                     <textarea id="textarea" class="form-control description" name="description" maxlength="225"
                                         rows="3">{{ old('description') }}</textarea>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="name">{{ translate('sku') }}</label>
+                                    <input type="text" class="form-control" name="sku"
+                                        @if(old('sku'))
+                                            value="{{ old('sku') }}"
+                                        @else
+                                            value="{{ 'sku-' . rand(100000, 1000000) }}"
+                                        @endif
+                                    >
+                                    @error('sku')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             @if(!old('sizes'))
@@ -117,17 +137,7 @@
                                     </div>
                                 </div>
                             @endif
-                            <div class="col-12 col-md-6">
-                                <div class="form-group">
-                                    <label for="viewed_number">{{ translate('appearance number') }}</label>
-                                    <input type="number" class="form-control" value="1" name="viewed_number"
-                                        value="{{ old('viewed_number') }}">
-                                    @error('viewed_number')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6">
+                            <div class="col-12">
                                 <div class="form-group">
                                     <label for="extras">{{ translate('extras') }}</label>
                                     <select name="extras_type[]" class="form-control extras select2 select2-multiple"
@@ -359,7 +369,7 @@
             }
             if(type == 'extra') {
                 name = 'extras';
-                variant = 'الأضافة';
+                variant = "{{ translate('extra') }}";
                 tr = `
                     <tr>
                         <td>
@@ -373,7 +383,7 @@
                 `;
             } else if(type == 'size') {
                 name = 'sizes';
-                variant = 'المقاس';
+                variant = "{{ translate('size') }}";
                 tr = `
                     <tr>
                         <td>

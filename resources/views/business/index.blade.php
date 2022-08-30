@@ -35,7 +35,7 @@
                             </select>
                         </div>
                     </div>
-                    @if(Auth::user()->type == 'admin')
+                    @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin')
                         <div class="col-12 col-md-6">
                             <div class="form-group">
                                 <label for="category">{{ translate('the branch') }}</label>
@@ -65,6 +65,9 @@
                     <table class="table mb-0">
                         <thead>
                             <tr>
+                                <th>
+                                    <input class="form-control select_all" type="checkbox">
+                                </th>
                                 <th>#</th>
                                 <th>{{ translate('financial name') }}</th>
                                 <th>{{ translate('financial type') }}</th>

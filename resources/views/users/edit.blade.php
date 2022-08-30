@@ -25,7 +25,20 @@
                         @method("PATCH")
                         @csrf
                         <div class="row">
-                            @if(Auth::user()->type == 'admin')
+                            @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin')
+                                <div class="col-12 col-md-6 roles_col">
+                                    <div class="form-group">
+                                        <label for="category">{{ translate('role type') }}</label>
+                                        <select class="form-control role_type_select select2 select2-multiple" name="role_type"
+                                            data-placeholder="{{ translate('choose') }}">
+                                            <option value="online" @if($user->role_type == 'online') selected @endif>{{ translate('online') }}</option>
+                                            <option value="inhouse" @if($user->role_type == 'inhouse') selected @endif>{{ translate('inhouse') }}</option>
+                                        </select>
+                                        @error('role_type')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                                 <div class="col-12 col-md-6 branch_col">
                                     <div class="form-group">
                                         <label for="branch_id">{{ translate('the branch') }}</label>
@@ -50,23 +63,32 @@
                                     @enderror
                                 </div>
                             </div>
-                            @if(request('type') == 'sub-admin')
-                                <div class="col-12 col-md-6">
-                                    <div class="form-group">
-                                        <label for="category">{{ translate('permessions') }}</label>
-                                        <select class="form-control select2 select2-multiple" name="roles[]"
-                                            data-placeholder="{{ translate('choose') }}" multiple>
-                                            @foreach ($roles as $role)
-                                                <option value="{{ $role->id }}" @if ($user->roles->contains($role->id)) selected @endif>
-                                                    {{ $role->name }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('roles')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="category">{{ translate('permessions') }}</label>
+                                    <select class="form-control select2 select2-multiple" name="roles[]"
+                                        data-placeholder="{{ translate('choose') }}" multiple>
+                                        @foreach ($roles as $role)
+                                            <option value="{{ $role->id }}" @if ($user->roles->contains($role->id)) selected @endif>
+                                                {{ $role->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('roles')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
                                 </div>
-                            @endif
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="username">{{ translate('username') }}</label>
+                                    <input type="username" name="username" class="form-control" name="username"
+                                        value="{{ $user->username }}" id="username"
+                                        autocomplete="username">
+                                    @error('username')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                             <div class="col-12 col-md-6">
                                 <div class="form-group">
                                     <label for="useremail">{{ translate('email') }}</label>
@@ -158,5 +180,18 @@
                 $(this).parent().parent().after(branch_col);
             }
         })
+
+        if($(".role_type_select").val() == 'inhouse') {
+            $(".branch_col").removeClass('d-none');
+        } else {
+            $(".branch_col").addClass('d-none');
+        }
+        $(".role_type_select").on('change', function() {
+            if($(this).val() == 'inhouse') {
+                $(".branch_col").removeClass('d-none');
+            } else {
+                $(".branch_col").addClass('d-none');
+            }
+        });
     </script>
 @endsection

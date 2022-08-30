@@ -19,13 +19,15 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $orders_branches =  Order::where('type', 'inhouse')->latest()->limit(10)->get();
+        $orders_online = Order::where('type', 'online')->latest()->get();
         $productsCount = Product::all()->count();
         $categoriesCount = Category::all()->count();
         $branchesCount = Branch::all()->count();
         $ordersCount = Order::all()->count();
         $statuses = Status::orderBy('name')->get();
         return view('dashboard.index', compact('productsCount', 'categoriesCount',
-        'branchesCount', 'ordersCount'));
+        'branchesCount', 'ordersCount', 'orders_branches', 'orders_online'));
     }
 
     /**

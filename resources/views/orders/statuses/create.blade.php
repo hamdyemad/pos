@@ -22,7 +22,7 @@
                     <form action="{{ route('statuses.store') }}" method="POST">
                         @csrf
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-12 col-md-6">
                                 <div class="form-group">
                                     <label for="name">{{ translate('status name') }}</label>
                                     <input type="text" class="form-control" name="name" value="{{ old('name') }}">
@@ -32,10 +32,18 @@
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label for="{{ translate('default status') }}">{{ translate('default status') }}</label>
+                                <label for="{{ translate('status type') }}">{{ translate('status type') }}</label>
                                 <div class="form-group">
-                                    <input type="checkbox" name="default_val" id="switch4" switch="bool" />
-                                    <label for="switch4" data-on-label="{{ translate('yes') }}" data-off-label="{{ translate('no') }}"></label>
+                                    <select name="type" class="form-control select2">
+                                        <option value="">{{ translate('choose') }}</option>
+                                        <option value="default" @if(old('type') == 'default') selected @endif>{{ translate('default') }}</option>
+                                        <option value="paid" @if(old('type') == 'paid') selected @endif>{{ translate('paid') }}</option>
+                                        <option value="returned" @if(old('type') == 'returned') selected @endif>{{ translate('returned') }}</option>
+                                        <option value="under_collection" @if(old('type') == 'under_collection') selected @endif>{{ translate('under collection') }}</option>
+                                    </select>
+                                    @error('type')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-12">

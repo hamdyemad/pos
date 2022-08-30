@@ -483,9 +483,8 @@ body[data-layout=horizontal] .footer {
 }
 
 .vertical-menu {
-  z-index: 9999 !important;
+  z-index: 1000 !important;
   width: 240px;
-  z-index: 1001;
   background: #ffffff;
   bottom: 0;
   margin-top: 0;
@@ -4161,14 +4160,8 @@ body {
           margin-inline-end: 30px;
 }
 
-.admin .edit_order .all_files a {
-  display: block;
-  padding: 10px;
-  background: white;
-  border-radius: 5px;
-  box-shadow: 0px 0px 7px 0px #d5d5d5;
-  text-align: center;
-  margin: 10px 0;
+.admin .edit_order .customized_files {
+  width: 200px;
 }
 
 .admin .edit_settings img {
@@ -4467,6 +4460,37 @@ body {
   width: 100px;
   height: 100px;
   border-radius: 50%;
+}
+
+.all_files li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0px 0px 7px 0px #d5d5d5;
+  margin: 10px 0;
+}
+
+.all_files a {
+  display: block;
+  text-align: center;
+  background: var(--primary);
+  color: var(--white);
+  padding: 3px 20px;
+  border-radius: 5px;
+}
+
+.all_files .remove_file {
+  cursor: pointer;
+  background: var(--red);
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 5px;
+  color: var(--white);
 }
 
 .select2 .select2-container,

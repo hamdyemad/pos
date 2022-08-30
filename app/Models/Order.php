@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    protected $fillable = ['type', 'branch_id', 'status_id','user_id', 'coupon_id','bin_code','city_id','customer_name',
-    'customer_phone', 'customer_address','customized_files','paid','under_approve',
-    'notes','total_discount', 'shipping','grand_total'];
+    protected $fillable = ['type', 'branch_id', 'status_id','user_id',
+    'coupon_id','bin_code','city_id','customer_id','paid','under_approve','payment_method',
+    'notes','discount_type','total_discount', 'shipping','grand_total'];
 
+    public function customer() {
+        return $this->belongsTo(Customer::class);
+    }
     public function coupon() {
         return $this->belongsTo(Coupon::class);
     }

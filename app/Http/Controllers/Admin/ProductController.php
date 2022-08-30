@@ -32,7 +32,7 @@ class ProductController extends Controller
     {
         $this->authorize('products.index');
         Carbon::setLocale(app()->getLocale());
-        if(Auth::user()->type == 'admin' || Auth::user()->role_type == 'online') {
+        if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin' || Auth::user()->role_type == 'online') {
             $categories = Category::latest()->get();
             $products = Product::latest();
         } else {
@@ -154,6 +154,7 @@ class ProductController extends Controller
         $creation = [
             'name' => $request->name,
             'count' => $request->count,
+            'sku' => $request->sku,
             'description' => $request->description,
             'viewed_number' => $request->viewed_number
         ];
@@ -283,6 +284,7 @@ class ProductController extends Controller
         $updateArray = [
             'name' => $request->name,
             'count' => $request->count,
+            'sku' => $request->sku,
             'description' => $request->description,
             'viewed_number' => $request->viewed_number,
         ];
@@ -434,16 +436,20 @@ class ProductController extends Controller
     }
 
     public function allByBranchId(Request $request) {
-        $categories_ids = Category::whereHas('branches', function($query) use($request) {
-            return $query->where('branch_id', $request->branch_id);
-        })->pluck('id');
-        $products = Product::whereHas('categories', function($query) use($categories_ids) {
-            return $query->whereIn('category_id', $categories_ids);
-        })->orderBy('name')->get();
+        if($request->type == 'inhouse') {
+            $categories_ids = Category::whereHas('branches', function($query) use($request) {
+                return $query->where('branch_id', $request->branch_id);
+            })->pluck('id');
+            $products = Product::whereHas('categories', function($query) use($categories_ids) {
+                return $query->whereIn('category_id', $categories_ids);
+            })->orderBy('name')->get();
+        } else if($request->type == null) {
+            $products = Product::orderBy('name')->get();
+        }
         if(count($products) > 0) {
             return $this->sendRes('', true, $products);
         } else {
-            return $this->sendRes(translate('there is no foods in the branch yet'), false);
+            return $this->sendRes(translate('there is no products in the branch yet'), false);
         }
     }
 

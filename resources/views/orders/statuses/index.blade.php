@@ -40,62 +40,84 @@
                 </form>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table mb-0">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>{{ translate('status name') }}</th>
-                                <th>{{ translate('default status') }}</th>
-                                <th>{{ translate('creation date') }}</th>
-                                <th>{{ translate('last update date') }}</th>
-                                <th>{{ translate('settings') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($statuses as $status)
+                @if(count($statuses) < 1)
+                <div class="alert alert-info">{{ translate('there is no statuses') }}</div>
+                @else
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
                                 <tr>
-                                    <th scope="row">{{ $status->id }}</th>
-                                    <td>{{ $status->name }}</td>
-                                    <td>
-                                        @if($status->default_val)
-                                            <div class="badge badge-success">{{ translate('default') }}</div>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        {{ $status->created_at->diffForHumans() }}
-                                    </td>
-                                    <td>
-                                        {{ $status->updated_at->diffForHumans() }}
-                                    </td>
-                                    <td>
-                                        <div class="options d-flex">
-                                            @can('statuses.edit')
-                                                <a class="btn btn-info mr-1" href="{{ route('statuses.edit', $status) }}">
-                                                    <span>{{ translate('edit') }}</span>
-                                                    <span class="mdi mdi-circle-edit-outline"></span>
-                                                </a>
-
-                                            @endcan
-                                            @can('statuses.destroy')
-                                                <button class="btn btn-danger" data-toggle="modal"
-                                                    data-target="#modal_{{ $status->id }}">
-                                                    <span>{{ translate('delete') }}</span>
-                                                    <span class="mdi mdi-delete-outline"></span>
-                                                </button>
-                                                <!-- Modal -->
-                                                @include('layouts.partials.modal', [
-                                                'id' => $status->id,
-                                                'route' => route('statuses.destroy', $status->id)
-                                                ])
-                                            @endcan
-                                    </td>
+                                    <th>#</th>
+                                    <th>{{ translate('status name') }}</th>
+                                    <th>{{ translate('default status') }}</th>
+                                    <th>{{ translate('paid') }}</th>
+                                    <th>{{ translate('returned') }}</th>
+                                    <th>{{ translate('under collection') }}</th>
+                                    <th>{{ translate('creation date') }}</th>
+                                    <th>{{ translate('last update date') }}</th>
+                                    <th>{{ translate('settings') }}</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    {{ $statuses->links() }}
-                </div>
+                            </thead>
+                            <tbody>
+                                @foreach ($statuses as $status)
+                                    <tr>
+                                        <th scope="row">{{ $status->id }}</th>
+                                        <td>{{ $status->name }}</td>
+                                        <td>
+                                            @if($status->default_val)
+                                                <div class="badge badge-success">{{ translate('default') }}</div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($status->paid)
+                                                <div class="badge badge-success">{{ translate('paid') }}</div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($status->returned)
+                                                <div class="badge badge-success">{{ translate('returned') }}</div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($status->under_collection)
+                                                <div class="badge badge-success">{{ translate('under collection') }}</div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            {{ $status->created_at->diffForHumans() }}
+                                        </td>
+                                        <td>
+                                            {{ $status->updated_at->diffForHumans() }}
+                                        </td>
+                                        <td>
+                                            <div class="options d-flex">
+                                                @can('statuses.edit')
+                                                    <a class="btn btn-info mr-1" href="{{ route('statuses.edit', $status) }}">
+                                                        <span>{{ translate('edit') }}</span>
+                                                        <span class="mdi mdi-circle-edit-outline"></span>
+                                                    </a>
+
+                                                @endcan
+                                                @can('statuses.destroy')
+                                                    <button class="btn btn-danger" data-toggle="modal"
+                                                        data-target="#modal_{{ $status->id }}">
+                                                        <span>{{ translate('delete') }}</span>
+                                                        <span class="mdi mdi-delete-outline"></span>
+                                                    </button>
+                                                    <!-- Modal -->
+                                                    @include('layouts.partials.modal', [
+                                                    'id' => $status->id,
+                                                    'route' => route('statuses.destroy', $status->id)
+                                                    ])
+                                                @endcan
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        {{ $statuses->links() }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>

@@ -18,9 +18,6 @@
                      @endif
                  </a>
                  <span class="badge badge-primary d-block mt-2">{{ Auth::user()->name }}</span>
-                 @if(Auth::user()->bin_code)
-                    <span class="badge badge-primary d-block mt-2">{{ translate('bin code') }} {{ Auth::user()->bin_code }}</span>
-                 @endif
              </div>
              <!-- Left Menu Start -->
              <ul class="metismenu list-unstyled" id="side-menu">
@@ -75,6 +72,23 @@
                          </ul>
                      </li>
                  @endcan
+                 @if(Auth::user()->can('customers.index') || Auth::user()->can('customers.create'))
+                     <li>
+                         <a href="javascript: void(0);" class="has-arrow waves-effect">
+                             <i class="mdi mdi-account-supervisor-outline"></i>
+
+                             <span>{{ translate('customers') }}</span>
+                         </a>
+                         <ul class="sub-menu" aria-expanded="false">
+                            @can('customers.index')
+                                <li><a href="{{ route('customers.index') }}">{{ translate('all customers') }}</a></li>
+                            @endcan
+                            @can('customers.create')
+                                <li><a href="{{ route('customers.create') }}">{{ translate('create customer') }}</a></li>
+                            @endcan
+                         </ul>
+                     </li>
+                 @endif
                 <li class="orders">
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="mdi mdi-cart-outline"></i>
@@ -87,7 +101,7 @@
                             @can('orders.index')
                             <li><a href="{{ route('orders.index') }}">{{ translate('all orders') }}</a></li>
                             @endcan
-                            @can('orders.index')
+                            @can('approval_orders.index')
                             <li><a href="{{ route('orders.with_bin_codes') }}">{{ translate('orders given to employees') }}</a></li>
                             @endcan
                             @can('orders.create')
@@ -101,19 +115,23 @@
                             @endcan
                     </ul>
                 </li>
-                <li>
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
-                        <i class="mdi mdi-barcode"></i>
-                        <span>{{ translate('coupons') }}</span>
-                    </a>
-                    <ul class="sub-menu" aria-expanded="false">
-                            {{-- @can('orders.index') --}}
-                            <li><a href="{{ route('coupons.index') }}">{{ translate('all coupons') }}</a></li>
-                            {{-- @endcan --}}
-                            <li><a href="{{ route('coupons.create') }}">{{ translate('create coupon') }}</a></li>
+                @if(Auth::user()->can('coupons.index') || Auth::user()->can('coupons.create'))
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="mdi mdi-barcode"></i>
+                            <span>{{ translate('coupons') }}</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                                @can('coupons.index')
+                                    <li><a href="{{ route('coupons.index') }}">{{ translate('all coupons') }}</a></li>
+                                @endcan
+                                @can('coupons.create')
+                                    <li><a href="{{ route('coupons.create') }}">{{ translate('create coupon') }}</a></li>
+                                @endcan
 
-                    </ul>
-                </li>
+                        </ul>
+                    </li>
+                @endif
 
                  @can('categories.index')
                      <li>

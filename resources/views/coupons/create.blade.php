@@ -27,8 +27,8 @@
                                     <label for="type">{{ translate('type') }}</label>
                                     <select class="form-control select2" name="type">
                                         <option value="">{{ translate('choose') }}</option>
-                                        <option value="price">{{ translate('price') }}</option>
-                                        <option value="percent">{{ translate('percent') }}</option>
+                                        <option value="price" @if(old('type') == 'price') selected @endif>{{ translate('price') }}</option>
+                                        <option value="percent" @if(old('type') == 'percent') selected @endif>{{ translate('percent') }}</option>
                                     </select>
                                     @error('type')
                                         <div class="text-danger">{{ $message }}</div>
@@ -39,7 +39,7 @@
                                 <div class="form-group">
                                     <label for="name">{{ translate('price or percent') }}</label>
                                     <input type="text" class="form-control" name="price"
-                                    {{ old('price') }}
+                                    value="{{ old('price') }}"
                                     >
                                     @error('price')
                                         <div class="text-danger">{{ $message }}</div>

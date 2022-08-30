@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ExpenseExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ExpenseRequest;
 use App\Models\Business;
@@ -9,6 +10,8 @@ use App\Models\Expense;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class ExpenseController extends Controller
 {
@@ -33,6 +36,10 @@ class ExpenseController extends Controller
         $this->authorize('expenses.index');
         if($request->has('type')) {
 
+            if($request->export) {
+                return $request->all();
+            }
+
             Carbon::setLocale(app()->getLocale());
             $business = Business::where('id', $request->type)->first();
             $expenses = Expense::latest();
@@ -49,6 +56,37 @@ class ExpenseController extends Controller
             if($request->price) {
                 $expenses = $expenses->where('price', 'like', '%' . $request->price . '%');
             }
+            $expenses = $expenses->paginate(10);
+            return view('business.expenses.index', compact('expenses', 'business'));
+        } else {
+            return redirect()->back()->with('error', translate('there is something error'));
+        }
+    }
+
+    public function export(Request $request)
+    {
+        if($request->has('type')) {
+
+            Carbon::setLocale(app()->getLocale());
+            $business = Business::where('id', $request->type)->first();
+            $expenses = Expense::latest();
+            $expenses->where('type', $request->type);
+            if($request->name) {
+                $expenses = $expenses->where('name', 'like', '%' . $request->name . '%');
+            }
+            if($request->expense_for) {
+                $expenses = $expenses->where('expense_for', 'like', '%' . $request->expense_for . '%');
+            }
+            if($request->phone) {
+                $expenses = $expenses->where('phone', 'like', '%' . $request->phone . '%');
+            }
+            if($request->price) {
+                $expenses = $expenses->where('price', 'like', '%' . $request->price . '%');
+            }
+            if($request->export) {
+                return Excel::download(new ExpenseExport($expenses->get()), 'expenses.xlsx');
+            }
+
             $expenses = $expenses->paginate(10);
             return view('business.expenses.index', compact('expenses', 'business'));
         } else {

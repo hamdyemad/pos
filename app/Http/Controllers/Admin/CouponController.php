@@ -21,6 +21,7 @@ class CouponController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('coupons.index');
         $coupons = Coupon::latest();
         if($request->code) {
             $coupons->where('code', 'like', '%' . $request->code . '%');
@@ -37,6 +38,7 @@ class CouponController extends Controller
      */
     public function create()
     {
+        $this->authorize('coupons.create');
         return view('coupons.create');
     }
 
@@ -48,6 +50,7 @@ class CouponController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('coupons.create');
         $validator = Validator::make($request->all(), [
             'code' => 'required|unique:coupons,code',
             'type' => 'required|in:price,percent',
@@ -78,18 +81,23 @@ class CouponController extends Controller
     public function show(Request $request)
     {
         $coupon = Coupon::where('code', $request->coupon_code)->first();
-
-        $ordersCountForCoupon = Order::where('coupon_id', $coupon->id)->count();
-
-        $coupon = Coupon::where('code', $request->coupon_code)
-        ->where('count', '>', $ordersCountForCoupon)
-        ->whereDate('valid_before', '>', Carbon::now())
-        ->first();
         if($coupon) {
-            return $this->sendRes('', true, $coupon);
+            $ordersCountForCoupon = Order::where('coupon_id', $coupon->id)->count();
+
+            $coupon = Coupon::where('code', $request->coupon_code)
+            ->where('count', '>', $ordersCountForCoupon)
+            ->whereDate('valid_before', '>', Carbon::now())
+            ->first();
+            if($coupon) {
+                return $this->sendRes('', true, $coupon);
+            } else {
+                return $this->sendRes(translate('coupon is invalid'), false);
+            }
         } else {
+
             return $this->sendRes(translate('coupon is invalid'), false);
         }
+
         return $coupon;
     }
 
@@ -124,6 +132,7 @@ class CouponController extends Controller
      */
     public function destroy(Coupon $coupon)
     {
+        $this->authorize('coupons.destroy');
         $coupon->delete();
         return redirect()->back()->with('success', translate('deleted successfully'));
     }

@@ -42,6 +42,9 @@
                 border: 1px solid rgba(0, 0, 0, 0.15);
                 padding: 5px;
             }
+            .item .no_border {
+                border: 1px solid #eee !important;
+            }
             .item_childs td {
                 padding: 5px;
                 border: 1px solid rgb(206, 206, 206);
@@ -90,18 +93,16 @@
                 </tr>
                 <tr class="info">
                     <td colspan="1">{{ translate('date') }}</td>
-                    <td class="text-center" colspan="3">{{ $order->created_at }}</td>
+                    <td class="text-center" colspan="3">{{ \Carbon\Carbon::createFromDate($order->created_at)->format('Y-md-d') }}</td>
                 </tr>
-                @if($order->customer_name)
+                @if($order->customer)
                     <tr class="info">
                         <td colspan="1">{{ translate('name') }}</td>
-                        <td class="text-center" colspan="3">{{ $order->customer_name }}</td>
+                        <td class="text-center" colspan="3">{{ $order->customer->name }}</td>
                     </tr>
-                @endif
-                @if($order->customer_phone)
                     <tr class="info">
-                        <td colspan="1">{{ translate('phone') }}</td>
-                        <td class="text-center" colspan="3">{{ $order->customer_phone }}</td>
+                        <td colspan="1">{{ translate('name') }}</td>
+                        <td class="text-center" colspan="3">{{ $order->customer->phone }}</td>
                     </tr>
                 @endif
                 <tr>
@@ -198,8 +199,8 @@
                     </tr>
                 @endif
                 <tr class="item">
-                    <td></td>
-                    <td></td>
+                    <td class="no_border"></td>
+                    <td class="no_border"></td>
                     <td class="no-line text-center">
                         <span>{{ translate('final price') }}</span></td>
                     <td>

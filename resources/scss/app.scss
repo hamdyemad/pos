@@ -145,6 +145,37 @@ body {
     @import "./inc/invoice";
 }
 
+.all_files {
+    li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        background: white;
+        border-radius: 5px;
+        box-shadow: 0px 0px 7px 0px #d5d5d5;
+        margin: 10px 0;
+    }
+    a {
+        display: block;
+        text-align: center;
+        background: var(--primary);
+        color: var(--white);
+        padding: 3px 20px;
+        border-radius: 5px;
+    }
+    .remove_file {
+        cursor: pointer;
+        background: var(--red);
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        border-radius: 5px;
+        color: var(--white);
+    }
+}
+
 
 .select2 .select2-container, .select2-container--default, .select2-container--below {
     display: block !important;

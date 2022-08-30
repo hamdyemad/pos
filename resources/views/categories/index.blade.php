@@ -31,7 +31,7 @@
                                 <input class="form-control" name="name" type="text" value="{{ request('name') }}">
                             </div>
                         </div>
-                        @if(Auth::user()->type == 'admin')
+                        @if(Auth::user()->type == 'admin' ||  Auth::user()->type == 'sub-admin')
                             <div class="col-12 col-md-6">
                                 <div class="form-group">
                                     <label for="category">{{ translate('branches') }}</label>
@@ -78,12 +78,6 @@
                                         <td>
                                             <div>
                                                 <span class="d-block">{{ $category->name }}</span>
-                                                @if ($category->photo !== null)
-                                                    <img class="mt-2" src="{{ asset($category->photo) }}" alt="">
-                                                @else
-                                                    <img class="mt-2" src="{{ asset('/images/product_avatar.png') }}"
-                                                        alt="">
-                                                @endif
                                             </div>
                                         </td>
                                         <td>

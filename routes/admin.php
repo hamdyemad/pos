@@ -40,6 +40,17 @@ Route::group([
                 Route::patch('/{branch}', 'BranchController@update')->name('update');
                 Route::delete('/{branch}', 'BranchController@destroy')->name('destroy');
             });
+
+            // Customers
+            Route::group(['prefix' => 'customers', 'as' => 'customers.'], function() {
+                Route::get('/', 'CustomerController@index')->name('index');
+                Route::post('/', 'CustomerController@store')->name('store');
+                Route::get('/create', 'CustomerController@create')->name('create');
+                Route::get('/edit/{customer}', 'CustomerController@edit')->name('edit');
+                Route::patch('/{customer}', 'CustomerController@update')->name('update');
+                Route::delete('/{customer}', 'CustomerController@destroy')->name('destroy');
+            });
+
             // Categories
             Route::group(['prefix' => 'categories', 'as' => 'categories.'], function() {
                 Route::get('/', 'CategoryController@index')->name('index');
@@ -81,9 +92,11 @@ Route::group([
                 Route::get('/{order}/pdf', 'OrderController@pdf')->name('pdf');
 
                 Route::post('/{order}/approve', 'OrderController@approve')->name('approve');
+                Route::post('/{order}/remove_files', 'OrderController@remove_files')->name('remove_files');
 
                 Route::patch('/{order}', 'OrderController@update')->name('update');
                 Route::delete('/{order}', 'OrderController@destroy')->name('destroy');
+
             });
 
             // Coupons
@@ -110,6 +123,7 @@ Route::group([
                 Route::group(['prefix' => 'expenses', 'as' => 'expenses.'], function() {
                     Route::get('/', 'ExpenseController@index')->name('index');
                     Route::post('/', 'ExpenseController@store')->name('store');
+                    Route::post('/export', 'ExpenseController@export')->name('export');
                     Route::get('/create', 'ExpenseController@create')->name('create');
                     Route::get('/edit/{expense}', 'ExpenseController@edit')->name('edit');
                     Route::get('/{expense}', 'ExpenseController@show')->name('show');

@@ -15,6 +15,9 @@
                     <a href="{{ route('expenses.create', ['type' => request('type')]) }}" class="btn btn-primary mb-2">{{ translate('create') }}</a>
                 @endcan
             </div>
+            <form id="export_form" target="_blank" action="{{ route('expenses.export') }}" method="POST">
+                @csrf
+            </form>
             <form action="{{ route('expenses.index') }}" method="GET">
                 <input type="text" name="type" hidden value="{{ request('type') }}">
                 <div class="row">
@@ -53,8 +56,15 @@
                     </div>
                     <div class="col-12 col-md-6">
                         <div class="form-group">
-                            <label for="name"></label>
                             <input type="submit" value="{{ translate('search') }}" class="form-control btn btn-primary mt-1">
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="form-group">
+                            <button class="btn btn-primary btn-block export_btn" type="button" data-name="export" form="export_form">
+                                <i class="fas fa-file-csv"></i>
+                                <span>{{ translate('export excel') }}</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -68,6 +78,9 @@
 
                     <thead>
                         <tr>
+                            <th>
+                                <input class="form-control select_all" type="checkbox">
+                            </th>
                             <th>#</th>
                             @if ($business->type == 'income')
                                 <th><span class="max">{{ translate('income name') }}</span></th>
@@ -87,6 +100,7 @@
                     <tbody>
                         @foreach ($expenses as $expense)
                             <tr>
+                                <th><input class="form-control" name="expenses[]" value="{{ $expense->id }}"  form="shipping_invoice" type="checkbox"></th>
                                 <th scope="row">{{ $expense->id }}</th>
                                 <td>{{ $expense->name }}</td>
                                 <td>{{ $expense->expense_for }}</td>
@@ -129,4 +143,28 @@
             @endif
         </div>
     </div>
+@endsection
+
+@section('footerScript')
+    <script>
+
+        $(".export_btn").on('click', function() {
+            let type = $(this).data('name');
+            $("#export_form").append(`
+                <input type="hidden" name="export" value="${type}">
+                <input type="hidden" name="type" value="{{ request('type') }}">
+            `);
+            $("#export_form").submit();
+        })
+
+        $(".select_all").on('click', function() {
+            $("tbody input[type='checkbox']").each((index, input) => {
+                if($(".select_all")[0].checked) {
+                    input.checked = 1;
+                } else {
+                    input.checked = 0;
+                }
+            })
+        });
+    </script>
 @endsection

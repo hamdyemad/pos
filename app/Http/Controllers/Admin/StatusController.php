@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Permession;
 use App\Models\Status;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -51,28 +52,47 @@ class StatusController extends Controller
         $creation = [
             'name' => $request->name
         ];
-        if($request->has('default_val')) {
-            if($request->default_val == 'on') {
-                $creation['default_val'] = 1;
-                $status = Status::where('default_val', 1)->first();
-                if($status) {
-                    $status->default_val = 0;
-                    $status->save();
-                }
-            }
-        }
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:statuses,name'
-        ], [
+        $rules = [
+            'name' => 'required|unique:statuses,name',
+        ];
+        $validator = Validator::make($request->all(), $rules, [
             'name.required' => translate('the name is required'),
             'name.unique' => translate('the name is already exists'),
         ]);
+
+        if($request->type) {
+            $rules['type'] = 'in:paid,under_collection,returned,default';
+        }
         if($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors())
             ->withInput($request->all())
             ->with('error', translate('there is some thing error'));
         }
-        Status::create($creation);
+        if($request->type) {
+            if($request->type == 'default') {
+                $type = 'default_val';
+                $creation['default_val'] = 1;
+            } else if($request->type == 'paid') {
+                $creation['paid'] = 1;
+                $type = 'paid';
+
+            } else if($request->type == 'returned') {
+                $creation['returned'] = 1;
+                $type = 'returned';
+
+            } else if($request->type == 'under_collection') {
+                $creation['under_collection'] = 1;
+                $type = 'under_collection';
+            }
+            $finded = Status::where($type, 1)->first();
+            if($finded) {
+                $finded->update([
+                    $type => 0
+                ]);
+            }
+        }
+        $status = Status::create($creation);
+        permession_maker($request->name, $status->id, 'الحالات');
         return redirect()->back()->with('success', translate('created successfully'));
 
     }
@@ -114,7 +134,8 @@ class StatusController extends Controller
             'name' => $request->name
         ];
         $validator = Validator::make($request->all(), [
-            'name' => ['required', Rule::unique('statuses', 'name')->ignore($status->id)]
+            'name' => ['required', Rule::unique('statuses', 'name')->ignore($status->id)],
+            'type' => 'required|in:paid,under_collection,returned,default'
         ], [
             'name.required' => translate('the name is required'),
             'name.unique' => translate('the name is already exists'),
@@ -124,15 +145,37 @@ class StatusController extends Controller
             ->withInput($request->all())
             ->with('error', translate('there is some thing error'));
         }
-        if($request->has('default_val')) {
-            if($request->default_val == 'on') {
-                $creation['default_val'] = 1;
-                $status_finded = Status::where('default_val', 1)->first();
-                if($status_finded) {
-                    $status_finded->default_val = 0;
-                    $status_finded->save();
-                }
-            }
+        $status->update([
+            'default_val' => 0,
+            'paid' => 0,
+            'returned' => 0,
+            'under_collection' => 0,
+        ]);
+
+        if($request->type == 'default') {
+            $type = 'default_val';
+            $creation['default_val'] = 1;
+        } else if($request->type == 'paid') {
+            $creation['paid'] = 1;
+            $type = 'paid';
+
+        } else if($request->type == 'returned') {
+            $creation['returned'] = 1;
+            $type = 'returned';
+
+        } else if($request->type == 'under_collection') {
+            $creation['under_collection'] = 1;
+            $type = 'under_collection';
+        }
+        $finded = Status::where($type, 1)->first();
+        if($finded) {
+            $finded->update([
+                $type => 0
+            ]);
+        }
+        $permession = Permession::where('key', $status->id)->first();
+        if(!$permession) {
+            permession_maker($request->name, $status->id, 'الحالات');
         }
         $status->update($creation);
         return redirect()->back()->with('info', translate('updated successfully'));
@@ -148,6 +191,7 @@ class StatusController extends Controller
     {
         $this->authorize('statuses.destroy');
         Status::destroy($status->id);
+        Permession::where('key', $status->id)->delete();
         return redirect()->back()->with('success', translate('deleted successfully'));
     }
 }

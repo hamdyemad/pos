@@ -156,7 +156,7 @@
                     </td>
 				</tr>
                 <tr class="heading">
-                    <td>{{ translate('food name') }}</td>
+                    <td>{{ translate('product name') }}</td>
                     <td></td>
                     <td>{{ translate('price') }}</td>
                     <td></td>
@@ -303,7 +303,7 @@
                     <td></td>
                     <td></td>
                     <td class="thick-line text-center">
-                        <span>{{ translate('total price withoud extras') }}</span>
+                        <span>{{ translate('total price without extras') }}</span>
                     </td>
                     @if(isset($order->order_details->groupBy('variant_type')['extra']))
                         <td><span>{{  (($order->grand_total  - $order->shipping -  $order->order_details->groupBy('variant_type')['extra']->pluck('total_price')->sum()) + $order->total_discount) }}</span></td>

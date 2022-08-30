@@ -483,9 +483,8 @@ body[data-layout=horizontal] .footer {
 }
 
 .vertical-menu {
-  z-index: 9999 !important;
+  z-index: 1000 !important;
   width: 240px;
-  z-index: 1001;
   background: #ffffff;
   bottom: 0;
   margin-top: 0;

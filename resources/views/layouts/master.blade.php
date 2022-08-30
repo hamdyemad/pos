@@ -7,7 +7,7 @@
     <title> @yield('title', get_setting('project_name'))</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="_token" content="{{ csrf_token() }}">
-    <meta content="Lexa Premium Multipurpose Admin & Dashboard Template" name="description" />
+    <meta content="{{ env('APP_NAME') }}" name="description" />
     <meta content="Themesbrand" name="author" />
     <!-- App favicon -->
     @if (get_setting('logo'))

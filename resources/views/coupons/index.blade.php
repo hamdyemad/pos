@@ -77,16 +77,18 @@
                                         <td>{{ $coupon->valid_before }}</td>
                                         <td>{{ $coupon->created_at->diffForHumans() }}</td>
                                         <td>
-                                            <button class="btn btn-danger" data-toggle="modal"
-                                                data-target="#modal_{{ $coupon->id }}">
-                                                <span>{{ translate('delete') }}</span>
-                                                <span class="mdi mdi-delete-outline"></span>
-                                            </button>
-                                            <!-- Modal -->
-                                            @include('layouts.partials.modal', [
-                                            'id' => $coupon->id,
-                                            'route' => route('coupons.destroy', $coupon)
-                                            ])
+                                            @can('coupons.destroy')
+                                                <button class="btn btn-danger" data-toggle="modal"
+                                                    data-target="#modal_{{ $coupon->id }}">
+                                                    <span>{{ translate('delete') }}</span>
+                                                    <span class="mdi mdi-delete-outline"></span>
+                                                </button>
+                                                <!-- Modal -->
+                                                @include('layouts.partials.modal', [
+                                                'id' => $coupon->id,
+                                                'route' => route('coupons.destroy', $coupon)
+                                                ])
+                                            @endcan
                                         </td>
                                     </tr>
                                 @endforeach
