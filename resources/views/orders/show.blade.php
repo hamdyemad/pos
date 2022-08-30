@@ -18,30 +18,9 @@
         <div class="card">
             <div class="card-body">
                 @include('inc.invoice')
-                <div class="statuses_history">
-                    <strong class="mb-2 d-block">{{ translate('order status history') }}</strong>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <th><span class="max">{{ translate('name of the user who changed the status') }}</span></th>
-                                <th><span class="max">{{ translate('status') }}</span></th>
-                                <th><span class="max">{{ translate('creation date') }}</span></th>
-                            </thead>
-                            <tbody>
-                                @foreach ($statuses_history as $status_history)
-                                    <tr>
-                                        <td>{{ $status_history->user->name }}</td>
-                                        <td>{{ $status_history->status->name }}</td>
-                                        <td>{{ $status_history->created_at }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                @if(Auth::user()->type == 'admin')
-                    <div class="approval_history">
-                        <strong class="mb-2 d-block">{{ translate('approval history') }}</strong>
+                @if($statuses_history->count() > 0)
+                    <div class="statuses_history">
+                        <strong class="mb-2 d-block">{{ translate('order status history') }}</strong>
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -50,23 +29,48 @@
                                     <th><span class="max">{{ translate('creation date') }}</span></th>
                                 </thead>
                                 <tbody>
-                                    @foreach ($approval_orders as $approval)
+                                    @foreach ($statuses_history as $status_history)
                                         <tr>
-                                            <td>{{ $approval->user->name }}</td>
-                                            <td>
-                                                @if($approval->approved)
-                                                    {{ translate('approved') }}
-                                                @else
-                                                    {{ translate('not approved') }}
-                                                @endif
-                                            </td>
-                                            <td>{{ $approval->created_at }}</td>
+                                            <td>{{ $status_history->user->name }}</td>
+                                            <td>{{ $status_history->status->name }}</td>
+                                            <td>{{ $status_history->created_at }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
                     </div>
+                @endif
+                @if(Auth::user()->type == 'admin')
+                    @if($approval_orders->count() > 0)
+                        <div class="approval_history">
+                            <strong class="mb-2 d-block">{{ translate('approval history') }}</strong>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <th><span class="max">{{ translate('name of the user who changed the status') }}</span></th>
+                                        <th><span class="max">{{ translate('status') }}</span></th>
+                                        <th><span class="max">{{ translate('creation date') }}</span></th>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($approval_orders as $approval)
+                                            <tr>
+                                                <td>{{ $approval->user->name }}</td>
+                                                <td>
+                                                    @if($approval->approved)
+                                                        {{ translate('approved') }}
+                                                    @else
+                                                        {{ translate('not approved') }}
+                                                    @endif
+                                                </td>
+                                                <td>{{ $approval->created_at }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
                 @endif
             </div>
         </div>
