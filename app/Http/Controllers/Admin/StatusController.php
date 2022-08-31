@@ -134,8 +134,7 @@ class StatusController extends Controller
             'name' => $request->name
         ];
         $validator = Validator::make($request->all(), [
-            'name' => ['required', Rule::unique('statuses', 'name')->ignore($status->id)],
-            'type' => 'required|in:paid,under_collection,returned,default'
+            'name' => ['required', Rule::unique('statuses', 'name')->ignore($status->id)]
         ], [
             'name.required' => translate('the name is required'),
             'name.unique' => translate('the name is already exists'),
@@ -152,26 +151,28 @@ class StatusController extends Controller
             'under_collection' => 0,
         ]);
 
-        if($request->type == 'default') {
-            $type = 'default_val';
-            $creation['default_val'] = 1;
-        } else if($request->type == 'paid') {
-            $creation['paid'] = 1;
-            $type = 'paid';
+        if($request->type) {
+            if($request->type == 'default') {
+                $type = 'default_val';
+                $creation['default_val'] = 1;
+            } else if($request->type == 'paid') {
+                $creation['paid'] = 1;
+                $type = 'paid';
 
-        } else if($request->type == 'returned') {
-            $creation['returned'] = 1;
-            $type = 'returned';
+            } else if($request->type == 'returned') {
+                $creation['returned'] = 1;
+                $type = 'returned';
 
-        } else if($request->type == 'under_collection') {
-            $creation['under_collection'] = 1;
-            $type = 'under_collection';
-        }
-        $finded = Status::where($type, 1)->first();
-        if($finded) {
-            $finded->update([
-                $type => 0
-            ]);
+            } else if($request->type == 'under_collection') {
+                $creation['under_collection'] = 1;
+                $type = 'under_collection';
+            }
+            $finded = Status::where($type, 1)->first();
+            if($finded) {
+                $finded->update([
+                    $type => 0
+                ]);
+            }
         }
         $permession = Permession::where('key', $status->id)->first();
         if(!$permession) {
