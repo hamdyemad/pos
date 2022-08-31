@@ -127,14 +127,10 @@
                                         {{ translate('notes') . ': ' }} {{ $order->notes }}<br>
                                     @endif
                                     {{ translate('order summary') }}<br>
-                                    @if($order->customer_name)
-                                        {{ translate('customer name') . ': ' }} {{ $order->customer_name }}<br>
-                                    @endif
-                                    @if($order->customer_phone)
-                                        {{ translate('customer phone') . ': ' }} {{ $order->customer_phone }}<br>
-                                    @endif
-                                    @if($order->customer_address)
-                                        {{ translate('customer address') . ': ' }} {{ $order->customer_address }}<br>
+                                    @if($order->customer)
+                                        {{ translate('customer name') . ': ' }} {{ $order->customer->name }}<br>
+                                        {{ translate('customer phone') . ': ' }} {{ $order->customer->phone }}<br>
+                                        {{ translate('customer address') . ': ' }} {{ $order->customer->address }}<br>
                                     @endif
                                     @if($order->city)
                                         {{ translate('city') . ': ' }} {{ $order->city->name }}<br>

@@ -28,13 +28,7 @@
 				direction: rtl;
 			}
             .table {
-                text-align: center;
                 vertical-align: middle
-            }
-
-            .top {
-                text-align: center;
-                vertical-align: middle;
             }
 
             .info td,
@@ -57,27 +51,17 @@
 				border-bottom: 1px solid #ddd;
 			}
 
+        tr.nothing td {
+            padding: 0;
+            margin: 0;
+        }
+
 		</style>
 	</head>
 
 	<body>
 		<div class="invoice-box @if($rtl) rtl @endif">
 			<table class="table" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td class="top" colspan="4">
-                        ***********************
-                    </td>
-				</tr>
-                <tr>
-                    <td class="top" colspan="4">
-                        SPORTSWAY
-                    </td>
-				</tr>
-                <tr>
-                    <td class="top" colspan="4">
-                        ***********************
-                    </td>
-				</tr>
                 <tr>
                     <td class="top" colspan="4">
                         @if (get_setting('logo'))
@@ -101,7 +85,7 @@
                         <td class="text-center" colspan="3">{{ $order->customer->name }}</td>
                     </tr>
                     <tr class="info">
-                        <td colspan="1">{{ translate('name') }}</td>
+                        <td colspan="1">{{ translate('phone') }}</td>
                         <td class="text-center" colspan="3">{{ $order->customer->phone }}</td>
                     </tr>
                 @endif
@@ -206,6 +190,42 @@
                     <td>
                         <span>{{ $order->grand_total }}</span>
                     </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <hr>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        شروط الاسترجاع داخل الفروع خلال 14 يوم
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        1- عدم غسل المنتج
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        2- عدم استخدام برفيوم علي المنتج
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        3- عدم اللبس
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        شروط الاستبدال داخل الفروع واون لاين خلال 14 يوم اي مشكله في المنتج  بعد اللبس خلال هذه المده  بيتم التبديل فور فري ايآ كانت المشكلة ولا يحق للعميل الاسترجاع
+                        التبديل فقط
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td></td>
+                    <td></td>
                 </tr>
 			</table>
 		</div>

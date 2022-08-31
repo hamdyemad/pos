@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 26, 2022 at 06:36 PM
+-- Generation Time: Aug 31, 2022 at 11:33 AM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.1
 
@@ -25,6 +25,21 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `approval_histories`
+--
+
+CREATE TABLE `approval_histories` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `order_id` bigint(20) UNSIGNED NOT NULL,
+  `approved` enum('0','1') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `branches`
 --
 
@@ -36,6 +51,14 @@ CREATE TABLE `branches` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `branches`
+--
+
+INSERT INTO `branches` (`id`, `name`, `address`, `phone`, `created_at`, `updated_at`) VALUES
+(29, 'الدقى', 'asdasdlasdk;asd', '01560456460', '2022-08-26 16:28:36', '2022-08-26 16:28:36'),
+(30, 'المهندسين', 'شس4ي5شس6يشسي', '54465', '2022-08-26 16:28:51', '2022-08-26 16:28:51');
 
 -- --------------------------------------------------------
 
@@ -51,6 +74,16 @@ CREATE TABLE `branches_categories` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `branches_categories`
+--
+
+INSERT INTO `branches_categories` (`id`, `category_id`, `branch_id`, `created_at`, `updated_at`) VALUES
+(20, 37, 29, '2022-08-27 10:11:53', '2022-08-27 10:11:53'),
+(21, 37, 30, '2022-08-27 10:11:53', '2022-08-27 10:11:53'),
+(22, 38, 29, '2022-08-27 10:12:01', '2022-08-27 10:12:01'),
+(23, 39, 30, '2022-08-27 10:12:09', '2022-08-27 10:12:09');
+
 -- --------------------------------------------------------
 
 --
@@ -65,6 +98,13 @@ CREATE TABLE `businesses` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `businesses`
+--
+
+INSERT INTO `businesses` (`id`, `branch_id`, `name`, `type`, `created_at`, `updated_at`) VALUES
+(18, 29, 'مصروفات الموظفين', 'income', '2022-08-30 18:20:27', '2022-08-30 18:20:27');
 
 -- --------------------------------------------------------
 
@@ -82,6 +122,15 @@ CREATE TABLE `categories` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`id`, `name`, `viewed_number`, `photo`, `active`, `created_at`, `updated_at`) VALUES
+(37, 'صنف لكل الفروع', NULL, NULL, 1, '2022-08-27 10:11:53', '2022-08-27 10:11:53'),
+(38, 'صنف فرع الدقى', NULL, NULL, 1, '2022-08-27 10:12:01', '2022-08-27 10:12:01'),
+(39, 'صنف المهندسين', NULL, NULL, 1, '2022-08-27 10:12:09', '2022-08-27 10:12:09');
+
 -- --------------------------------------------------------
 
 --
@@ -95,6 +144,17 @@ CREATE TABLE `categories_products` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `categories_products`
+--
+
+INSERT INTO `categories_products` (`id`, `category_id`, `product_id`, `created_at`, `updated_at`) VALUES
+(22, 38, 44, '2022-08-27 10:13:40', '2022-08-27 10:13:40'),
+(23, 39, 45, '2022-08-27 10:14:19', '2022-08-27 10:14:19'),
+(24, 38, 45, '2022-08-27 10:14:19', '2022-08-27 10:14:19'),
+(25, 39, 46, '2022-08-27 10:16:03', '2022-08-27 10:16:03'),
+(26, 37, 47, '2022-08-27 12:06:57', '2022-08-27 12:06:57');
 
 -- --------------------------------------------------------
 
@@ -158,6 +218,37 @@ CREATE TABLE `coupons` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `coupons`
+--
+
+INSERT INTO `coupons` (`id`, `code`, `count`, `price`, `type`, `valid_before`, `created_at`, `updated_at`) VALUES
+(5, '308241', 20, '50', 'price', '2022-08-31', '2022-08-27 13:06:49', '2022-08-27 13:06:49');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `customers`
+--
+
+CREATE TABLE `customers` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `address` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `type` enum('regular','special') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `customers`
+--
+
+INSERT INTO `customers` (`id`, `name`, `phone`, `address`, `email`, `type`, `created_at`, `updated_at`) VALUES
+(6, 'kareem ragab`', '01152059120', 'addresasdasdas', 'asd@asd.com', 'regular', '2022-08-28 20:02:14', '2022-08-28 20:02:14');
+
 -- --------------------------------------------------------
 
 --
@@ -195,6 +286,13 @@ CREATE TABLE `expenses` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `expenses`
+--
+
+INSERT INTO `expenses` (`id`, `name`, `type`, `expense_for`, `phone`, `price`, `notes`, `created_at`, `updated_at`) VALUES
+(14, 'moza', 18, 'شيشسيشس', '5456456', 500, 'asdasdas;ldkas', '2022-08-30 18:20:43', '2022-08-30 18:20:43');
+
 -- --------------------------------------------------------
 
 --
@@ -231,7 +329,7 @@ CREATE TABLE `languages` (
 --
 
 INSERT INTO `languages` (`id`, `name`, `code`, `regional`, `rtl`, `created_at`, `updated_at`) VALUES
-(3, 'English', 'en', 'en_GB', 0, '2022-03-23 21:44:53', '2022-03-23 21:44:53'),
+(3, 'English', 'en', 'en-US', 0, '2022-03-23 21:44:53', '2022-03-23 21:44:53'),
 (4, 'Arabic', 'ar', 'ar_AE', 1, '2022-03-23 21:45:16', '2022-03-23 21:45:16');
 
 -- --------------------------------------------------------
@@ -283,7 +381,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (31, '2022_07_31_150011_create_orders_views_table', 2),
 (32, '2022_08_17_103057_create_branches_categories_table', 3),
 (34, '2022_08_20_130907_categories_products_table', 4),
-(36, '2022_08_20_141225_create_coupons_table', 5);
+(36, '2022_08_20_141225_create_coupons_table', 5),
+(37, '2022_08_27_114533_create_customers_table', 6),
+(38, '2022_08_30_204129_create_approval_histories_table', 7);
 
 -- --------------------------------------------------------
 
@@ -298,22 +398,31 @@ CREATE TABLE `orders` (
   `city_id` bigint(20) UNSIGNED DEFAULT NULL,
   `user_id` bigint(20) UNSIGNED DEFAULT NULL,
   `coupon_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `customer_id` bigint(20) NOT NULL,
   `bin_code` int(11) DEFAULT NULL,
   `paid` tinyint(1) NOT NULL DEFAULT 0,
   `under_approve` tinyint(1) NOT NULL DEFAULT 0,
   `payment_method` enum('cash','credit','','') COLLATE utf8mb4_unicode_ci NOT NULL,
   `type` enum('inhouse','online') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `customer_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `customer_phone` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `customer_address` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `customized_files` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `notes` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `discount_type` enum('amount','percent') COLLATE utf8mb4_unicode_ci NOT NULL,
   `total_discount` double DEFAULT NULL,
   `shipping` double DEFAULT NULL,
   `grand_total` double NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id`, `branch_id`, `status_id`, `city_id`, `user_id`, `coupon_id`, `customer_id`, `bin_code`, `paid`, `under_approve`, `payment_method`, `type`, `notes`, `discount_type`, `total_discount`, `shipping`, `grand_total`, `created_at`, `updated_at`) VALUES
+(202, 29, 17, NULL, 5, NULL, 6, NULL, 0, 0, 'cash', 'inhouse', NULL, 'amount', NULL, NULL, 290, '2022-08-30 17:19:37', '2022-08-30 17:19:37'),
+(203, 30, 17, NULL, 5, NULL, 6, NULL, 0, 0, 'cash', 'inhouse', NULL, 'amount', NULL, NULL, 180, '2022-08-30 17:20:02', '2022-08-30 17:20:02'),
+(204, NULL, 17, 16, 16, NULL, 6, NULL, 0, 0, 'cash', 'online', NULL, 'amount', NULL, 30, 320, '2022-08-30 17:20:15', '2022-08-31 07:32:29'),
+(205, NULL, 18, 16, 5, NULL, 6, NULL, 0, 0, 'cash', 'online', NULL, 'amount', NULL, 30, 320, '2022-08-30 17:20:30', '2022-08-30 17:27:48'),
+(206, 29, 17, NULL, 5, 5, 6, 6042, 0, 1, 'cash', 'inhouse', NULL, 'amount', 90, NULL, 150, '2022-08-30 17:43:40', '2022-08-30 18:48:58');
 
 -- --------------------------------------------------------
 
@@ -327,6 +436,8 @@ CREATE TABLE `orders_details` (
   `product_id` bigint(20) UNSIGNED NOT NULL,
   `variant` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `variant_type` enum('extra','size') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `files` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `price` double DEFAULT NULL,
   `qty` int(11) NOT NULL,
   `discount` double DEFAULT NULL,
@@ -334,6 +445,17 @@ CREATE TABLE `orders_details` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `orders_details`
+--
+
+INSERT INTO `orders_details` (`id`, `order_id`, `product_id`, `variant`, `variant_type`, `files`, `notes`, `price`, `qty`, `discount`, `total_price`, `created_at`, `updated_at`) VALUES
+(436, 202, 44, NULL, NULL, NULL, NULL, 290, 1, NULL, 290, '2022-08-30 17:19:37', '2022-08-30 17:19:37'),
+(437, 203, 46, 'large', 'size', NULL, NULL, 180, 1, NULL, 180, '2022-08-30 17:20:02', '2022-08-30 17:20:02'),
+(439, 205, 44, NULL, NULL, NULL, NULL, 290, 1, NULL, 290, '2022-08-30 17:20:30', '2022-08-30 17:20:30'),
+(440, 206, 44, NULL, NULL, NULL, NULL, 290, 1, NULL, 290, '2022-08-30 17:43:40', '2022-08-30 17:43:40'),
+(441, 204, 44, NULL, NULL, NULL, NULL, 290, 1, NULL, 290, '2022-08-31 07:32:29', '2022-08-31 07:32:29');
 
 -- --------------------------------------------------------
 
@@ -348,6 +470,16 @@ CREATE TABLE `orders_views` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `orders_views`
+--
+
+INSERT INTO `orders_views` (`id`, `order_id`, `user_id`, `created_at`, `updated_at`) VALUES
+(37, 204, 15, '2022-08-30 17:27:56', '2022-08-30 17:27:56'),
+(38, 205, 5, '2022-08-30 17:39:21', '2022-08-30 17:39:21'),
+(39, 203, 5, '2022-08-30 17:39:52', '2022-08-30 17:39:52'),
+(40, 206, 5, '2022-08-30 18:47:01', '2022-08-30 18:47:01');
 
 -- --------------------------------------------------------
 
@@ -464,7 +596,21 @@ INSERT INTO `permessions` (`id`, `name`, `key`, `group_by`, `created_at`, `updat
 (46, 'ازالة حالة الطلبات', 'statuses.destroy', 'حالات الطلبات', NULL, NULL),
 (47, 'كل اللغات', 'languages.index', 'اللغات', NULL, NULL),
 (48, 'انشاء لغة', 'languages.create', 'اللغات', NULL, NULL),
-(49, 'ازالة لغة', 'languages.destroy', 'اللغات', NULL, NULL);
+(49, 'ازالة لغة', 'languages.destroy', 'اللغات', NULL, NULL),
+(52, 'كل الكوبونات', 'coupons.index', 'الكوبونات', '2022-08-26 17:35:26', '2022-08-26 17:35:26'),
+(53, 'انشاء الكوبونات', 'coupons.create', 'الكوبونات', '2022-08-26 17:35:43', '2022-08-26 17:35:43'),
+(54, 'ازالة الكوبونات', 'coupons.destroy', 'الكوبونات', '2022-08-26 17:35:52', '2022-08-26 17:35:52'),
+(55, 'موافقة الطلبات', 'orders.approve', 'الطلبات', '2022-08-26 17:37:37', '2022-08-26 17:37:37'),
+(56, 'كل الزبائن', 'customers.index', 'الزبائن', '2022-08-27 09:48:54', '2022-08-27 09:48:54'),
+(57, 'انشاء الزبائن', 'customers.create', 'الزبائن', '2022-08-27 09:49:08', '2022-08-27 09:49:08'),
+(58, 'تعديل الزبائن', 'customers.edit', 'الزبائن', '2022-08-27 09:49:16', '2022-08-27 09:49:16'),
+(59, 'ازالة الزبائن', 'customers.destroy', 'الزبائن', '2022-08-27 09:49:28', '2022-08-27 09:49:28'),
+(64, 'صفحة طلبات الموافقة', 'approval_orders.index', 'الطلبات', '2022-08-28 15:41:10', '2022-08-28 15:41:10'),
+(70, 'طلب جديد', '17', 'الحالات', '2022-08-29 11:57:51', '2022-08-29 11:57:51'),
+(71, 'جارى الأستعلام', '18', 'الحالات', '2022-08-29 12:00:46', '2022-08-29 12:00:46'),
+(72, 'مدفوع', '19', 'الحالات', '2022-08-29 12:00:59', '2022-08-29 12:00:59'),
+(73, 'تحت المراجعة', '20', 'الحالات', '2022-08-29 12:01:18', '2022-08-29 12:01:18'),
+(74, 'مرتجع', '21', 'الحالات', '2022-08-29 12:01:25', '2022-08-29 12:01:25');
 
 -- --------------------------------------------------------
 
@@ -476,6 +622,7 @@ CREATE TABLE `products` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `count` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sku` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `photos` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `active` tinyint(1) NOT NULL DEFAULT 1,
@@ -483,6 +630,16 @@ CREATE TABLE `products` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`id`, `name`, `count`, `sku`, `photos`, `description`, `active`, `viewed_number`, `created_at`, `updated_at`) VALUES
+(44, 'منتج بدون اى شئ', '0', 'sku-651778', '[\"uploads\\/products\\/123456789630a0a745a967-1661602420.webp\"]', 'dss\'kf\';kasf\'a\'kasfaafas', 1, NULL, '2022-08-27 10:13:40', '2022-08-27 10:13:40'),
+(45, 'منتج مع اضافة', '0', 'sku-576912', NULL, NULL, 1, NULL, '2022-08-27 10:14:19', '2022-08-27 10:14:19'),
+(46, 'منتج مقاسات', '0', 'sku-778714', '[\"uploads\\/products\\/123456789630a0b03059d2-1661602563.jpg\",\"uploads\\/products\\/123456789630a0b0305e98-1661602563.jpg\"]', 'asdasdasdasda', 1, NULL, '2022-08-27 10:16:03', '2022-08-27 10:16:03'),
+(47, 'مقاسات مع اضافات', '200', 'sku-360608', NULL, NULL, 1, NULL, '2022-08-27 12:06:57', '2022-08-27 12:06:57');
 
 -- --------------------------------------------------------
 
@@ -506,7 +663,10 @@ CREATE TABLE `products_prices` (
 
 INSERT INTO `products_prices` (`id`, `product_id`, `price`, `discount`, `price_after_discount`, `created_at`, `updated_at`) VALUES
 (41, 39, 200, 10, 190, '2022-08-20 11:18:05', '2022-08-20 11:18:05'),
-(44, 41, 200, 50, 150, '2022-08-26 11:17:07', '2022-08-26 11:17:07');
+(44, 41, 200, 50, 150, '2022-08-26 11:17:07', '2022-08-26 11:17:07'),
+(48, 42, 200, 50, 150, '2022-08-26 17:04:21', '2022-08-26 17:04:21'),
+(49, 44, 300, 10, 290, '2022-08-27 10:13:40', '2022-08-27 10:13:40'),
+(50, 45, 300, 10, 290, '2022-08-27 10:14:19', '2022-08-27 10:14:19');
 
 -- --------------------------------------------------------
 
@@ -522,6 +682,19 @@ CREATE TABLE `products_variations` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `products_variations`
+--
+
+INSERT INTO `products_variations` (`id`, `product_id`, `type`, `variant`, `created_at`, `updated_at`) VALUES
+(41, 45, 'extra', 'صوص', '2022-08-27 10:14:19', '2022-08-27 10:14:19'),
+(42, 46, 'size', 'xxlarge', '2022-08-27 10:16:03', '2022-08-27 10:16:03'),
+(43, 46, 'size', 'large', '2022-08-27 10:16:03', '2022-08-27 10:16:03'),
+(44, 47, 'extra', 'جبنة', '2022-08-27 12:06:57', '2022-08-27 12:06:57'),
+(45, 47, 'extra', 'صوص', '2022-08-27 12:06:57', '2022-08-27 12:06:57'),
+(46, 47, 'size', 'xlarge', '2022-08-27 12:06:57', '2022-08-27 12:06:57'),
+(47, 47, 'size', 'large', '2022-08-27 12:06:57', '2022-08-27 12:06:57');
 
 -- --------------------------------------------------------
 
@@ -539,6 +712,19 @@ CREATE TABLE `products_variations_prices` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `products_variations_prices`
+--
+
+INSERT INTO `products_variations_prices` (`id`, `product_id`, `variant_id`, `price`, `discount`, `price_after_discount`, `created_at`, `updated_at`) VALUES
+(51, 45, 41, 10, NULL, 10, '2022-08-27 10:14:19', '2022-08-27 10:14:19'),
+(52, 46, 42, 300, 0, 300, '2022-08-27 10:16:03', '2022-08-27 10:16:03'),
+(53, 46, 43, 200, 20, 180, '2022-08-27 10:16:03', '2022-08-27 10:16:03'),
+(54, 47, 44, 20, NULL, 20, '2022-08-27 12:06:57', '2022-08-27 12:06:57'),
+(55, 47, 45, 50, NULL, 50, '2022-08-27 12:06:57', '2022-08-27 12:06:57'),
+(56, 47, 46, 400, 0, 400, '2022-08-27 12:06:57', '2022-08-27 12:06:57'),
+(57, 47, 47, 200, 0, 200, '2022-08-27 12:06:57', '2022-08-27 12:06:57');
 
 -- --------------------------------------------------------
 
@@ -591,55 +777,56 @@ INSERT INTO `roles_permessions` (`id`, `role_id`, `permession_id`, `created_at`,
 (8, 9, 23, '2022-08-17 10:11:50', '2022-08-17 10:11:50'),
 (9, 9, 24, '2022-08-17 10:11:50', '2022-08-17 10:11:50'),
 (10, 9, 25, '2022-08-17 10:11:50', '2022-08-17 10:11:50'),
-(11, 6, 1, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(12, 6, 2, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(13, 6, 3, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(14, 6, 4, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(15, 6, 5, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(16, 6, 6, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(17, 6, 7, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(18, 6, 8, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(19, 6, 9, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(20, 6, 10, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(21, 6, 11, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(22, 6, 12, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(23, 6, 13, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(24, 6, 14, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(25, 6, 15, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(26, 6, 16, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(27, 6, 17, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(28, 6, 18, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(29, 6, 19, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(30, 6, 20, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(31, 6, 21, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(32, 6, 22, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(33, 6, 23, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(34, 6, 24, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(35, 6, 25, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(36, 6, 26, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(37, 6, 27, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(38, 6, 28, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(39, 6, 29, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(40, 6, 30, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(41, 6, 31, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(42, 6, 32, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(43, 6, 33, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(44, 6, 34, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(45, 6, 35, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(46, 6, 36, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(47, 6, 37, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(48, 6, 38, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(49, 6, 39, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(50, 6, 40, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(51, 6, 41, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(52, 6, 42, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(53, 6, 43, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(54, 6, 44, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(55, 6, 45, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(56, 6, 46, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(57, 6, 47, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(58, 6, 48, '2022-08-20 09:12:48', '2022-08-20 09:12:48'),
-(59, 6, 49, '2022-08-20 09:12:48', '2022-08-20 09:12:48');
+(60, 6, 1, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(61, 6, 2, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(62, 6, 3, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(63, 6, 4, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(64, 6, 5, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(65, 6, 6, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(66, 6, 7, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(67, 6, 8, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(68, 6, 9, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(69, 6, 10, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(70, 6, 11, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(71, 6, 12, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(72, 6, 13, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(73, 6, 14, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(74, 6, 15, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(75, 6, 16, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(76, 6, 17, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(77, 6, 18, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(78, 6, 19, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(79, 6, 20, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(80, 6, 21, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(81, 6, 22, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(82, 6, 23, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(83, 6, 24, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(84, 6, 25, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(85, 6, 26, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(86, 6, 27, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(87, 6, 28, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(88, 6, 29, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(89, 6, 30, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(90, 6, 31, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(91, 6, 32, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(92, 6, 33, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(93, 6, 34, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(94, 6, 35, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(95, 6, 36, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(96, 6, 37, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(97, 6, 38, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(98, 6, 39, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(99, 6, 40, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(100, 6, 41, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(101, 6, 42, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(102, 6, 43, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(103, 6, 44, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(104, 6, 45, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(105, 6, 46, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(106, 6, 47, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(107, 6, 48, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(108, 6, 49, '2022-08-30 17:11:59', '2022-08-30 17:11:59'),
+(109, 6, 70, '2022-08-30 17:11:59', '2022-08-30 17:11:59');
 
 -- --------------------------------------------------------
 
@@ -679,6 +866,9 @@ CREATE TABLE `statuses` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `default_val` tinyint(1) NOT NULL DEFAULT 0,
+  `paid` tinyint(1) NOT NULL DEFAULT 0,
+  `returned` tinyint(1) NOT NULL DEFAULT 0,
+  `under_collection` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -687,10 +877,12 @@ CREATE TABLE `statuses` (
 -- Dumping data for table `statuses`
 --
 
-INSERT INTO `statuses` (`id`, `name`, `default_val`, `created_at`, `updated_at`) VALUES
-(5, 'طلب جديد', 1, '2022-08-20 12:34:13', '2022-08-20 12:34:13'),
-(6, 'جارى التجهيز', 0, '2022-08-20 12:34:23', '2022-08-20 12:34:23'),
-(7, 'تم التسليم', 0, '2022-08-20 12:34:27', '2022-08-20 12:34:27');
+INSERT INTO `statuses` (`id`, `name`, `default_val`, `paid`, `returned`, `under_collection`, `created_at`, `updated_at`) VALUES
+(17, 'طلب جديد', 1, 0, 0, 0, '2022-08-29 11:56:44', '2022-08-29 11:57:56'),
+(18, 'جارى الأستعلام', 0, 0, 0, 0, '2022-08-29 12:00:46', '2022-08-29 12:00:46'),
+(19, 'مدفوع', 0, 1, 0, 0, '2022-08-29 12:00:59', '2022-08-29 12:00:59'),
+(20, 'تحت المراجعة', 0, 0, 0, 0, '2022-08-29 12:01:18', '2022-08-29 12:01:18'),
+(21, 'مرتجع', 0, 0, 1, 0, '2022-08-29 12:01:25', '2022-08-29 12:01:25');
 
 -- --------------------------------------------------------
 
@@ -706,6 +898,18 @@ CREATE TABLE `statuses_histroy` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `statuses_histroy`
+--
+
+INSERT INTO `statuses_histroy` (`id`, `user_id`, `order_id`, `status_id`, `created_at`, `updated_at`) VALUES
+(73, 5, 202, 17, '2022-08-30 17:19:37', '2022-08-30 17:19:37'),
+(74, 5, 203, 17, '2022-08-30 17:20:02', '2022-08-30 17:20:02'),
+(75, 5, 204, 17, '2022-08-30 17:20:15', '2022-08-30 17:20:15'),
+(76, 5, 205, 17, '2022-08-30 17:20:30', '2022-08-30 17:20:30'),
+(77, 5, 205, 18, '2022-08-30 17:27:48', '2022-08-30 17:27:48'),
+(78, 5, 206, 17, '2022-08-30 17:43:40', '2022-08-30 17:43:40');
 
 -- --------------------------------------------------------
 
@@ -1303,7 +1507,179 @@ INSERT INTO `translations` (`id`, `lang_id`, `lang_key`, `lang_value`, `created_
 (575, 4, 'online invoice', 'online invoice', '2022-08-26 11:14:42', '2022-08-26 11:14:42'),
 (576, 3, 'total price of extras', 'total price of extras', '2022-08-26 11:26:14', '2022-08-26 11:26:14'),
 (577, 3, 'extras price', 'extras price', '2022-08-26 11:26:25', '2022-08-26 11:26:25'),
-(578, 4, 'you should create branch first', 'you should create branch first', '2022-08-26 12:01:32', '2022-08-26 12:01:32');
+(578, 4, 'you should create branch first', 'you should create branch first', '2022-08-26 12:01:32', '2022-08-26 12:01:32'),
+(579, 4, 'employee code', 'كود الموظف', '2022-08-26 16:26:16', '2022-08-26 16:26:30'),
+(580, 4, 'المهندسين', 'المهندسين', '2022-08-26 16:28:53', '2022-08-26 16:28:53'),
+(581, 4, 'شس4ي5شس6يشسي', 'شس4ي5شس6يشسي', '2022-08-26 16:28:53', '2022-08-26 16:28:53'),
+(582, 4, 'الدقى', 'الدقى', '2022-08-26 16:28:53', '2022-08-26 16:28:53'),
+(583, 4, 'asdasdlasdk;asd', 'asdasdlasdk;asd', '2022-08-26 16:28:53', '2022-08-26 16:28:53'),
+(584, 3, 'المهندسين', 'المهندسين', '2022-08-26 16:28:59', '2022-08-26 16:28:59'),
+(585, 3, 'شس4ي5شس6يشسي', 'شس4ي5شس6يشسي', '2022-08-26 16:28:59', '2022-08-26 16:28:59'),
+(586, 3, 'الدقى', 'الدقى', '2022-08-26 16:28:59', '2022-08-26 16:28:59'),
+(587, 3, 'asdasdlasdk;asd', 'asdasdlasdk;asd', '2022-08-26 16:28:59', '2022-08-26 16:28:59'),
+(588, 3, 'there is no categories', 'there is no categories', '2022-08-26 16:29:06', '2022-08-26 16:29:06'),
+(589, 3, 'create new product', 'create new product', '2022-08-26 16:30:37', '2022-08-26 16:30:37'),
+(590, 3, 'product name', 'product name', '2022-08-26 16:30:37', '2022-08-26 16:30:37'),
+(591, 3, 'there is no products', 'there is no products', '2022-08-26 16:31:24', '2022-08-26 16:31:24'),
+(592, 3, 'description', 'description', '2022-08-26 16:31:37', '2022-08-26 16:31:37'),
+(593, 3, 'choose category', 'choose category', '2022-08-26 16:31:37', '2022-08-26 16:31:37'),
+(594, 3, 'not available', 'not available', '2022-08-26 16:31:37', '2022-08-26 16:31:37'),
+(595, 3, 'from', 'from', '2022-08-26 16:31:37', '2022-08-26 16:31:37'),
+(596, 3, 'to', 'to', '2022-08-26 16:31:37', '2022-08-26 16:31:37'),
+(597, 3, 'category', 'category', '2022-08-26 16:31:39', '2022-08-26 16:31:39'),
+(598, 3, 'product count', 'product count', '2022-08-26 16:31:39', '2022-08-26 16:31:39'),
+(599, 3, 'product images', 'product images', '2022-08-26 16:31:39', '2022-08-26 16:31:39'),
+(600, 3, 'you should choose maximum 5 images', 'you should choose maximum 5 images', '2022-08-26 16:31:39', '2022-08-26 16:31:39'),
+(601, 3, 'back to products', 'back to products', '2022-08-26 16:31:39', '2022-08-26 16:31:39'),
+(602, 3, 'add', 'add', '2022-08-26 16:31:39', '2022-08-26 16:31:39'),
+(603, 3, 'the category is required', 'the category is required', '2022-08-26 16:31:53', '2022-08-26 16:31:53'),
+(604, 3, 'the category should be exists', 'the category should be exists', '2022-08-26 16:31:53', '2022-08-26 16:31:53'),
+(605, 3, 'the price is required', 'the price is required', '2022-08-26 16:31:53', '2022-08-26 16:31:53'),
+(606, 3, 'the price should be a number', 'the price should be a number', '2022-08-26 16:31:53', '2022-08-26 16:31:53'),
+(607, 3, 'the discount should be a number', 'the discount should be a number', '2022-08-26 16:31:53', '2022-08-26 16:31:53'),
+(608, 3, 'the viewed number should be a number', 'the viewed number should be a number', '2022-08-26 16:31:53', '2022-08-26 16:31:53'),
+(609, 3, 'information about', 'information about', '2022-08-26 16:32:26', '2022-08-26 16:32:26'),
+(610, 3, 'online invoice', 'online invoice', '2022-08-26 16:33:17', '2022-08-26 16:33:17'),
+(611, 3, 'creation from', 'creation from', '2022-08-26 16:33:17', '2022-08-26 16:33:17'),
+(612, 3, 'creation to', 'creation to', '2022-08-26 16:33:17', '2022-08-26 16:33:17'),
+(613, 3, 'there is no orders', 'there is no orders', '2022-08-26 16:33:17', '2022-08-26 16:33:17'),
+(614, 3, 'custom files', 'custom files', '2022-08-26 16:33:18', '2022-08-26 16:33:18'),
+(615, 3, 'edit order', 'edit order', '2022-08-26 16:45:26', '2022-08-26 16:45:26'),
+(616, 3, 'edit food', 'edit food', '2022-08-26 17:02:44', '2022-08-26 17:02:44'),
+(617, 3, 'food images', 'food images', '2022-08-26 17:02:44', '2022-08-26 17:02:44'),
+(618, 3, 'back to foods', 'back to foods', '2022-08-26 17:02:44', '2022-08-26 17:02:44'),
+(619, 3, 'updated successfully', 'updated successfully', '2022-08-26 17:02:50', '2022-08-26 17:02:50'),
+(620, 3, 'the extra is required', 'the extra is required', '2022-08-26 17:04:21', '2022-08-26 17:04:21'),
+(621, 3, 'total price without extras', 'total price without extras', '2022-08-26 17:17:54', '2022-08-26 17:17:54'),
+(622, 3, 'the size is required', 'the size is required', '2022-08-26 17:22:40', '2022-08-26 17:22:40'),
+(623, 3, 'pin code', 'pin code', '2022-08-26 17:29:37', '2022-08-26 17:29:37'),
+(624, 3, 'pincode', 'pincode', '2022-08-26 17:29:45', '2022-08-26 17:29:45'),
+(625, 3, 'back to permessions', 'back to permessions', '2022-08-26 17:33:55', '2022-08-26 17:33:55'),
+(626, 3, 'code', 'code', '2022-08-26 17:39:40', '2022-08-26 17:39:40'),
+(627, 3, 'there is no coupons', 'there is no coupons', '2022-08-26 17:39:40', '2022-08-26 17:39:40'),
+(628, 3, 'create new coupon', 'create new coupon', '2022-08-26 17:40:30', '2022-08-26 17:40:30'),
+(629, 3, 'type', 'type', '2022-08-26 17:40:30', '2022-08-26 17:40:30'),
+(630, 3, 'price or percent', 'price or percent', '2022-08-26 17:40:30', '2022-08-26 17:40:30'),
+(631, 3, 'valid before', 'valid before', '2022-08-26 17:40:30', '2022-08-26 17:40:30'),
+(632, 3, 'back to coupons', 'back to coupons', '2022-08-26 17:40:30', '2022-08-26 17:40:30'),
+(633, 3, 'times of use', 'times of use', '2022-08-26 17:41:51', '2022-08-26 17:41:51'),
+(634, 3, 'created at', 'created at', '2022-08-26 17:41:51', '2022-08-26 17:41:51'),
+(635, 3, 'bin codes orders', 'bin codes orders', '2022-08-26 17:42:47', '2022-08-26 17:42:47'),
+(636, 3, 'role type', 'role type', '2022-08-26 17:43:43', '2022-08-26 17:43:43'),
+(637, 3, 'there is no results', 'there is no results', '2022-08-26 17:43:43', '2022-08-26 17:43:43'),
+(638, 3, 'create new employee', 'create new employee', '2022-08-26 17:43:45', '2022-08-26 17:43:45'),
+(639, 3, 'all employees', 'all employees', '2022-08-26 17:43:45', '2022-08-26 17:43:45'),
+(640, 3, 'username', 'username', '2022-08-26 17:43:45', '2022-08-26 17:43:45'),
+(641, 3, 'profile picture', 'profile picture', '2022-08-26 17:43:45', '2022-08-26 17:43:45'),
+(642, 3, 'password confirmation', 'password confirmation', '2022-08-26 17:43:45', '2022-08-26 17:43:45'),
+(643, 3, 'register', 'register', '2022-08-26 17:43:45', '2022-08-26 17:43:45'),
+(644, 3, 'back to employees', 'back to employees', '2022-08-26 17:43:45', '2022-08-26 17:43:45'),
+(645, 3, 'employee code', 'employee code', '2022-08-26 17:43:53', '2022-08-26 17:43:53'),
+(646, 3, 'statuses', 'statuses', '2022-08-26 17:44:29', '2022-08-26 17:44:29'),
+(647, 3, 'status name', 'status name', '2022-08-26 17:44:29', '2022-08-26 17:44:29'),
+(648, 3, 'default status', 'default status', '2022-08-26 17:44:29', '2022-08-26 17:44:29'),
+(649, 3, 'default', 'default', '2022-08-26 17:44:29', '2022-08-26 17:44:29'),
+(650, 3, 'employee attached order', 'employee attached order', '2022-08-26 17:48:33', '2022-08-26 17:48:33'),
+(651, 3, 'approval', 'approval', '2022-08-26 17:48:33', '2022-08-26 17:48:33'),
+(652, 3, 'not approved', 'not approved', '2022-08-26 17:48:33', '2022-08-26 17:48:33'),
+(653, 3, 'updated successfuly', 'updated successfuly', '2022-08-26 17:48:38', '2022-08-26 17:48:38'),
+(654, 3, 'approved', 'approved', '2022-08-26 17:48:39', '2022-08-26 17:48:39'),
+(655, 3, 'edit employee', 'edit employee', '2022-08-26 17:51:10', '2022-08-26 17:51:10'),
+(656, 3, 'the name should be letters', 'the name should be letters', '2022-08-26 17:55:53', '2022-08-26 17:55:53'),
+(657, 3, 'you should enter a letters at least 255', 'you should enter a letters at least 255', '2022-08-26 17:55:53', '2022-08-26 17:55:53'),
+(658, 3, 'the email is required', 'the email is required', '2022-08-26 17:55:53', '2022-08-26 17:55:53'),
+(659, 3, 'the email sould be letters', 'the email sould be letters', '2022-08-26 17:55:53', '2022-08-26 17:55:53'),
+(660, 3, 'the email is already exists', 'the email is already exists', '2022-08-26 17:55:53', '2022-08-26 17:55:53'),
+(661, 3, 'you should choose branch', 'you should choose branch', '2022-08-26 17:55:53', '2022-08-26 17:55:53'),
+(662, 3, 'the permessions is required', 'the permessions is required', '2022-08-26 17:55:53', '2022-08-26 17:55:53'),
+(663, 3, 'the permessions is not in the infos', 'the permessions is not in the infos', '2022-08-26 17:55:53', '2022-08-26 17:55:53'),
+(664, 4, 'returned', 'returned', '2022-08-27 09:26:40', '2022-08-27 09:26:40'),
+(665, 4, 'under collection', 'under collection', '2022-08-27 09:26:40', '2022-08-27 09:26:40'),
+(666, 4, 'there is no statuses', 'there is no statuses', '2022-08-27 09:27:49', '2022-08-27 09:27:49'),
+(667, 4, 'status type', 'status type', '2022-08-27 09:30:20', '2022-08-27 09:30:20'),
+(668, 4, 'there is some thing error', 'there is some thing error', '2022-08-27 09:33:37', '2022-08-27 09:33:37'),
+(669, 4, 'all customers', 'all customers', '2022-08-27 09:51:01', '2022-08-27 09:51:01'),
+(670, 4, 'create customer', 'create customer', '2022-08-27 09:51:01', '2022-08-27 09:51:01'),
+(671, 4, 'customers', 'customers', '2022-08-27 09:51:07', '2022-08-27 09:51:07'),
+(672, 4, 'there is no customers', 'there is no customers', '2022-08-27 09:54:28', '2022-08-27 09:54:28'),
+(673, 4, 'create new customer', 'create new customer', '2022-08-27 09:55:11', '2022-08-27 09:55:11'),
+(674, 4, 'customeres', 'customeres', '2022-08-27 09:55:11', '2022-08-27 09:55:11'),
+(675, 4, 'back to customers', 'back to customers', '2022-08-27 09:56:10', '2022-08-27 09:56:10'),
+(676, 4, 'عميل جديد', 'عميل جديد', '2022-08-27 09:57:35', '2022-08-27 09:57:35'),
+(677, 4, 'asdasdasd67aa75s6da', 'asdasdasd67aa75s6da', '2022-08-27 09:57:35', '2022-08-27 09:57:35'),
+(678, 4, 'edit customer', 'edit customer', '2022-08-27 10:01:50', '2022-08-27 10:01:50'),
+(679, 4, 'قديم جدا', 'قديم جدا', '2022-08-27 10:03:12', '2022-08-27 10:03:12'),
+(680, 4, 'asd;lkas\'dlas', 'asd;lkas\'dlas', '2022-08-27 10:03:12', '2022-08-27 10:03:12'),
+(681, 4, 'asdkljas;jads', 'asdkljas;jads', '2022-08-27 10:03:12', '2022-08-27 10:03:12'),
+(682, 4, 'sku', 'sku', '2022-08-27 10:08:05', '2022-08-27 10:08:05'),
+(683, 4, 'pincode', 'pincode', '2022-08-27 10:16:36', '2022-08-27 10:16:36'),
+(684, 3, 'customers', 'customers', '2022-08-27 10:18:33', '2022-08-27 10:18:33'),
+(685, 3, 'all customers', 'all customers', '2022-08-27 10:18:33', '2022-08-27 10:18:33'),
+(686, 3, 'create customer', 'create customer', '2022-08-27 10:18:33', '2022-08-27 10:18:33'),
+(687, 3, 'search form customer', 'search form customer', '2022-08-27 10:25:42', '2022-08-27 10:25:42'),
+(688, 3, 'add new customer', 'add new customer', '2022-08-27 10:29:13', '2022-08-27 10:29:13'),
+(689, 3, 'search for customer', 'search for customer', '2022-08-27 10:30:39', '2022-08-27 10:30:39'),
+(690, 3, 'create new customer', 'create new customer', '2022-08-27 10:37:54', '2022-08-27 10:37:54'),
+(691, 3, 'exit', 'exit', '2022-08-27 10:37:54', '2022-08-27 10:37:54'),
+(692, 3, 'files', 'files', '2022-08-27 10:51:26', '2022-08-27 10:51:26'),
+(693, 3, 'sku', 'sku', '2022-08-27 12:06:21', '2022-08-27 12:06:21'),
+(694, 3, 'customer', 'customer', '2022-08-27 13:29:03', '2022-08-27 13:29:03'),
+(695, 4, 'customer', 'customer', '2022-08-27 13:29:20', '2022-08-27 13:29:20'),
+(696, 4, 'total price without extras', 'total price without extras', '2022-08-27 13:29:20', '2022-08-27 13:29:20'),
+(697, 4, 'search for customer', 'search for customer', '2022-08-27 18:09:37', '2022-08-27 18:09:37'),
+(698, 4, 'add new customer', 'add new customer', '2022-08-27 18:09:37', '2022-08-27 18:09:37'),
+(699, 4, 'files', 'files', '2022-08-27 18:09:37', '2022-08-27 18:09:37'),
+(700, 3, 'file removed successfully', 'file removed successfully', '2022-08-27 21:15:17', '2022-08-27 21:15:17'),
+(701, 3, 'employee in', 'employee in', '2022-08-27 21:45:48', '2022-08-27 21:45:48'),
+(702, 3, 'edit profile', 'edit profile', '2022-08-27 22:06:10', '2022-08-27 22:06:10'),
+(703, 3, 'back to dashboard', 'back to dashboard', '2022-08-27 22:06:10', '2022-08-27 22:06:10'),
+(704, 3, 'قديم جدا', 'قديم جدا', '2022-08-28 15:19:18', '2022-08-28 15:19:18'),
+(705, 3, 'asd;lkas\'dlas', 'asd;lkas\'dlas', '2022-08-28 15:19:18', '2022-08-28 15:19:18'),
+(706, 3, 'عميل جديد', 'عميل جديد', '2022-08-28 15:19:18', '2022-08-28 15:19:18'),
+(707, 3, 'asdkljas;jads', 'asdkljas;jads', '2022-08-28 15:19:18', '2022-08-28 15:19:18'),
+(708, 3, 'order id', 'order id', '2022-08-28 15:20:48', '2022-08-28 15:20:48'),
+(709, 3, 'back to customers', 'back to customers', '2022-08-28 15:22:28', '2022-08-28 15:22:28'),
+(710, 3, 'regular', 'regular', '2022-08-28 15:25:11', '2022-08-28 15:25:11'),
+(711, 3, 'special', 'special', '2022-08-28 15:25:11', '2022-08-28 15:25:11'),
+(712, 3, 'you should choose a name is not already exists', 'you should choose a name is not already exists', '2022-08-28 15:26:47', '2022-08-28 15:26:47'),
+(713, 3, 'asdasda', 'asdasda', '2022-08-28 15:26:53', '2022-08-28 15:26:53'),
+(714, 3, 'asd45as6d456as', 'asd45as6d456as', '2022-08-28 15:26:53', '2022-08-28 15:26:53'),
+(715, 3, 'edit customer', 'edit customer', '2022-08-28 15:26:57', '2022-08-28 15:26:57'),
+(716, 3, 'there is no customers', 'there is no customers', '2022-08-28 15:29:41', '2022-08-28 15:29:41'),
+(717, 3, 'orders count', 'orders count', '2022-08-28 15:33:04', '2022-08-28 15:33:04'),
+(718, 4, 'customer email', 'customer email', '2022-08-28 19:30:22', '2022-08-28 19:30:22'),
+(719, 4, 'customer type', 'customer type', '2022-08-28 19:30:22', '2022-08-28 19:30:22'),
+(720, 4, 'regular', 'regular', '2022-08-28 19:30:22', '2022-08-28 19:30:22'),
+(721, 4, 'special', 'special', '2022-08-28 19:30:22', '2022-08-28 19:30:22'),
+(722, 3, 'customer email', 'customer email', '2022-08-28 19:32:43', '2022-08-28 19:32:43'),
+(723, 3, 'customer type', 'customer type', '2022-08-28 19:32:43', '2022-08-28 19:32:43'),
+(724, 3, 'discount type', 'discount type', '2022-08-28 19:34:01', '2022-08-28 19:34:01'),
+(725, 3, 'amount', 'amount', '2022-08-28 19:34:01', '2022-08-28 19:34:01'),
+(726, 3, 'total orders of branches', 'total orders of branches', '2022-08-29 04:35:19', '2022-08-29 04:35:19'),
+(727, 3, 'total orders of online', 'total orders of online', '2022-08-29 04:36:05', '2022-08-29 04:36:05'),
+(728, 4, 'order id', 'order id', '2022-08-29 04:39:15', '2022-08-29 04:39:15'),
+(729, 4, 'total orders of online', 'total orders of online', '2022-08-29 04:58:49', '2022-08-29 04:58:49'),
+(730, 4, 'total orders of branches', 'total orders of branches', '2022-08-29 04:58:49', '2022-08-29 04:58:49'),
+(731, 3, 'staff type', 'staff type', '2022-08-29 05:02:33', '2022-08-29 05:02:33'),
+(732, 3, 'sub admin', 'sub admin', '2022-08-29 05:02:33', '2022-08-29 05:02:33'),
+(733, 3, 'user', 'user', '2022-08-29 05:02:33', '2022-08-29 05:02:33'),
+(734, 3, 'the username is required', 'the username is required', '2022-08-29 05:09:34', '2022-08-29 05:09:34'),
+(735, 3, 'the username sould be letters', 'the username sould be letters', '2022-08-29 05:09:34', '2022-08-29 05:09:34'),
+(736, 3, 'the username is already exists', 'the username is already exists', '2022-08-29 05:09:34', '2022-08-29 05:09:34'),
+(737, 3, 'role type is required', 'role type is required', '2022-08-29 05:09:34', '2022-08-29 05:09:34'),
+(738, 3, 'role type is not exists', 'role type is not exists', '2022-08-29 05:09:34', '2022-08-29 05:09:34'),
+(739, 3, 'the password is required', 'the password is required', '2022-08-29 05:09:34', '2022-08-29 05:09:34'),
+(740, 3, 'the password sould be letters', 'the password sould be letters', '2022-08-29 05:09:34', '2022-08-29 05:09:34'),
+(741, 3, 'you should enter a password bigger than 8 letters', 'you should enter a password bigger than 8 letters', '2022-08-29 05:09:34', '2022-08-29 05:09:34'),
+(742, 3, 'the password should be matches', 'the password should be matches', '2022-08-29 05:09:35', '2022-08-29 05:09:35'),
+(743, 4, 'staff type', 'staff type', '2022-08-30 17:12:15', '2022-08-30 17:12:15'),
+(744, 4, 'sub admin', 'sub admin', '2022-08-30 17:12:15', '2022-08-30 17:12:15'),
+(745, 4, 'user', 'user', '2022-08-30 17:12:15', '2022-08-30 17:12:15'),
+(746, 4, 'discount type', 'discount type', '2022-08-30 17:17:18', '2022-08-30 17:17:18'),
+(747, 4, 'amount', 'amount', '2022-08-30 17:17:18', '2022-08-30 17:17:18'),
+(748, 4, 'export excel', 'export excel', '2022-08-30 17:46:40', '2022-08-30 17:46:40'),
+(749, 3, 'export excel', 'export excel', '2022-08-30 18:41:07', '2022-08-30 18:41:07'),
+(750, 4, 'approval history', 'approval history', '2022-08-30 18:51:56', '2022-08-30 18:51:56');
 
 -- --------------------------------------------------------
 
@@ -1336,7 +1712,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `branch_id`, `bin_code`, `name`, `username`, `role_type`, `type`, `phone`, `address`, `email`, `avatar`, `banned`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
-(5, NULL, NULL, 'admin name', 'admin', NULL, 'admin', '015460456', NULL, 'admin@admin.com', NULL, 0, NULL, '$2y$10$xLvNcTEnsi.y/riSn1/8Eu52rKH0evXAx/5scAl/.demPFyhBwv.a', 'DA1MguoNkN5JnpDDPZKKDa53mlUqdARwE5jEh2wblXbFcE0s4Dg561WgAAgw', '2022-07-30 10:38:55', '2022-08-26 12:04:48');
+(5, NULL, NULL, 'admin name', 'admin', NULL, 'admin', '015460456', NULL, 'admin@admin.com', NULL, 0, NULL, '$2y$10$xLvNcTEnsi.y/riSn1/8Eu52rKH0evXAx/5scAl/.demPFyhBwv.a', 'FyomV97NCbzeYHX2nUZnSDCmNXSrkoKVFofNYPrKNQMF76sNz4S4mEnZ5fVX', '2022-07-30 10:38:55', '2022-08-26 12:04:48'),
+(14, NULL, 3046, 'moza', 'moza', 'online', 'user', '0150465546', 'asdasdasd', 'moza@gmail.com', NULL, 0, NULL, '$2y$10$scGrTcs/UVatLfbN9Qe/heQqj6dAIclOG6eJ3By4RQA3m01xE2vBG', NULL, '2022-08-26 16:25:22', '2022-08-26 17:58:41'),
+(15, 29, 6343, 'asd', 'asd', 'inhouse', 'user', '4054056456', '5456', 'asd@asd.com', NULL, 0, NULL, '$2y$10$GFXE0zbnNKVgTNYI3feTheWbhHBFjl.NeIZ3pqL5ytlkC35G93iH2', NULL, '2022-08-27 21:39:57', '2022-08-27 21:39:57'),
+(16, NULL, 6042, 'kareem', 'kareem', NULL, 'sub-admin', 'as5f54asf456asa', 'as546f456a4564fas', 'kareem@gmail.com', NULL, 0, NULL, '$2y$10$YXWzd.F0ivZdWMqkO.a4c.Ezg50UFkErKiihMbq/SQ6QCT/yqwSJu', NULL, '2022-08-29 05:12:01', '2022-08-29 05:12:01');
 
 -- --------------------------------------------------------
 
@@ -1353,8 +1732,23 @@ CREATE TABLE `users_roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Dumping data for table `users_roles`
+--
+
+INSERT INTO `users_roles` (`id`, `user_id`, `role_id`, `created_at`, `updated_at`) VALUES
+(19, 14, 6, '2022-08-26 17:58:41', '2022-08-26 17:58:41'),
+(20, 15, 6, '2022-08-27 21:39:57', '2022-08-27 21:39:57'),
+(21, 16, 6, '2022-08-29 05:12:01', '2022-08-29 05:12:01');
+
+--
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `approval_histories`
+--
+ALTER TABLE `approval_histories`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `branches`
@@ -1411,6 +1805,12 @@ ALTER TABLE `countries`
 -- Indexes for table `coupons`
 --
 ALTER TABLE `coupons`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `customers`
+--
+ALTER TABLE `customers`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1596,34 +1996,40 @@ ALTER TABLE `users_roles`
 --
 
 --
+-- AUTO_INCREMENT for table `approval_histories`
+--
+ALTER TABLE `approval_histories`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `branches`
 --
 ALTER TABLE `branches`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `branches_categories`
 --
 ALTER TABLE `branches_categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `businesses`
 --
 ALTER TABLE `businesses`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `categories_products`
 --
 ALTER TABLE `categories_products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `cities`
@@ -1641,7 +2047,13 @@ ALTER TABLE `countries`
 -- AUTO_INCREMENT for table `coupons`
 --
 ALTER TABLE `coupons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `customers`
+--
+ALTER TABLE `customers`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `customer_cards`
@@ -1653,7 +2065,7 @@ ALTER TABLE `customer_cards`
 -- AUTO_INCREMENT for table `expenses`
 --
 ALTER TABLE `expenses`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -1671,25 +2083,25 @@ ALTER TABLE `languages`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=181;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=207;
 
 --
 -- AUTO_INCREMENT for table `orders_details`
 --
 ALTER TABLE `orders_details`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=361;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=442;
 
 --
 -- AUTO_INCREMENT for table `orders_views`
 --
 ALTER TABLE `orders_views`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `payments`
@@ -1707,31 +2119,31 @@ ALTER TABLE `payment_customers`
 -- AUTO_INCREMENT for table `permessions`
 --
 ALTER TABLE `permessions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `products_prices`
 --
 ALTER TABLE `products_prices`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `products_variations`
 --
 ALTER TABLE `products_variations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `products_variations_prices`
 --
 ALTER TABLE `products_variations_prices`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -1743,7 +2155,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `roles_permessions`
 --
 ALTER TABLE `roles_permessions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
 
 --
 -- AUTO_INCREMENT for table `settings`
@@ -1755,31 +2167,31 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `statuses`
 --
 ALTER TABLE `statuses`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `statuses_histroy`
 --
 ALTER TABLE `statuses_histroy`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- AUTO_INCREMENT for table `translations`
 --
 ALTER TABLE `translations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=579;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=751;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `users_roles`
 --
 ALTER TABLE `users_roles`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- Constraints for dumped tables
