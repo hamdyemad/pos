@@ -25,6 +25,21 @@
                         @method("PATCH")
                         @csrf
                         <div class="row">
+                            @if(Auth::user()->type == 'admin')
+                                <div class="col-12 col-md-6">
+                                    <div class="form-group">
+                                        <label for="category">{{ translate('staff type') }}</label>
+                                        <select class="form-control select2 staff_select" name="type"
+                                            data-placeholder="{{ translate('choose') }}">
+                                            <option value="sub-admin" @if($user->type == 'sub-admin') selected @endif>{{ translate('sub admin') }}</option>
+                                            <option value="user" @if($user->type == 'user') selected @endif>{{ translate('user') }}</option>
+                                        </select>
+                                        @error('type')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            @endif
                             @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin')
                                 <div class="col-12 col-md-6 roles_col">
                                     <div class="form-group">
@@ -172,6 +187,22 @@
                 </div>
             </div>
         `;
+
+        if($(".staff_select").val() == 'sub-admin') {
+            $(".roles_col").addClass('d-none');
+        } else {
+
+            $(".roles_col").removeClass('d-none');
+        }
+
+        $(".staff_select").on('change', function() {
+            if($(this).val() == 'sub-admin') {
+                $(".roles_col").addClass('d-none');
+            } else {
+                $(".roles_col").removeClass('d-none');
+            }
+        });
+
         $(".order_type").on('change', function() {
             arrayOfValues = $(this).val();
             if (arrayOfValues.includes('online')) {

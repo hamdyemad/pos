@@ -90,16 +90,18 @@
                 <td>
                     <input class="form-control product_discount" name="products[${product.id}][variants][${obj.id}][discount]"  type="number" placeholder="{{ translate('quantity') }}">
                 </td>
-                <td>
-                    <div class="customized_files">
-                        <div class="form-group">
-                            <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[${product.id}][variants][${obj.id}][files][]">
-                            <button type="button" class="btn btn-primary form-control files">
-                                <span class="mdi mdi-plus btn-lg"></span>
-                            </button>
+                @can('orders.files')
+                    <td>
+                        <div class="customized_files">
+                            <div class="form-group">
+                                <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[${product.id}][variants][${obj.id}][files][]">
+                                <button type="button" class="btn btn-primary form-control files">
+                                    <span class="mdi mdi-plus btn-lg"></span>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </td>
+                    </td>
+                @endcan
                 <td><textarea class="form-control" name="products[${product.id}][variants][${obj.id}][notes]"></textarea></td>
                 <td>
                     <div class="total_price">${obj.currenct_price_of_variant.price_after_discount }</div>
@@ -117,7 +119,9 @@
                     <th>{{ translate('price') }}</th>
                     <th>{{ translate('quantity') }}</th>
                     <th>{{ translate('discount') }}</th>
-                    <th>{{ translate('files') }}</th>
+                    @can('orders.files')
+                        <th>{{ translate('files') }}</th>
+                    @endcan
                     <th>{{ translate('notes') }}</th>
                     <th>{{ translate('total price') }}</th>
                 </thead>
@@ -134,7 +138,9 @@
                     <th>{{ translate('price') }}</th>
                     <th>{{ translate('quantity') }}</th>
                     <th>{{ translate('discount') }}</th>
-                    <th>{{ translate('files') }}</th>
+                    @can('orders.files')
+                        <th>{{ translate('files') }}</th>
+                    @endcan
                     <th>{{ translate('notes') }}</th>
                     <th>{{ translate('total price') }}</th>
                 </thead>
@@ -175,7 +181,9 @@
                     <th class="noraml_th">{{ translate('price') }}</th>
                     <th class="noraml_th">{{ translate('quantity') }}</th>
                     <th class="noraml_th">{{ translate('discount') }}</th>
-                    <th class="noraml_th">{{ translate('files') }}</th>
+                    @can('orders.files')
+                        <th class="noraml_th">{{ translate('files') }}</th>
+                    @endcan
                     <th class="noraml_th">{{ translate('notes') }}</th>
                     <th class="noraml_th">{{ translate('total price') }}</th>
                     <th class="size_th d-none">{{ translate('size') }}</th>
@@ -242,16 +250,18 @@
                                 $(`#product_tr_${product.id}`).append(`<td><div class="price">${product.price_of_currency.price_after_discount}</div></td>`);
                                 $(`#product_tr_${product.id}`).append(`<td><input class="form-control amount" value="1" min="1" type="number" name="products[${product.id}][amount]"></td>`);
                                 $(`#product_tr_${product.id}`).append(`<td><input class="form-control product_discount" type="number" name="products[${product.id}][discount]"></td>`);
-                                $(`#product_tr_${product.id}`).append(`<td>
-                                    <div class="customized_files">
-                                        <div class="form-group">
-                                            <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[${product.id}][files][]">
-                                            <button type="button" class="btn btn-primary form-control files">
-                                                <span class="mdi mdi-plus btn-lg"></span>
-                                            </button>
+                                @can('orders.files')
+                                    $(`#product_tr_${product.id}`).append(`<td>
+                                        <div class="customized_files">
+                                            <div class="form-group">
+                                                <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[${product.id}][files][]">
+                                                <button type="button" class="btn btn-primary form-control files">
+                                                    <span class="mdi mdi-plus btn-lg"></span>
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>`);
+                                    </td>`);
+                                @endcan
                                 $(`#product_tr_${product.id}`).append(`<td><textarea class="form-control" name="products[${product.id}][notes]"></textarea></td>`);
                                 $(`#product_tr_${product.id}`).append(`<td><div class="total_price">${product.price_of_currency.price_after_discount}</div></td>`);
                             }
@@ -276,16 +286,18 @@
                             $(`#product_tr_${product.id}`).append(`<td><div class="price">${product.price_of_currency.price_after_discount}</div></td>`);
                             $(`#product_tr_${product.id}`).append(`<td><input class="form-control amount" value="1" min="1" type="number" name="products[${product.id}][amount]"></td>`);
                             $(`#product_tr_${product.id}`).append(`<td><input class="form-control product_discount" type="number" name="products[${product.id}][discount]"></td>`);
-                            $(`#product_tr_${product.id}`).append(`<td>
-                                    <div class="customized_files">
-                                        <div class="form-group">
-                                            <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[${product.id}][files][]">
-                                            <button type="button" class="btn btn-primary form-control files">
-                                                <span class="mdi mdi-plus btn-lg"></span>
-                                            </button>
+                            @can('orders.files')
+                                $(`#product_tr_${product.id}`).append(`<td>
+                                        <div class="customized_files">
+                                            <div class="form-group">
+                                                <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[${product.id}][files][]">
+                                                <button type="button" class="btn btn-primary form-control files">
+                                                    <span class="mdi mdi-plus btn-lg"></span>
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>`);
+                                    </td>`);
+                            @endcan
                             $(`#product_tr_${product.id}`).append(`<td><textarea class="form-control" name="products[${product.id}][notes]"></textarea></td>`);
                             $(`#product_tr_${product.id}`).append(`<td><div class="total_price">${product.price_of_currency.price_after_discount}</div></td>`);
                         }

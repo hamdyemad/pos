@@ -56,21 +56,27 @@
             margin: 0;
         }
 
+        .logo_div {
+            text-align: center;
+            margin: auto;
+            display: block
+        }
+
+        .logo {
+            width: 200px;
+            height: 150px;
+        }
+
 		</style>
 	</head>
 
 	<body>
 		<div class="invoice-box @if($rtl) rtl @endif">
+            <div class="logo_div">
+                <img class="logo" src="{{ asset(get_setting('logo')) }}" alt="">
+            </div>
+
 			<table class="table" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td class="top" colspan="4">
-                        @if (get_setting('logo'))
-                            <img src="{{ asset(get_setting('logo')) }}" style="width: 250px; height: 180px;" alt="">
-                        @else
-                            <img src="{{ asset('/images/default.jpg') }}" style="width: 150px; height: 150px;" alt="">
-                        @endif
-                    </td>
-                </tr>
                 <tr class="info">
                     <td colspan="1">{{ translate('n.o') }}</td>
                     <td class="text-center" colspan="3">{{ $order->id }}</td>
@@ -197,33 +203,34 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4">
+                    <td colspan="4" style="text-align: right; font-size: 12px">
                         شروط الاسترجاع داخل الفروع خلال 14 يوم
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4">
+                    <td colspan="4" style="text-align: right; font-size: 12px">
                         1- عدم غسل المنتج
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4">
+                    <td colspan="4" style="text-align: right; font-size: 12px">
                         2- عدم استخدام برفيوم علي المنتج
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4">
+                    <td colspan="4" style="text-align: right; font-size: 12px">
                         3- عدم اللبس
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4">
+                    <td colspan="4" style="text-align: right; font-size: 12px">
                         شروط الاستبدال داخل الفروع واون لاين خلال 14 يوم اي مشكله في المنتج  بعد اللبس خلال هذه المده  بيتم التبديل فور فري ايآ كانت المشكلة ولا يحق للعميل الاسترجاع
                         التبديل فقط
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2"></td>
+                    <td></td>
+                    <td></td>
                     <td></td>
                     <td></td>
                 </tr>

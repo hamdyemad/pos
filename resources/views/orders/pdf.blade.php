@@ -21,7 +21,7 @@
 			.invoice-box table {
 				width: 100%;
 				line-height: inherit;
-				text-align: right;
+				text-align: left;
 			}
 
 			.invoice-box table td {
@@ -30,7 +30,7 @@
 			}
 
 			.invoice-box table tr td:nth-child(2) {
-				text-align: right;
+				text-align: left;
 			}
 
 			.invoice-box table tr.top table td {
@@ -41,10 +41,6 @@
 				font-size: 45px;
 				line-height: 45px;
 				color: #333;
-			}
-
-			.invoice-box table tr.information table td {
-				padding-bottom: 40px;
 			}
 
 			.invoice-box table tr.heading td {
@@ -93,9 +89,6 @@
 				text-align: right;
 			}
 
-			.invoice-box.rtl  tr td.order_header {
-				text-align: left !important;
-			}
             .top {
                 text-align: center;
             }
@@ -123,14 +116,9 @@
                                     @if($order->branch)
                                         {{ translate('order branch') . ': ' }} {{ translate($order->branch->name) }}<br>
                                     @endif
-                                    @if($order->notes)
-                                        {{ translate('notes') . ': ' }} {{ $order->notes }}<br>
-                                    @endif
-                                    {{ translate('order summary') }}<br>
                                     @if($order->customer)
-                                        {{ translate('customer name') . ': ' }} {{ $order->customer->name }}<br>
-                                        {{ translate('customer phone') . ': ' }} {{ $order->customer->phone }}<br>
-                                        {{ translate('customer address') . ': ' }} {{ $order->customer->address }}<br>
+                                        {{ translate('name') . ': ' }} {{ $order->customer->name }}<br>
+                                        {{ translate('phone') . ': ' }} {{ $order->customer->phone }}<br>
                                     @endif
                                     @if($order->city)
                                         {{ translate('city') . ': ' }} {{ $order->city->name }}<br>
@@ -146,6 +134,10 @@
                                 <td>
                                     {{ translate('order number') . ' : ' . $order->id }}<br>
                                     ({{ $order->created_at }})<br>
+                                    @if($order->notes)
+                                        {{ translate('notes') . ': ' }} {{ $order->notes }}<br>
+                                    @endif
+                                    {{ translate('address') . ': ' }} {{ $order->customer->address }}<br>
                                 </td>
                             </tr>
                         </table>
@@ -360,28 +352,28 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="6">
+                    <td style="text-align: right"  colspan="6">
                         شروط الاسترجاع  داخل الفروع
                         خلال 14 يوم
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="6">
+                    <td style="text-align: right"  colspan="6">
                         1- عدم غسل المنتج
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="6">
+                    <td style="text-align: right"  colspan="6">
                         2- عدم استخدام برفيوم علي المنتج
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="6">
+                    <td style="text-align: right"  colspan="6">
                         3- عدم اللبس
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="6">
+                    <td style="text-align: right" colspan="6">
                         شروط الاستبدال داخل الفروع واون لاين خلال 14 يوم
                         اي مشكله في المنتج بعد اللبس خلال هذه المده بيتم التبديل فور فري ايآ كانت المشكلة ولا يحق للعميل الاسترجاع
                         التبديل فقط

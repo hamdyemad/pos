@@ -31,8 +31,8 @@
                                         <label for="category">{{ translate('staff type') }}</label>
                                         <select class="form-control select2 staff_select" name="type"
                                             data-placeholder="{{ translate('choose') }}">
-                                            <option value="sub-admin">{{ translate('sub admin') }}</option>
-                                            <option value="user">{{ translate('user') }}</option>
+                                            <option value="sub-admin" @if(old('type') == 'sub-admin') selected @endif>{{ translate('sub admin') }}</option>
+                                            <option value="user" @if(old('type') == 'user') selected @endif>{{ translate('user') }}</option>
                                         </select>
                                         @error('type')
                                             <div class="text-danger">{{ $message }}</div>
@@ -45,8 +45,8 @@
                                     <label for="category">{{ translate('role type') }}</label>
                                     <select class="form-control role_type_select select2 select2-multiple" name="role_type"
                                         data-placeholder="{{ translate('choose') }}">
-                                        <option value="online">{{ translate('online') }}</option>
-                                        <option value="inhouse">{{ translate('inhouse') }}</option>
+                                        <option value="online" @if(old('role_type') == 'online') selected @endif>{{ translate('online') }}</option>
+                                        <option value="inhouse" @if(old('role_type') == 'inhouse') selected @endif>{{ translate('inhouse') }}</option>
                                     </select>
                                     @error('role_type')
                                         <div class="text-danger">{{ $message }}</div>
@@ -176,9 +176,17 @@
         if($(".staff_select").val() == 'sub-admin') {
             $(".roles_col").addClass('d-none');
         } else {
+
             $(".roles_col").removeClass('d-none');
         }
 
+        $(".staff_select").on('change', function() {
+            if($(this).val() == 'sub-admin') {
+                $(".roles_col").addClass('d-none');
+            } else {
+                $(".roles_col").removeClass('d-none');
+            }
+        });
 
         if($(".role_type_select").val() == 'inhouse') {
             $(".branch_col").removeClass('d-none');

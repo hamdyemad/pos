@@ -184,7 +184,15 @@
                             <div class="col-12">
                                 <div class="form-group">
                                     <label for="products">{{ translate('products') }}</label>
-                                    <select class="form-control select_products select2 select2-multiple"data-placeholder="{{ translate('choose') }}" name="products_search[]" multiple></select>
+                                    <select class="form-control select_products select2 select2-multiple"data-placeholder="{{ translate('choose') }}" name="products_search[]" multiple>
+                                        @foreach ($products as $product)
+                                            @if(old('products_search'))
+                                                <option @if(in_array($product->id, old('products_search'))) selected @endif value="{{ $product->id }}" data-name="{{ $product->id }}">
+                                                    {{ $product->id . ' : ' . $product->sku }}
+                                                    </option>
+                                            @endif
+                                        @endforeach
+                                    </select>
                                     @error("products_search")
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -373,7 +381,7 @@
                     if(res.status) {
                         res.data.forEach((obj) => {
                             $(".select_products").append(`
-                                <option value="${obj.id}" data-name="${obj.name}">
+                                <option  value="${obj.id}" data-name="${obj.name}">
                                     ${obj.name + ' : ' + obj.sku}
                                     </option>
                             `);
