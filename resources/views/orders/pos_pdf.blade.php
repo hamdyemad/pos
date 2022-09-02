@@ -8,7 +8,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
 		<style>
 			.invoice-box {
-                width: 302.36220472;
+                /* width: 302.36220472; */
 				padding: 30px;
                 margin: auto;
 				border: 1px solid #eee;
@@ -203,27 +203,27 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right; font-size: 12px">
+                    <td colspan="4" style="text-align: right; font-size: 13px">
                         شروط الاسترجاع داخل الفروع خلال 14 يوم
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right; font-size: 12px">
+                    <td colspan="4" style="text-align: right; font-size: 13px">
                         1- عدم غسل المنتج
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right; font-size: 12px">
+                    <td colspan="4" style="text-align: right; font-size: 13px">
                         2- عدم استخدام برفيوم علي المنتج
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right; font-size: 12px">
+                    <td colspan="4" style="text-align: right; font-size: 13px">
                         3- عدم اللبس
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right; font-size: 12px">
+                    <td colspan="4" style="text-align: right; font-size: 13px">
                         شروط الاستبدال داخل الفروع واون لاين خلال 14 يوم اي مشكله في المنتج  بعد اللبس خلال هذه المده  بيتم التبديل فور فري ايآ كانت المشكلة ولا يحق للعميل الاسترجاع
                         التبديل فقط
                     </td>

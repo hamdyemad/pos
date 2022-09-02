@@ -27,6 +27,8 @@
                             <input type="hidden" name="discount_type" value="percent">
                         @elseif(request('discount_type') == 'amount')
                             <input type="hidden" name="discount_type" value="amount">
+                        @else
+                            <input type="hidden" name="discount_type" value="amount">
                         @endif
 
                         <input type="hidden" name="type" value="online">

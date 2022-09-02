@@ -380,6 +380,10 @@ class OrderController extends Controller
                 'products_count' => $order->order_details->groupBy('product_id')->count(),
                 'status' => $order->status
             ]));
+            if($request->print == 'true') {
+                $request['type'] = 'pos';
+                return $this->pdf($request, $order);
+            }
             return redirect()->back()->with('success', translate('created successfully'));
         } else {
             return redirect()->back()->with('error', translate('you should choose a default status'));

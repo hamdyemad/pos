@@ -27,6 +27,8 @@
                             <input type="hidden" name="discount_type" value="percent">
                         @elseif(request('discount_type') == 'amount')
                             <input type="hidden" name="discount_type" value="amount">
+                        @else
+                            <input type="hidden" name="discount_type" value="amount">
                         @endif
 
                         <input type="hidden" name="type" value="inhouse">
@@ -163,6 +165,17 @@
                                     <label for="notes">{{ translate('notes') }}</label>
                                     <textarea id="textarea" class="form-control" name="notes" maxlength="225"
                                         rows="3">{{ old('notes') }}</textarea>
+                                    @error('notes')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group form-check">
+                                        <input type="checkbox" checked name="print" value="true" class="form-check-input" id="exampleCheck1">
+                                        <label class="form-check-label" for="exampleCheck1">{{ translate('print') }}</label>
+                                      </div>
                                     @error('notes')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
