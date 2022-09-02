@@ -4,6 +4,7 @@
             <td>index</td>
             <td>date</td>
             <td>order number</td>
+            <td>payment method</td>
             @if($order_type)
                 <td>employee name</td>
                 <td>pincode</td>
@@ -29,14 +30,15 @@
                 <td>{{ $loop->index + 1 }}</td>
                 <td>{{ \Carbon\Carbon::createFromDate($order->created_at)->format('Y-m-d') }}</td>
                 <td>{{ $order->id }}</td>
+                <td>{{ $order->payment_method }}</td>
                 @if($order_type)
                     <td>{{ App\User::where('bin_code', $order->bin_code)->first()->name }}</td>
                     <td>{{ $order->bin_code }}</td>
                     <td>
                         @if($order->under_approve)
-                            approved
-                        @else
                             unapproved
+                        @else
+                            approved
                         @endif
                     </td>
                 @endif
@@ -51,7 +53,7 @@
                         لا يوجد
                     @endif
                 </td>
-                <td>{{ $order->grand_total + $discount + $order->shipping }}</td>
+                <td>{{ $order->grand_total + $discount }}</td>
                 <td>{{ $order->grand_total }}</td>
             </tr>
         @endforeach
