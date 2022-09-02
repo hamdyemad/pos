@@ -163,6 +163,7 @@
                 <td><strong>{{ translate('product name') }}</strong></td>
                 <td><strong>{{ translate('price') }}</strong></td>
                 <td><strong>{{ translate('qty') }}</strong></td>
+                <td><strong>{{ translate('full price') }}</strong></td>
                 <td><strong>{{ translate('discount') }}</strong></td>
                 <td><strong>{{ translate('total price') }} </strong></td>
             </tr>
@@ -180,8 +181,21 @@
                                         <img src="{{ asset('/images/product_avatar.png') }}" class="mr-3" alt="...">
                                     @endif
                                     <div class="media-body mt-2">
-                                        <div class="d-flex align-items-center mb-1">
+                                        <div class="">
                                             <h3 class="m-0 ml-2">{{ $variant->product->name }}</h3>
+                                            @if($variant->files)
+                                                <div class="box w-50 mt-2">
+                                                    <ul class="all_files list-unstyled">
+                                                        @foreach (json_decode($variant->files) as $file)
+                                                            <li>
+                                                                <a class="w-100" target="_blank" href="{{ asset($file) }}">
+                                                                    {{ $loop->index + 1 }}
+                                                                </a>
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif
                                         </div>
                                         <!-- Extras -->
                                         @if(isset($order->order_details->groupBy('variant_type')['extra']))
@@ -207,6 +221,19 @@
                                                                     <span>{{ $extra->total_price  }}</span>
                                                                 </div>
                                                             @endif
+                                                            @if($extra->files)
+                                                                <div class="box w-50 mt-2">
+                                                                    <ul class="all_files list-unstyled">
+                                                                        @foreach (json_decode($extra->files) as $file)
+                                                                            <li>
+                                                                                <a class="w-100" target="_blank" href="{{ asset($file) }}">
+                                                                                    {{ $loop->index + 1 }}
+                                                                                </a>
+                                                                            </li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                </div>
+                                                            @endif
                                                         </div>
                                                     @endforeach
                                                 @endif
@@ -230,19 +257,44 @@
                                 </ul>
                             </td>
                             <td>
-                                <strong class="comp-title">{{ $variant->discount }}</strong>
-                                <ul class="mobile list-unstyled">
-                                    <li>{{ translate('discount') }}</li>
-                                    <li>{{ $variant->discount }}</li>
-                                </ul>
-                            </td>
-                            <td>
                                 <strong class="comp-title">{{  $variant->total_price }}</strong>
                                 <ul class="mobile list-unstyled">
                                     <li>{{ translate('total price') }}</li>
                                     <li>{{  $variant->total_price }}</li>
                                 </ul>
                             </td>
+                            <td>
+                            @if($order->discount_type == 'percent')
+                                <strong class="comp-title">{{ '%' . $variant->discount }}</strong>
+                                <ul class="mobile list-unstyled">
+                                    <li>{{ translate('discount') }}</li>
+                                    <li>{{ '%' . $variant->discount }}</li>
+                                </ul>
+                            @else
+                                <strong class="comp-title">{{ $variant->discount }}</strong>
+                                <ul class="mobile list-unstyled">
+                                    <li>{{ translate('discount') }}</li>
+                                    <li>{{ $variant->discount }}</li>
+                                </ul>
+                            @endif
+                            </td>
+                            @if($order->discount_type == 'percent')
+                                <td>
+                                    <strong class="comp-title">{{  (($variant->total_price * $variant->discount) / 100) }}</strong>
+                                    <ul class="mobile list-unstyled">
+                                        <li>{{ translate('total price') }}</li>
+                                        <li>{{ (($variant->total_price * $variant->discount) / 100)  }}</li>
+                                    </ul>
+                                </td>
+                            @else
+                                <td>
+                                    <strong class="comp-title">{{  $variant->total_price - $variant->discount }}</strong>
+                                    <ul class="mobile list-unstyled">
+                                        <li>{{ translate('total price') }}</li>
+                                        <li>{{ $variant->total_price - $variant->discount  }}</li>
+                                    </ul>
+                                </td>
+                            @endif
                         </tr>
                     @endif
                 @endforeach
@@ -254,7 +306,7 @@
                     @endphp
                     @if($product)
                         <tr>
-                            <td colspan="2">
+                            <td>
                                 <div class="media">
                                     @if($product->photos !== null)
                                         <img src="{{ asset(json_decode($product->photos)[0]) }}" class="mr-3" alt="...">
@@ -282,10 +334,26 @@
                                             </div>
                                             @if($variant->qty > 1)
                                                 <div class="line">
-                                                    <strong>{{ translate('total price') }} :</strong>
-                                                    <span>{{  $variant->total_price  }}</span>
+                                                    <strong>{{ translate('sub total') }} :</strong>
+                                                    <span>{{ $variant->total_price  }}</span>
                                                 </div>
                                             @endif
+                                            <div class="line">
+                                                <strong>{{ translate('discount') }} :</strong>
+                                                @if($order->discount_type == 'percent')
+                                                    <span>{{  '%' . $variant->discount  }}</span>
+                                                @else
+                                                    <span>{{ $variant->discount  }}</span>
+                                                @endif
+                                            </div>
+                                            <div class="line">
+                                                <strong>{{ translate('total price') }} :</strong>
+                                                @if($order->discount_type == 'percent')
+                                                    <span>{{ ($variant->total_price - (($variant->total_price * $variant->discount) /100))  }}</span>
+                                                @else
+                                                    <span>{{  $variant->total_price - $variant->discount  }}</span>
+                                                @endif
+                                            </div>
                                         </div>
                                         @if($variant->files)
                                             <div class="box w-50">
@@ -322,10 +390,26 @@
                                                         </div>
                                                         @if($variant->qty > 1)
                                                             <div class="line">
-                                                                <strong>{{ translate('total price') }} :</strong>
-                                                                <span>{{  $variant->total_price  }}</span>
+                                                                <strong>{{ translate('sub total') }} :</strong>
+                                                                <span>{{ $variant->total_price  }}</span>
                                                             </div>
                                                         @endif
+                                                        <div class="line">
+                                                            <strong>{{ translate('discount') }} :</strong>
+                                                            @if($order->discount_type == 'percent')
+                                                                <span>{{  '%' . $variant->discount  }}</span>
+                                                            @else
+                                                                <span>{{ $variant->discount  }}</span>
+                                                            @endif
+                                                        </div>
+                                                        <div class="line">
+                                                            <strong>{{ translate('total price') }} :</strong>
+                                                            @if($order->discount_type == 'percent')
+                                                                <span>{{  ( $variant->total_price - (($variant->total_price * $variant->discount) /100))  }}</span>
+                                                            @else
+                                                                <span>{{  $variant->total_price - $variant->discount  }}</span>
+                                                            @endif
+                                                        </div>
                                                     </div>
                                                     @if($variant->files)
                                                         <div class="box w-50">
@@ -340,28 +424,61 @@
                                     @endforeach
                                 @endif
                             </td>
-                            <td>
-                                <strong class="comp-title">{{ $value->pluck('qty')->sum() }}</strong>
-                                <ul class="mobile list-unstyled">
-                                    <li>{{ translate('qty') }}</li>
-                                    <li>{{ $value->pluck('qty')->sum() }}</li>
-                                </ul>
-                            </td>
                             <td>--</td>
-                            <td>
-                                <strong class="comp-title">{{  $value->pluck('total_price')->sum() }}</strong>
-                                <ul class="mobile list-unstyled">
-                                    <li>{{ translate('total price') }}</li>
-                                    <li>{{  $value->pluck('total_price')->sum() }}</li>
-                                </ul>
-                            </td>
+                            <td>--</td>
+                            <td>--</td>
+                            <td>--</td>
+                            <td>--</td>
                         </tr>
                     @endif
                 @endforeach
             @endif
+            @if($order->shipping)
+                <tr>
+                    <td>
+                        <ul class="mobile list-unstyled">
+                            <li>{{ translate('shipping') }}</li>
+                            <li>{{  $order->shipping }}</li>
+                        </ul>
+                    </td>
+                    <td class="comp-td"></td>
+                    <td class="comp-td"></td>
+                    <td class="comp-td"></td>
+                    <td class="text-center comp-td">
+                        <strong>{{ translate('shipping') }}</strong></td>
+                    <td class="comp-td"><strong>{{  $order->shipping }}</strong></td>
+                </tr>
+            @endif
+            @if($order->total_discount)
+                <tr>
+                    <td>
+                        <ul class="mobile list-unstyled">
+                            <li>{{ translate('discount') }}</li>
+                            @if($order->discount_type == 'percent')
+                                <li>{{  '%' . $order->total_discount }}</li>
+                            @else
+                                <li>{{  $order->total_discount }}</li>
+                            @endif
+                        </ul>
+                    </td>
+                    <td class="comp-td"></td>
+                    <td class="comp-td"></td>
+                    <td class="comp-td"></td>
+                    <td class="text-center comp-td">
+                        <strong>{{ translate('discount') }}</strong></td>
+                    <td class="comp-td">
+                        @if($order->discount_type == 'percent')
+                            <strong>{{  '%' . $order->total_discount }}</strong>
+                        @else
+                            <strong>{{  $order->total_discount }}</strong>
+                        @endif
+                    </td>
+                </tr>
+            @endif
             @if($order->coupon)
                 <tr>
                     <td></td>
+                    <td class="comp-td"></td>
                     <td class="comp-td"></td>
                     <td class="comp-td"></td>
                     <td class="comp-td text-center"><strong>{{ translate('coupon discount') }}</strong></td>
@@ -377,83 +494,15 @@
             <tr>
                 <td>
                     <ul class="mobile list-unstyled">
-                        <li>{{ translate('total price without extras') }}</li>
-                        @if(isset($order->order_details->groupBy('variant_type')['extra']))
-                            <li>
-                                {{   (($order->grand_total  - $order->shipping -  $order->order_details->groupBy('variant_type')['extra']->pluck('total_price')->sum()) + $order->total_discount) }}
-                            </li>
-                        @else
-                            <li>
-                                {{  (( $order->grand_total - $order->shipping) + $order->total_discount)  }}
-                            </li>
-                        @endif
-                    </ul>
-                </td>
-                <td class="comp-td"></td>
-                <td class="comp-td"></td>
-                <td class="text-center comp-td">
-                    <strong>{{ translate('total price without extras') }}</strong></td>
-                @if(isset($order->order_details->groupBy('variant_type')['extra']))
-                    <td class="comp-td"><strong>{{   (($order->grand_total  - $order->shipping -  $order->order_details->groupBy('variant_type')['extra']->pluck('total_price')->sum()) + $order->total_discount) }}</strong></td>
-                @else
-                    <td class="comp-td"><strong>{{  (( $order->grand_total - $order->shipping) + $order->total_discount)  }}</strong></td>
-                @endif
-            </tr>
-            @if(isset($order->order_details->groupBy('variant_type')['extra']))
-                <tr>
-                    <td>
-                        <ul class="mobile list-unstyled">
-                            <li>{{ translate('total price of extras') }}</li>
-                            <li>{{  $order->order_details->groupBy('variant_type')['extra']->pluck('total_price')->sum() }}</li>
-                        </ul>
-                    </td>
-                    <td class="comp-td"></td>
-                    <td class="comp-td"></td>
-                    <td class="text-center comp-td"> <strong>{{ translate('total price of extras') }}</strong></td>
-                    <td class="comp-td"><strong>{{  $order->order_details->groupBy('variant_type')['extra']->pluck('total_price')->sum() }}</strong></td>
-                </tr>
-            @endif
-            @if($order->shipping)
-                <tr>
-                    <td>
-                        <ul class="mobile list-unstyled">
-                            <li>{{ translate('shipping') }}</li>
-                            <li>{{  $order->shipping }}</li>
-                        </ul>
-                    </td>
-                    <td class="comp-td"></td>
-                    <td class="comp-td"></td>
-                    <td class="text-center comp-td">
-                        <strong>{{ translate('shipping') }}</strong></td>
-                    <td class="comp-td"><strong>{{  $order->shipping }}</strong></td>
-                </tr>
-            @endif
-            @if($order->total_discount)
-                <tr>
-                    <td>
-                        <ul class="mobile list-unstyled">
-                            <li>{{ translate('discount') }}</li>
-                            <li>{{  $order->total_discount }}</li>
-                        </ul>
-                    </td>
-                    <td class="comp-td"></td>
-                    <td class="comp-td"></td>
-                    <td class="text-center comp-td">
-                        <strong>{{ translate('discount') }}</strong></td>
-                    <td class="comp-td"><strong>{{  $order->total_discount }}</strong></td>
-                </tr>
-            @endif
-            <tr>
-                <td>
-                    <ul class="mobile list-unstyled">
-                        <li>{{ translate('final price') }}</li>
+                        <li>{{ translate('total price') }}</li>
                         <li>{{  $order->grand_total }}</li>
                     </ul>
                 </td>
                 <td class="comp-td"></td>
                 <td class="comp-td"></td>
+                <td class="comp-td"></td>
                 <td class=" text-center comp-td">
-                    <strong>{{ translate('final price') }}</strong></td>
+                    <strong>{{ translate('total price') }}</strong></td>
                 <td class="comp-td">
                    <strong>{{  $order->grand_total }}</strong></td>
             </tr>

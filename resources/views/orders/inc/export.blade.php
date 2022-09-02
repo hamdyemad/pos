@@ -4,6 +4,11 @@
             <td>index</td>
             <td>date</td>
             <td>order number</td>
+            @if($order_type)
+                <td>employee name</td>
+                <td>pincode</td>
+                <td>approved</td>
+            @endif
             <td>discount</td>
             <td>shipping</td>
             <td>coupon</td>
@@ -13,11 +18,31 @@
     </thead>
     <tbody>
         @foreach ($orders as $order)
+            @php
+                if($order->discount_type == 'percent') {
+                    $discount = ($order->grand_total / ($order->total_discount / 100) * ($order->total_discount / 100));
+                } else {
+                    $discount = $order->total_discount;
+                }
+            @endphp
             <tr>
                 <td>{{ $loop->index + 1 }}</td>
                 <td>{{ \Carbon\Carbon::createFromDate($order->created_at)->format('Y-m-d') }}</td>
                 <td>{{ $order->id }}</td>
-                <td>{{ $order->total_discount }}</td>
+                @if($order_type)
+                    <td>{{ App\User::where('bin_code', $order->bin_code)->first()->name }}</td>
+                    <td>{{ $order->bin_code }}</td>
+                    <td>
+                        @if($order->under_approve)
+                            approved
+                        @else
+                            unapproved
+                        @endif
+                    </td>
+                @endif
+                <td>
+                    {{ $discount }}
+                </td>
                 <td>{{ $order->shipping }}</td>
                 <td>
                     @if($order->coupon)
@@ -26,18 +51,23 @@
                         لا يوجد
                     @endif
                 </td>
-                <td>{{ $order->grand_total + $order->total_discount }}</td>
+                <td>{{ $order->grand_total + $discount + $order->shipping }}</td>
                 <td>{{ $order->grand_total }}</td>
             </tr>
         @endforeach
         <tr>
-            <td>{{ $orders->count() }}</td>
             <td></td>
             <td></td>
             <td></td>
             <td></td>
             <td></td>
             <td></td>
+            <td></td>
+            @if($order_type)
+            <td></td>
+            <td></td>
+            <td></td>
+            @endif
             <td>{{ $orders->pluck('grand_total')->sum() }}</td>
         </tr>
     </tbody>

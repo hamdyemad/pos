@@ -63,8 +63,8 @@
         }
 
         .logo {
-            width: 200px;
-            height: 150px;
+            width: 250px;
+            height: 200px;
         }
 
 		</style>
@@ -78,45 +78,64 @@
 
 			<table class="table" cellpadding="0" cellspacing="0">
                 <tr class="info">
-                    <td colspan="1">{{ translate('n.o') }}</td>
-                    <td class="text-center" colspan="3">{{ $order->id }}</td>
+                    <td colspan="2">{{ translate('n.o') }}</td>
+                    <td class="text-center" colspan="4">{{ $order->id }}</td>
                 </tr>
                 <tr class="info">
-                    <td colspan="1">{{ translate('date') }}</td>
-                    <td class="text-center" colspan="3">{{ \Carbon\Carbon::createFromDate($order->created_at)->format('Y-md-d') }}</td>
+                    <td colspan="2">{{ translate('date') }}</td>
+                    <td class="text-center" colspan="4">{{ \Carbon\Carbon::createFromDate($order->created_at)->format('Y-m-d') }}</td>
+                </tr>
+                <tr class="info">
+                    <td colspan="2">{{ translate('branch') }}</td>
+                    <td class="text-center" colspan="4">{{ $order->branch->name }}</td>
                 </tr>
                 @if($order->customer)
                     <tr class="info">
-                        <td colspan="1">{{ translate('name') }}</td>
-                        <td class="text-center" colspan="3">{{ $order->customer->name }}</td>
+                        <td colspan="2">{{ translate('name') }}</td>
+                        <td class="text-center" colspan="4">{{ $order->customer->name }}</td>
                     </tr>
                     <tr class="info">
-                        <td colspan="1">{{ translate('phone') }}</td>
-                        <td class="text-center" colspan="3">{{ $order->customer->phone }}</td>
+                        <td colspan="2">{{ translate('phone') }}</td>
+                        <td class="text-center" colspan="4">{{ $order->customer->phone }}</td>
                     </tr>
                 @endif
                 <tr>
-                    <td colspan="4">
+                    <td colspan="6">
                         <hr>
                     </td>
                 </tr>
                 <tr class="heading">
                     <td>{{ translate('Desc.') }}</td>
-                    <td>{{ translate('QTY') }}</td>
                     <td>{{ translate('Price') }}</td>
+                    <td>{{ translate('QTY') }}</td>
+                    <td>{{ translate('Full Price') }}</td>
+                    <td>{{ translate('Discount') }}</td>
                     <td>{{ translate('Total') }} </td>
                 </tr>
                 @if(isset($order->order_details->groupBy('variant_type')['']))
                     @foreach ($order->order_details->groupBy('variant_type')[''] as $variant)
+                        @php
+                            if($order->discount_type == 'percent') {
+                                $discount = (($variant->total_price * $variant->discount) / 100);
+                            } else {
+                                $discount = $variant->discount;
+                            }
+                        @endphp
                         <tr class="item">
                             <td>
                                 <span>{{ $variant->product->name }}</span>
                             </td>
-                            <td><span>{{ $variant->qty }}</span></td>
                             <td>
                                 <span>{{ $variant->price }}</span>
                             </td>
-                            <td><span>{{ $variant->total_price }}</span></td>
+                            <td><span>{{ $variant->qty }}</span></td>
+                            <td>
+                                <span>{{ $variant->price * $variant->qty }}</span>
+                            </td>
+                            <td>
+                                <span>{{ $discount }}</span>
+                            </td>
+                            <td><span>{{ $variant->total_price - $discount }}</span></td>
                         </tr>
                     @endforeach
                 @endif
@@ -127,16 +146,31 @@
                                 <td>
                                     <span>{{ App\Models\Product::find($product_id_from_size)->name }}</span>
                                 </td>
+                                <td>--</td>
                                 <td><span>{{ $value->pluck('qty')->sum() }}</span></td>
                                 <td>--</td>
-                                <td><span>{{ $value->pluck('total_price')->sum() }}</span></td>
+                                <td>--</td>
+                                <td>--</td>
                             </tr>
                             @foreach ($value as $variant)
+                                @php
+                                    if($order->discount_type == 'percent') {
+                                        $discount = (($variant->total_price * $variant->discount) / 100);
+                                    } else {
+                                        $discount = $variant->discount;
+                                    }
+                                @endphp
                                 <tr class="item_childs">
                                     <td>{{ $variant->variant }}</td>
-                                    <td>{{ $variant->qty }}</td>
                                     <td>{{ $variant->price }}</td>
+                                    <td>{{ $variant->qty }}</td>
                                     <td>{{ $variant->total_price }}</td>
+                                    <td>
+                                        {{ $discount }}
+                                    </td>
+                                    <td>
+                                        {{  $variant->total_price - $discount }}
+                                    </td>
                                 </tr>
                             @endforeach
                         @endif
@@ -146,26 +180,98 @@
                     @foreach ($order->order_details->groupBy('variant_type')['extra']->groupBy('product_id') as $product_id_from_extra => $val)
                         @if($val)
                             @foreach ($val as $extra)
+                                @php
+                                    if($order->discount_type == 'percent') {
+                                        $discount = $extra->total_price - (($extra->total_price * $extra->discount) / 100);
+                                    } else {
+                                        $discount = $extra->total_price - $extra->discount;
+                                    }
+                                @endphp
                                 <tr class="item_childs">
+                                    <td>{{ $extra->variant }}</td>
+                                    <td>{{ $extra->price }}</td>
+                                    <td>{{ $extra->qty }}</td>
+                                    <td>{{ $extra->total_price }}</td>
                                     <td>
-                                        <span>{{ $extra->variant  }}</span>
+                                        {{ $discount }}
                                     </td>
                                     <td>
-                                        <span>{{ $extra->qty  }}</span>
-                                    </td>
-                                    <td>
-                                        <span>{{ $extra->price  }}</span>
-                                    </td>
-                                    <td>
-                                        <span>{{ $extra->total_price  }}</span>
+                                        {{  $extra->total_price - $discount }}
                                     </td>
                                 </tr>
                             @endforeach
                         @endif
                     @endforeach
                 @endif
+
+                @php
+                    if($order->discount_type == 'percent') {
+                        $discount = (($order->grand_total / ($order->total_discount  / 100)) * ($order->total_discount / 100));
+                        if($order->coupon) {
+                            if($order->coupon->type == 'percent') {
+                                $coupon_price = ($order->grand_total / ($order->coupon->price / 100));
+                                $sub_total = (($order->grand_total + $discount) / ($order->coupon->price / 100));
+                            } else {
+                                $discount = $discount + $order->coupon->price;
+                                $sub_total = $order->grand_total + $discount + $order->coupon->price;
+                            }
+                        } else {
+                            $sub_total = $order->grand_total + $discount;
+                        }
+                    } else {
+                        $discount = $order->total_discount;
+                        if($order->coupon) {
+                            if($order->coupon->type == 'percent') {
+                                $sub_total = (($order->grand_total / ($order->coupon->price / 100)) + $discount);
+                            } else {
+                                $sub_total = (($order->grand_total + $order->coupon->price) + $discount);
+                            }
+                        } else {
+                            $sub_total = $order->grand_total+ $discount;
+                        }
+                    }
+                @endphp
+                <tr>
+                    <td colspan="6">
+                        <hr>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{ translate('sub total') }}</td>
+                    <td>
+                        {{ $sub_total }}
+                    </td>
+
+                </tr>
+                @if($order->total_discount)
+                    <tr>
+                        <td colspan="6">
+                            <hr>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="no-line text-center">
+                            <span>{{ translate('discount') }}</span></td>
+                        <td>{{ $discount }}</td>
+                    </tr>
+                @endif
                 @if($order->coupon)
-                    <tr class="item">
+                    <tr>
+                        <td colspan="6">
+                            <hr>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td>{{ translate('coupon discount') }}</td>
@@ -179,56 +285,56 @@
 
                     </tr>
                 @endif
-                @if($order->total_discount)
-                    <tr class="item">
-                        <td></td>
-                        <td></td>
-                        <td class="no-line text-center">
-                            <span>{{ translate('discount') }}</span></td>
-                        <td><span>{{ $order->total_discount }}</span></td>
-                    </tr>
-                @endif
-                <tr class="item">
-                    <td class="no_border"></td>
-                    <td class="no_border"></td>
+                <tr>
+                    <td colspan="6">
+                        <hr>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                     <td class="no-line text-center">
-                        <span>{{ translate('final price') }}</span></td>
+                        <span>{{ translate('total price') }}</span></td>
                     <td>
                         <span>{{ $order->grand_total }}</span>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4">
+                    <td colspan="6">
                         <hr>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right; font-size: 13px">
+                    <td colspan="6" style="text-align: right; font-size: 13px">
                         شروط الاسترجاع داخل الفروع خلال 14 يوم
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right; font-size: 13px">
+                    <td colspan="6" style="text-align: right; font-size: 13px">
                         1- عدم غسل المنتج
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right; font-size: 13px">
+                    <td colspan="6" style="text-align: right; font-size: 13px">
                         2- عدم استخدام برفيوم علي المنتج
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right; font-size: 13px">
+                    <td colspan="6" style="text-align: right; font-size: 13px">
                         3- عدم اللبس
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right; font-size: 13px">
+                    <td colspan="6" style="text-align: right; font-size: 13px">
                         شروط الاستبدال داخل الفروع واون لاين خلال 14 يوم اي مشكله في المنتج  بعد اللبس خلال هذه المده  بيتم التبديل فور فري ايآ كانت المشكلة ولا يحق للعميل الاسترجاع
                         التبديل فقط
                     </td>
                 </tr>
                 <tr>
+                    <td></td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>

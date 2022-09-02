@@ -437,7 +437,7 @@ class OrderController extends Controller
         } else {
             $orders = Order::whereIn('id', $request->orders)->get();
             if($request->type == 'export') {
-                return Excel::download(new OrderExport($orders), 'orders.xlsx');
+                return Excel::download(new OrderExport($orders, $request->order_type), 'orders.xlsx');
             }
             $mpdf = new Mpdf();
             $mpdf->autoScriptToLang = true;

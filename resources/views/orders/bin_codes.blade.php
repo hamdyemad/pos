@@ -43,6 +43,7 @@
             </div>
         <!-- End Status Modal -->
         <form id="shipping_invoice" target="_blank" action="{{ route('orders.all_pdf') }}" method="POST">
+            <input type="hidden" name="order_type" value="pin_codes">
             @csrf
         </form>
         <div class="card">
