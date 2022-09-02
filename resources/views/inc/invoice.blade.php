@@ -183,6 +183,9 @@
                                     <div class="media-body mt-2">
                                         <div class="">
                                             <h3 class="m-0 ml-2">{{ $variant->product->name }}</h3>
+                                            <p>
+                                                {{ $variant->notes }}
+                                            </p>
                                             @if($variant->files)
                                                 <div class="box w-50 mt-2">
                                                     <ul class="all_files list-unstyled">
@@ -221,6 +224,9 @@
                                                                     <span>{{ $extra->total_price  }}</span>
                                                                 </div>
                                                             @endif
+                                                            <p>
+                                                                {{ $extra->notes }}
+                                                            </p>
                                                             @if($extra->files)
                                                                 <div class="box w-50 mt-2">
                                                                     <ul class="all_files list-unstyled">
@@ -318,6 +324,9 @@
                                     </div>
                                 </div>
                                 @foreach ($value as $variant)
+                                    <p>
+                                        {{ $variant->notes }}
+                                    </p>
                                     <div class="mb-2 d-flex">
                                         <div class="box w-50">
                                             <div class="line">
@@ -374,6 +383,9 @@
                                     @foreach ($order->order_details->groupBy('variant_type')['extra']->groupBy('product_id') as $product_id_from_extra => $val)
                                         @if($product_id_from_extra == $product_id_from_size)
                                             @foreach ($val as $variant)
+                                                <p>
+                                                    {{ $variant->notes }}
+                                                </p>
                                                 <div class="mb-2 d-flex">
                                                     <div class="box w-50">
                                                         <div class="line">
