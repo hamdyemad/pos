@@ -167,7 +167,7 @@
                                                 @if($user->banned)
                                                 checked
                                                 @endif />
-                                                <label for="switch4" data-on-label="{{ translate('yes') }}" data-off-label="{{ translate('no') }}"></label>
+                                                <label for="switch-{{ $loop->index }}" data-on-label="{{ translate('yes') }}" data-off-label="{{ translate('no') }}"></label>
                                             </div>
                                         </form>
                                     </td>
