@@ -52,7 +52,7 @@
             </div>
             <div class="col-12 col-md-6 col-lg-3">
                 @component('common-components.widget')
-                    @slot('route') {{ route('products.index') }} @endslot
+                    @slot('route') {{ route('orders.index') }} @endslot
                     @slot('icons') mdi mdi-cart-outline float-right @endslot
                     @slot('title') {{translate('orders')}} @endslot
                     @slot('price') {{ $ordersCount }} @endslot

@@ -199,7 +199,9 @@
                                         @php
                                             $employee_attached_order = App\User::where('bin_code', $order->bin_code)->first();
                                         @endphp
-                                        {{ $employee_attached_order->name }}
+                                        @if($employee_attached_order)
+                                            {{ $employee_attached_order->name }}
+                                        @endif
                                     </th>
                                     @if($order->customer)
                                         <td>{{ $order->customer->name }}</td>
