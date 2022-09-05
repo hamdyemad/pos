@@ -78,6 +78,7 @@
                                 <th>{{ translate('name') }}</th>
                                 <th>{{ translate('address') }}</th>
                                 <th>{{ translate('phone') }}</th>
+                                <th>{{ translate('phone2') }}</th>
                                 <th>{{ translate('email') }}</th>
                                 <th>{{ translate('type') }}</th>
                                 <th>{{ translate('orders count') }}</th>
@@ -93,6 +94,7 @@
                                     <td>{{ translate($customer->name) }}</td>
                                     <td>{{ translate($customer->address) }}</td>
                                     <td>{{ $customer->phone }}</td>
+                                    <td>{{ $customer->phone2 }}</td>
                                     <td>{{ $customer->email }}</td>
                                     <td>{{ $customer->type }}</td>
                                     <td>

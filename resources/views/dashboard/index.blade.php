@@ -78,7 +78,7 @@
                             <h3 class="m-0">{{translate('total orders of online')}}</h3>
                         </div>
                         <div class="card-body">
-                            <table class="table table-hover mb-0">
+                            <table class="table d-block overflow-auto d-md-table table-hover mb-0">
                                 <thead>
                                     <tr>
                                         <th><span>{{ translate('order number') }}</span></th>
@@ -125,7 +125,7 @@
                             <h3 class="m-0">{{translate('total orders of branches')}}</h3>
                         </div>
                         <div class="card-body">
-                            <table class="table table-hover mb-0">
+                            <table class="table d-block overflow-auto d-md-table table-hover mb-0">
                                 <thead>
                                     <tr>
                                         <th><span>{{ translate('order number') }}</span></th>

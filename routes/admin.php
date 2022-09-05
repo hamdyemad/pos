@@ -92,6 +92,7 @@ Route::group([
                 Route::get('/{order}/pdf', 'OrderController@pdf')->name('pdf');
 
                 Route::post('/{order}/approve', 'OrderController@approve')->name('approve');
+                Route::post('/{order}/unbin', 'OrderController@unbin')->name('unbin');
                 Route::post('/{order}/remove_files', 'OrderController@remove_files')->name('remove_files');
 
                 Route::patch('/{order}', 'OrderController@update')->name('update');

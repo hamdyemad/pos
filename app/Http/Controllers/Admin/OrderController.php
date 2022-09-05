@@ -45,9 +45,22 @@ class OrderController extends Controller
         Carbon::setLocale(app()->getLocale());
         $orders = Order::where('under_approve', 0)->latest();
         if(count(Auth::user()->statuses_permessions()) > 0) {
-            $orders->whereIn('status_id', Auth::user()->statuses_permessions());
+            $orders = $orders->whereIn('status_id', Auth::user()->statuses_permessions());
         }
         $statuses = Status::all();
+        if(Auth::user()->role_type == 'online') {
+            $statuses = Status::where('order_type', 'online')->get();
+            if(!$request->customer_id) {
+                $orders = $orders->where('type', 'online');
+            }
+
+        }
+        if(Auth::user()->role_type == 'inhouse') {
+            $statuses = Status::where('order_type', 'inhouse')->get();
+            if(!$request->customer_id) {
+                $orders = $orders->where('type', 'inhouse');
+            }
+        }
         $branches = Branch::all();
         $customers = Customer::all();
         if($request->id) {
@@ -61,6 +74,7 @@ class OrderController extends Controller
         }
         if($request->customer_id) {
             $orders = $orders->where('customer_id', 'like', '%' . $request->customer_id .'%');
+
         }
         if($request->status_id) {
             $orders = $orders->where('status_id', 'like', '%' . $request->status_id .'%');
@@ -515,136 +529,195 @@ class OrderController extends Controller
             $request['shipping'] = $city->price;
         }
         $status = Status::where('default_val', 1)->first();
-        if($status) {
-            $creation = [
-                'type' => $request->type,
-                'branch_id' => $request->branch_id,
-                'coupon_id' => $request->coupon_id,
-                'user_id' => Auth::id(),
-                'payment_method' => $request->payment_method,
-                'status_id' => $status->id,
-                'city_id' => $request->city_id,
-                'customer_id' => $request->customer_id,
-                'notes' => $request->notes,
-                'discount_type' => $request->discount_type,
-                'total_discount' => $request->total_discount,
-                'shipping' => $request->shipping,
-                'grand_total' => 0
-            ];
-            if($this->validateOrder($request)) {
-                return $this->validateOrder($request);
-            }
+        $creation = [
+            'type' => $request->type,
+            'branch_id' => $request->branch_id,
+            'coupon_id' => $request->coupon_id,
+            'user_id' => Auth::id(),
+            'payment_method' => $request->payment_method,
+            'city_id' => $request->city_id,
+            'customer_id' => $request->customer_id,
+            'notes' => $request->notes,
+            'discount_type' => $request->discount_type,
+            'total_discount' => $request->total_discount,
+            'shipping' => $request->shipping,
+            'grand_total' => 0
+        ];
+        if($this->validateOrder($request)) {
+            return $this->validateOrder($request);
+        }
 
-            if($request->customer_id == null) {
-                $customer = Customer::create([
-                    'name' => $request->customer_name,
-                    'phone' => $request->customer_phone,
-                    'email' => $request->customer_email,
-                    'address' => $request->customer_address,
-                    'type' => $request->customer_type,
-                ]);
-                $creation['customer_id'] = $customer->id;
-            }
+        if($request->customer_id == null) {
+            $customer = Customer::create([
+                'name' => $request->customer_name,
+                'phone' => $request->customer_phone,
+                'email' => $request->customer_email,
+                'address' => $request->customer_address,
+                'type' => $request->customer_type,
+            ]);
+            $creation['customer_id'] = $customer->id;
+        }
 
-            $grand_total = [];
-            $order->update($creation);
-            $all_order_details = OrderDetail::where('order_id', $order->id)->get();
-            foreach ($all_order_details as $all_order_detail) {
-                if($all_order_detail->files) {
-                    $files = json_decode($all_order_detail->files);
+        $grand_total = [];
+        $order->update($creation);
+        foreach ($order->order_details as $order_detail) {
+            if(!in_array($order_detail['product_id'],$request->products_search)) {
+                if($order_detail['files']) {
+                    $files = json_decode($order_detail['files']);
                     foreach ($files as $file) {
                         if(file_exists($file)) {
                             unlink($file);
                         }
                     }
                 }
-                $all_order_detail->delete();
+                $order_detail->delete();
             }
-            foreach ($request->products as $productId => $productObj) {
-                $product = Product::find($productId);
-                if($product) {
-                    if(isset($productObj['amount'])) {
-                        $orderDetailCreation = [
-                            'order_id' => $order->id,
-                            'product_id' => $productId,
-                            'price' => $product->price_of_currency->price_after_discount,
-                            'qty' => $productObj['amount'],
-                            'discount' => $productObj['discount'],
-                            'notes' => $productObj['notes'],
-                            'total_price' => $product->price_of_currency->price_after_discount * $productObj['amount']
-                        ];
-                        if(isset($productObj['files'])) {
-                            foreach ($request->file("products.$productId.files") as $file) {
-                                $files[] = $this->uploadFiles($file, $this->ordersPath);
-                            }
-                            $orderDetailCreation['files'] = json_encode($files);
-                            $files = [];
-                        } else {
-
-                        }
-                        OrderDetail::create($orderDetailCreation);
-
-                        $total_price = $product->price_of_currency->price_after_discount * $productObj['amount'];
-                        if($request->discount_type == 'amount') {
-                            $pricePushedToGrand = ($total_price - $productObj['discount']);
-                        } else {
-                            $pricePushedToGrand = $total_price - (($total_price * $productObj['discount']) / 100);
-                        }
-                        array_push($grand_total, $pricePushedToGrand);
-                    }
-                    if(isset($productObj['variants'])) {
-                        foreach ($productObj['variants'] as $variantId => $variant) {
-                            $productVariant = ProductVariant::find($variantId);
-                            if($productVariant) {
-                                $orderDetailCreation = [
-                                    'order_id' => $order->id,
-                                    'product_id' => $productId,
-                                    'variant' => $productVariant->variant,
-                                    'variant_type' => $productVariant->type,
-                                    'price' => $productVariant->currenctPriceOfVariant->price_after_discount,
-                                    'qty' => $variant['amount'],
-                                    'discount' => $variant['discount'],
-                                    'notes' => $variant['notes'],
-                                    'total_price' => $productVariant->currenctPriceOfVariant->price_after_discount * $variant['amount']
-                                ];
-                                if(isset($variant['files'])) {
-                                    foreach ($request->file("products.$productId.variants.$variantId.files") as $file) {
-                                        $files[] = $this->uploadFiles($file, $this->ordersPath);
+        }
+        foreach ($request->products as $productId => $productObj) {
+            if(isset($productObj['variants'])) {
+                foreach ($productObj['variants'] as $idOfVariant => $variant) {
+                    $variantModel = ProductVariant::find($idOfVariant);
+                    foreach ($order->order_details as $order_detail) {
+                        if($order_detail['variant'] !== $variantModel['variant']) {
+                            if($order_detail['files']) {
+                                $files = json_decode($order_detail['files']);
+                                foreach ($files as $file) {
+                                    if(file_exists($file)) {
+                                        unlink($file);
                                     }
-                                    $orderDetailCreation['files'] = json_encode($files);
-                                    $files = [];
-                                } else {
-
                                 }
-                                OrderDetail::create($orderDetailCreation);
-                                $total_price = $productVariant->currenctPriceOfVariant->price_after_discount * $variant['amount'];
-                                if($request->discount_type == 'amount') {
-                                    $pricePushedToGrand = ($total_price - $variant['discount']);
-                                } else {
-                                    $pricePushedToGrand = $total_price - (($total_price * $variant['discount']) / 100);
-                                }
-                                array_push($grand_total, $pricePushedToGrand);
+                            }
+                            $order_detail->delete();
+                        }
+                    }
+                }
+            } else {
+                foreach ($order->order_details as $order_detail) {
+                    if($order_detail['files']) {
+                        $files = json_decode($order_detail['files']);
+                        foreach ($files as $file) {
+                            if(file_exists($file)) {
+                                unlink($file);
                             }
                         }
                     }
-                } else {
-                    return redirect()->back()->with('error', translate('product is not exists'));
+                    $order_detail->delete();
                 }
             }
-            $grand_total = array_reduce($grand_total,
-            function($acc, $current) {return $acc + $current;});
-            $grand_total_price = $grand_total + $request->shipping;
-            if($request->discount_type == 'amount') {
-                $grand_total = ($grand_total_price - $creation['total_discount']);
+            $product = Product::find($productId);
+            if($product) {
+                if(isset($productObj['amount'])) {
+                    $orderDetailCreation = [
+                        'order_id' => $order->id,
+                        'product_id' => $productId,
+                        'price' => $product->price_of_currency->price_after_discount,
+                        'qty' => $productObj['amount'],
+                        'discount' => $productObj['discount'],
+                        'notes' => $productObj['notes'],
+                        'total_price' => $product->price_of_currency->price_after_discount * $productObj['amount']
+                    ];
+                    $order_detail = OrderDetail::where(['order_id' => $order->id, 'product_id' => $product->id, 'variant' => null])->first();
+                    if(isset($productObj['files'])) {
+                        if(isset($productObj['update'])) {
+                            if($order_detail) {
+                                $files = json_decode($order_detail->files);
+                            } else {
+                                $files = [];
+                            }
+                        } else {
+                            $files = [];
+                        }
+                        foreach ($request->file("products.$productId.files") as $file) {
+                            array_push($files, $this->uploadFiles($file, $this->ordersPath));
+                        }
+                        $orderDetailCreation['files'] = json_encode($files);
+                        $files = [];
+                    }
+                    if(isset($productObj['update'])) {
+                        if($order_detail) {
+                            $order_detail->update($orderDetailCreation);
+                        } else {
+                            OrderDetail::create($orderDetailCreation);
+                        }
+                    } else {
+                        OrderDetail::create($orderDetailCreation);
+                    }
+                    $total_price = $product->price_of_currency->price_after_discount * $productObj['amount'];
+                    if($request->discount_type == 'amount') {
+                        $pricePushedToGrand = ($total_price - $productObj['discount']);
+                    } else {
+                        $pricePushedToGrand = $total_price - (($total_price * $productObj['discount']) / 100);
+                    }
+                    array_push($grand_total, $pricePushedToGrand);
+                }
+                if(isset($productObj['variants'])) {
+                    foreach ($productObj['variants'] as $variantId => $variant) {
+                        $productVariant = ProductVariant::find($variantId);
+                        if($productVariant) {
+                            $orderDetailCreation = [
+                                'order_id' => $order->id,
+                                'product_id' => $productId,
+                                'variant' => $productVariant->variant,
+                                'variant_type' => $productVariant->type,
+                                'price' => $productVariant->currenctPriceOfVariant->price_after_discount,
+                                'qty' => $variant['amount'],
+                                'discount' => $variant['discount'],
+                                'notes' => $variant['notes'],
+                                'total_price' => $productVariant->currenctPriceOfVariant->price_after_discount * $variant['amount']
+                            ];
+                            $order_detail = OrderDetail::where(['order_id' => $order->id,
+                            'product_id' => $product->id, 'variant' => $productVariant->variant])->first();
+                            if(isset($productObj['files'])) {
+                                if(isset($productObj['update'])) {
+                                    if($order_detail) {
+                                        $files = json_decode($order_detail->files);
+                                    } else {
+                                        $files = [];
+                                    }
+                                } else {
+                                    $files = [];
+                                }
+                                foreach ($request->file("products.$productId.variants.$variantId.files") as $file) {
+                                    array_push($files, $this->uploadFiles($file, $this->ordersPath));
+                                }
+                                $orderDetailCreation['files'] = json_encode($files);
+                                $files = [];
+                            }
+                            if(isset($productObj['update'])) {
+                                if($order_detail) {
+                                    $order_detail->update($orderDetailCreation);
+                                } else {
+                                    OrderDetail::create($orderDetailCreation);
+                                }
+                            } else {
+                                OrderDetail::create($orderDetailCreation);
+                            }
+
+                            $total_price = $productVariant->currenctPriceOfVariant->price_after_discount * $variant['amount'];
+                            if($request->discount_type == 'amount') {
+                                $pricePushedToGrand = ($total_price - $variant['discount']);
+                            } else {
+                                $pricePushedToGrand = $total_price - (($total_price * $variant['discount']) / 100);
+                            }
+                            array_push($grand_total, $pricePushedToGrand);
+                        }
+                    }
+                }
             } else {
-                $grand_total = $grand_total_price - (($grand_total_price * $creation['total_discount']) / 100);
+                return redirect()->back()->with('error', translate('product is not exists'));
             }
-            $order->grand_total = $grand_total;
-            $order->save();
-            return redirect()->back()->with('info', translate('updated successfully'));
-        } else {
-            return redirect()->back()->with('error', translate('you should choose a default status'));
         }
+        $grand_total = array_reduce($grand_total,
+        function($acc, $current) {return $acc + $current;});
+        $grand_total_price = $grand_total + $request->shipping;
+        if($request->discount_type == 'amount') {
+            $grand_total = ($grand_total_price - $creation['total_discount']);
+        } else {
+            $grand_total = $grand_total_price - (($grand_total_price * $creation['total_discount']) / 100);
+        }
+        $order->grand_total = $grand_total;
+        $order->save();
+        return redirect()->back()->with('info', translate('updated successfully'));
     }
 
     // Update Order Status
@@ -723,6 +796,14 @@ class OrderController extends Controller
                 'approved' => '0'
             ]);
         }
+        return redirect()->back()->with('success', translate('updated successfuly'));
+    }
+
+    public function unbin(Request $request, Order $order) {
+        $this->authorize('orders.unbin');
+        $order->update([
+            'bin_code' => null
+        ]);
         return redirect()->back()->with('success', translate('updated successfuly'));
     }
 

@@ -25,6 +25,9 @@ class StatusController extends Controller
         if($request->name) {
            $statuses->where('name', 'like', '%' . $request->name . '%');
         }
+        if($request->order_type) {
+            $statuses->where('order_type', 'like', '%' . $request->order_type . '%');
+         }
         $statuses = $statuses->paginate(10);
         return view('orders.statuses.index', compact('statuses'));
     }
@@ -50,14 +53,18 @@ class StatusController extends Controller
     {
         $this->authorize('statuses.create');
         $creation = [
-            'name' => $request->name
+            'name' => $request->name,
+            'order_type' => $request->order_type
         ];
         $rules = [
             'name' => 'required|unique:statuses,name',
+            'order_type' => 'required|in:inhouse,online'
         ];
         $validator = Validator::make($request->all(), $rules, [
             'name.required' => translate('the name is required'),
             'name.unique' => translate('the name is already exists'),
+            'order_type.required' => translate('the order type is required'),
+
         ]);
 
         if($request->type) {
@@ -131,13 +138,16 @@ class StatusController extends Controller
     {
         $this->authorize('statuses.edit');
         $creation = [
-            'name' => $request->name
+            'name' => $request->name,
+            'order_type' => $request->order_type
         ];
         $validator = Validator::make($request->all(), [
-            'name' => ['required', Rule::unique('statuses', 'name')->ignore($status->id)]
+            'name' => ['required', Rule::unique('statuses', 'name')->ignore($status->id)],
+            'order_type' => 'required|in:inhouse,online'
         ], [
             'name.required' => translate('the name is required'),
             'name.unique' => translate('the name is already exists'),
+            'order_type.required' => translate('the order type is required'),
         ]);
         if($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors())

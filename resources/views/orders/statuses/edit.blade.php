@@ -34,6 +34,19 @@
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
+                                <label for="{{ translate('status order type') }}">{{ translate('status order type') }}</label>
+                                <div class="form-group">
+                                    <select name="order_type" class="form-control select2">
+                                        <option value="">{{ translate('choose') }}</option>
+                                        <option value="inhouse" @if($status->order_type == 'inhouse') selected @endif>{{ translate('inhouse') }}</option>
+                                        <option value="online" @if($status->order_type == 'online') selected @endif>{{ translate('online') }}</option>
+                                    </select>
+                                    @error('order_type')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
                                 <label for="{{ translate('status type') }}">{{ translate('status type') }}</label>
                                 <div class="form-group">
                                     <select name="type" class="form-control select2">

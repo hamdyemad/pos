@@ -4,6 +4,10 @@
             <td>index</td>
             <td>date</td>
             <td>order number</td>
+            <td>name</td>
+            <td>phone</td>
+            <td>address</td>
+            <td>qty's</td>
             <td>payment method</td>
             @if($order_type)
                 <td>employee name</td>
@@ -30,6 +34,10 @@
                 <td>{{ $loop->index + 1 }}</td>
                 <td>{{ \Carbon\Carbon::createFromDate($order->created_at)->format('Y-m-d') }}</td>
                 <td>{{ $order->id }}</td>
+                <td>{{ $order->customer->name }}</td>
+                <td>{{ $order->customer->phone }}</td>
+                <td>{{ $order->customer->address }}</td>
+                <td>{{ $order->order_details()->pluck('qty')->sum() }}</td>
                 <td>{{ $order->payment_method }}</td>
                 @if($order_type)
                     <td>{{ App\User::where('bin_code', $order->bin_code)->first()->name }}</td>
@@ -65,10 +73,15 @@
             <td></td>
             <td></td>
             <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
             @if($order_type)
-            <td></td>
-            <td></td>
-            <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
             @endif
             <td>{{ $orders->pluck('grand_total')->sum() }}</td>
         </tr>

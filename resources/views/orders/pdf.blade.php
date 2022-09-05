@@ -120,10 +120,7 @@
                                         {{ translate('name') . ': ' }} {{ $order->customer->name }}<br>
                                         {{ translate('phone') . ': ' }} {{ $order->customer->phone }}<br>
                                     @endif
-                                    @if($order->city)
-                                        {{ translate('city') . ': ' }} {{ $order->city->name }}<br>
-                                        {{ translate('country') . ': ' }} {{ $order->city->country->name }}<br>
-                                    @endif
+                                    {{ translate('address') . ': ' }} {{ $order->customer->address }}<br>
                                 </td>
                             </tr>
                         </table>
@@ -137,25 +134,23 @@
                                     @if($order->notes)
                                         {{ translate('notes') . ': ' }} {{ $order->notes }}<br>
                                     @endif
-                                    {{ translate('address') . ': ' }} {{ $order->customer->address }}<br>
                                 </td>
                             </tr>
                         </table>
                     </td>
 				</tr>
                 <tr class="heading">
-                    <td>{{ translate('product name') }}</td>
-                    <td></td>
+                    <td colspan="2">{{ translate('product name') }}</td>
                     <td>{{ translate('price') }}</td>
-                    <td></td>
                     <td>{{ translate('count') }}</td>
+                    <td>{{ translate('discount') }}</td>
                     <td>{{ translate('total price') }} </td>
                 </tr>
                 @if(isset($order->order_details->groupBy('variant_type')['']))
                     @foreach ($order->order_details->groupBy('variant_type')[''] as $variant)
                         @if($variant)
                             <tr class="item">
-                                <td>
+                                <td colspan="2">
                                     <span>{{ $variant->product->name }}</span>
                                     @if(isset($order->order_details->groupBy('variant_type')['extra']))
                                         <table>
@@ -190,13 +185,17 @@
                                         </table>
                                     @endif
                                 </td>
-                                <td></td>
                                 <td>
                                     <span>{{ $variant->price }}</span>
                                 </td>
-                                <td></td>
                                 <td><span>{{ $variant->qty }}</span></td>
-                                <td><span>{{ $variant->total_price }}</span></td>
+                                @if($order->discount_type == 'percent')
+                                    <td><span>{{ '%' . $variant->discount }}</span></td>
+                                    <td><span>{{ $variant->total_price * ($variant->discount / 100) }}</span></td>
+                                @else
+                                    <td><span>{{ $variant->discount }}</span></td>
+                                    <td><span>{{ $variant->total_price - $variant->discount }}</span></td>
+                                @endif
                             </tr>
                         @endif
                     @endforeach

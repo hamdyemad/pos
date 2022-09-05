@@ -32,6 +32,16 @@
                         </div>
                         <div class="col-6">
                             <div class="form-group">
+                                <label for="name">{{ translate('order type') }}</label>
+                                <select name="order_type" class="form-control select2">
+                                    <option value="">{{ translate('choose') }}</option>
+                                    <option value="inhouse" @if(request('order_type') == 'inhouse') selected @endif>{{ translate('inhouse') }}</option>
+                                    <option value="online" @if(request('order_type') == 'online') selected @endif>{{ translate('online') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
                                 <label for="name"></label>
                                 <input type="submit" value="{{ translate('search') }}" class="form-control btn btn-primary mt-1">
                             </div>
@@ -49,6 +59,7 @@
                                 <tr>
                                     <th>#</th>
                                     <th>{{ translate('status name') }}</th>
+                                    <th>{{ translate('order type') }}</th>
                                     <th>{{ translate('default status') }}</th>
                                     <th>{{ translate('paid') }}</th>
                                     <th>{{ translate('returned') }}</th>
@@ -63,6 +74,7 @@
                                     <tr>
                                         <th scope="row">{{ $status->id }}</th>
                                         <td>{{ $status->name }}</td>
+                                        <td>{{ $status->order_type }}</td>
                                         <td>
                                             @if($status->default_val)
                                                 <div class="badge badge-success">{{ translate('default') }}</div>

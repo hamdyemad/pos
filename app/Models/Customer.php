@@ -10,6 +10,7 @@ class Customer extends Model
         'name',
         'address',
         'phone',
+        'phone2',
         'email',
         'type'
     ];

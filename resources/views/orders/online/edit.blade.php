@@ -203,7 +203,7 @@
                                                 @endphp
                                                 @if($product)
                                                     <tr id="product_tr_{{ $product->id }}">
-                                                        <input type="hidden" value="products[{{ $product->id }}}]">
+                                                        <input type="hidden" name="products[{{ $product->id }}][update]" value="true">
                                                         <td>
                                                             <div class="d-flex align-items-center">
                                                                 @if($product->photos)
@@ -308,7 +308,8 @@
                                                         $variant = \App\Models\ProductVariant::where('product_id', $order_detail->product_id)->where('variant', $order_detail->variant)->first();
                                                     @endphp
                                                     @if($variant)
-                                                        <tr id="{{ 'size_' . \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id}}">
+                                                    <tr id="{{ 'size_' . \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id}}">
+                                                        <input type="hidden" name="products[{{ $order_detail->product_id }}][variants][{{ $variant->id }}][update]" value="true">
                                                             <td>
                                                                 <div class="d-flex align-items-center">
                                                                     @if($order_detail->product->photos)
@@ -395,8 +396,9 @@
                                                         $variant = \App\Models\ProductVariant::where('product_id', $order_detail->product_id)->where('variant', $order_detail->variant)->first();
                                                     @endphp
                                                     @if($variant)
-                                                        <tr id="{{ 'extra_' . \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id }}"
-                                                            >
+                                                    <tr id="{{ 'extra_' . \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id }}"
+                                                        >
+                                                        <input type="hidden" name="products[{{ $order_detail->product_id }}][variants][{{ $variant->id }}][update]" value="true">
                                                             <td>
                                                                 <div class="d-flex align-items-center">
                                                                     @if($order_detail->product->photos)

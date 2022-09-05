@@ -248,8 +248,8 @@
                                                 @endphp
                                                 @if($product)
                                                     <tr id="product_tr_{{ $product->id }}">
-                                                        <input type="hidden" value="products[{{ $product->id }}}]">
                                                         <td>
+                                                            <input type="hidden" name="products[{{ $product->id }}][update]" value="true">
                                                             <div class="d-flex align-items-center">
                                                                 @if($product->photos)
                                                                     <img src="{{ asset(json_decode($product->photos)[0]) }}" alt="">
@@ -322,7 +322,7 @@
                                                         <td>
                                                             @if(count($product->variants->where('type', 'extra')) > 0)
                                                                 <ul class="select_variant extra_select">
-                                                                    @foreach ($product->variants->where('type', 'extra') as $variant)
+                                                                    @foreach ($product->variants()->with('currenctPriceOfVariant')->where('type', 'extra')->get() as $variant)
                                                                         <li class="variant @if($order->order_details->where('variant', $variant->variant)->first()) active @endif" data-variant="{{ $variant->type }}" data-variant_value='{{ $variant }}' data-variant_price="{{ $variant->currenctPriceOfVariant }}" data-product_value='{{ $product }}' data-id="extra-{{ $variant->id }}">
                                                                             {{ $variant->variant }}
                                                                         </li>
@@ -353,7 +353,8 @@
                                                         $variant = \App\Models\ProductVariant::where('product_id', $order_detail->product_id)->where('variant', $order_detail->variant)->first();
                                                     @endphp
                                                     @if($variant)
-                                                        <tr id="{{ 'size_' . \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id}}">
+                                                    <tr id="{{ 'size_' . \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id}}">
+                                                        <input type="hidden" name="products[{{ $order_detail->product_id }}][variants][{{ $variant->id }}][update]" value="true">
                                                             <td>
                                                                 <div class="d-flex align-items-center">
                                                                     @if($order_detail->product->photos)
@@ -440,8 +441,9 @@
                                                         $variant = \App\Models\ProductVariant::where('product_id', $order_detail->product_id)->where('variant', $order_detail->variant)->first();
                                                     @endphp
                                                     @if($variant)
-                                                        <tr id="{{ 'extra_' . \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id }}"
-                                                            >
+                                                    <tr id="{{ 'extra_' . \App\Models\ProductVariant::where('variant', $order_detail->variant)->where('product_id', $order_detail->product_id)->first()->id }}"
+                                                        >
+                                                        <input type="hidden" name="products[{{ $order_detail->product_id }}][variants][{{ $variant->id }}][update]" value="true">
                                                             <td>
                                                                 <div class="d-flex align-items-center">
                                                                     @if($order_detail->product->photos)
@@ -714,7 +716,7 @@
                 let product = $(this).data('product_value');
                 $(this).toggleClass("active");
                 let variant = $(this).data('variant'),
-                    variant_id = $(this).data('variant_value').id;
+                variant_id = $(this).data('variant_value').id;
                 if($(".products_table").find(`.${variant}-table`).length == 0) {
                     $(".products_table").append(getProductVariantTable(variant))
                 }

@@ -23,7 +23,7 @@ class CustomerController extends Controller
         $customers->where('name', 'like', '%' . $request->name . '%');
         }
         if($request->phone) {
-            $customers->where('phone', 'like', '%' . $request->phone . '%');
+            $customers->where('phone', 'like', '%' . $request->phone . '%')->orWhere('phone2', 'like', '%' . $request->phone . '%');
         }
         if($request->email) {
             $customers->where('email', 'like', '%' . $request->email . '%');
@@ -80,6 +80,7 @@ class CustomerController extends Controller
             'name' => $request->name,
             'address' => $request->address,
             'phone' => $request->phone,
+            'phone2' => $request->phone2,
             'email' => $request->email,
             'type' => $request->type
         ]);
@@ -141,6 +142,7 @@ class CustomerController extends Controller
             'name' => $request->name,
             'address' => $request->address,
             'phone' => $request->phone,
+            'phone2' => $request->phone2,
             'email' => $request->email,
             'type' => $request->type
         ]);

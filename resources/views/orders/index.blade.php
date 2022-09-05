@@ -85,7 +85,7 @@
                         <div class="row">
                             <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
-                                    <label for="id">{{ translate('order id') }}</label>
+                                    <label for="id">{{ translate('order number') }}</label>
                                     <input class="form-control" name="id" type="text" value="{{ request('id') }}">
                                 </div>
                             </div>
@@ -113,30 +113,28 @@
                                     </select>
                                 </div>
                             </div>
-                            @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin')
-                                <div class="col-12 col-md-6 col-lg-3">
-                                    <div class="form-group">
-                                        <label for="name">{{ translate('order type') }}</label>
-                                        <select class="form-control select2" name="type">
-                                            <option value="">{{ translate('choose') }}</option>
-                                            <option value="inhouse" @if ('inhouse' == request('type')) selected @endif>{{ translate('receipt request from the branch') }}</option>
-                                            <option value="online" @if ('online' == request('type')) selected @endif>{{ translate('online order') }}</option>
-                                        </select>
-                                    </div>
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="name">{{ translate('order type') }}</label>
+                                    <select class="form-control select2" name="type">
+                                        <option value="">{{ translate('choose') }}</option>
+                                        <option value="inhouse" @if ('inhouse' == request('type')) selected @endif>{{ translate('receipt request from the branch') }}</option>
+                                        <option value="online" @if ('online' == request('type')) selected @endif>{{ translate('online order') }}</option>
+                                    </select>
                                 </div>
-                                <div class="col-12 col-md-6 col-lg-3">
-                                    <div class="form-group">
-                                        <label for="name">{{ translate('the branch') }}</label>
-                                        <select class="form-control select2" name="branch_id">
-                                            <option value="">{{ translate('choose') }}</option>
-                                            @foreach ($branches as $branch)
-                                                <option value="{{ $branch->id }}" @if ($branch->id == request('branch_id')) selected @endif>
-                                                    {{ translate($branch->name) }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="name">{{ translate('the branch') }}</label>
+                                    <select class="form-control select2" name="branch_id">
+                                        <option value="">{{ translate('choose') }}</option>
+                                        @foreach ($branches as $branch)
+                                            <option value="{{ $branch->id }}" @if ($branch->id == request('branch_id')) selected @endif>
+                                                {{ translate($branch->name) }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            @endif
+                            </div>
                             <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
                                     <label for="from">{{ translate('creation from') }}</label>
@@ -275,7 +273,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                    {{ $orders->links() }}
+                    {{ $orders->appends(request()->all())->links() }}
                 @endif
             </div>
         </div>

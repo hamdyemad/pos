@@ -53,6 +53,15 @@
                             </div>
                             <div class="col-12 col-md-6">
                                 <div class="form-group">
+                                    <label for="phone">{{ translate('phone2') }}</label>
+                                    <input type="number" class="form-control" name="phone2" value="{{ $customer->phone2 }}">
+                                    @error('phone2')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
                                     <label for="address">{{ translate('address') }}</label>
                                     <input type="text" class="form-control" name="address" value="{{ $customer->address }}">
                                     @error('address')

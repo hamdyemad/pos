@@ -116,30 +116,28 @@
                                     </select>
                                 </div>
                             </div>
-                            @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin')
-                                <div class="col-12 col-md-6 col-lg-3">
-                                    <div class="form-group">
-                                        <label for="name">{{ translate('order type') }}</label>
-                                        <select class="form-control select2" name="type">
-                                            <option value="">{{ translate('choose') }}</option>
-                                            <option value="inhouse" @if ('inhouse' == request('type')) selected @endif>{{ translate('receipt request from the branch') }}</option>
-                                            <option value="online" @if ('online' == request('type')) selected @endif>{{ translate('online order') }}</option>
-                                        </select>
-                                    </div>
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="name">{{ translate('order type') }}</label>
+                                    <select class="form-control select2" name="type">
+                                        <option value="">{{ translate('choose') }}</option>
+                                        <option value="inhouse" @if ('inhouse' == request('type')) selected @endif>{{ translate('receipt request from the branch') }}</option>
+                                        <option value="online" @if ('online' == request('type')) selected @endif>{{ translate('online order') }}</option>
+                                    </select>
                                 </div>
-                                <div class="col-12 col-md-6 col-lg-3">
-                                    <div class="form-group">
-                                        <label for="name">{{ translate('the branch') }}</label>
-                                        <select class="form-control select2" name="branch_id">
-                                            <option value="">{{ translate('choose') }}</option>
-                                            @foreach ($branches as $branch)
-                                                <option value="{{ $branch->id }}" @if ($branch->id == request('branch_id')) selected @endif>
-                                                    {{ translate($branch->name) }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="name">{{ translate('the branch') }}</label>
+                                    <select class="form-control select2" name="branch_id">
+                                        <option value="">{{ translate('choose') }}</option>
+                                        @foreach ($branches as $branch)
+                                            <option value="{{ $branch->id }}" @if ($branch->id == request('branch_id')) selected @endif>
+                                                {{ translate($branch->name) }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            @endif
+                            </div>
                             <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
                                     <label for="from">{{ translate('creation from') }}</label>
@@ -180,6 +178,7 @@
                                 <th><span>{{ translate('city') }}</span></th>
                                 <th><span>{{ translate('order status') }}</span></th>
                                 <th><span>{{ translate('order branch') }}</span></th>
+                                <th><span>{{ translate('unbin') }}</span></th>
                                 <th><span>{{ translate('approval') }}</span></th>
                                 <th><span>{{ translate('total price') }}</span></th>
                                 <th><span>{{ translate('creation date') }}</span></th>
@@ -238,6 +237,16 @@
                                             <div class="badge badge-primary p-2">({{ translate($order->branch->name) }})</div>
                                         @else
                                         --
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($order->bin_code !== null)
+                                            @can('orders.unbin')
+                                                <form action="{{ route('orders.unbin', $order) }}" method="POST">
+                                                    @csrf
+                                                    <button class="btn btn-secondary btn-block max">{{ translate('unbin order') }}</button>
+                                                </form>
+                                            @endcan
                                         @endif
                                     </td>
                                     <td>
