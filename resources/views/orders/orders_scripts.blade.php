@@ -109,47 +109,6 @@
             </tr>
         `;
     }
-    function getProductVariantTable(variant) {
-        if(variant == 'size')  {
-            return `
-            <table class="table size-table">
-                <thead>
-                    <th>{{ translate('product name') }}</th>
-                    <th>{{ translate('sizes') }}</th>
-                    <th>{{ translate('price') }}</th>
-                    <th>{{ translate('quantity') }}</th>
-                    <th>{{ translate('discount') }}</th>
-                    @can('orders.files')
-                        <th>{{ translate('files') }}</th>
-                    @endcan
-                    <th>{{ translate('notes') }}</th>
-                    <th>{{ translate('total price') }}</th>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-            `;
-        } else if(variant == 'extra') {
-            return `
-            <table class="table extra-table">
-                <thead>
-                    <th>{{ translate('product name') }}</th>
-                    <th>{{ translate('extras') }}</th>
-                    <th>{{ translate('price') }}</th>
-                    <th>{{ translate('quantity') }}</th>
-                    <th>{{ translate('discount') }}</th>
-                    @can('orders.files')
-                        <th>{{ translate('files') }}</th>
-                    @endcan
-                    <th>{{ translate('notes') }}</th>
-                    <th>{{ translate('total price') }}</th>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-            `;
-        }
-    }
 
     function getProductVariantHeadingTr(product) {
         let photo = '';
@@ -172,29 +131,6 @@
         `;
     }
 
-    function getProductVariantHeadingTable() {
-        return `
-        <div class="table-responsive">
-            <table class="table variant_table">
-                <thead>
-                    <th>{{ translate('product name') }}</th>
-                    <th class="noraml_th">{{ translate('price') }}</th>
-                    <th class="noraml_th">{{ translate('quantity') }}</th>
-                    <th class="noraml_th">{{ translate('discount') }}</th>
-                    @can('orders.files')
-                        <th class="noraml_th">{{ translate('files') }}</th>
-                    @endcan
-                    <th class="noraml_th">{{ translate('notes') }}</th>
-                    <th class="noraml_th">{{ translate('total price') }}</th>
-                    <th class="size_th d-none">{{ translate('size') }}</th>
-                    <th class="extra_th d-none">{{ translate('extra') }}</th>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-        `;
-    }
 
     function getProductsWithAjax(productsIds) {
         $.ajax({

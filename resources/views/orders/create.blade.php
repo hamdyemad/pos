@@ -181,23 +181,6 @@
 
                                 </div>
                             </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="products">{{ translate('products') }}</label>
-                                    <select class="form-control select_products select2 select2-multiple"data-placeholder="{{ translate('choose') }}" name="products_search[]" multiple>
-                                        @foreach ($products as $product)
-                                            @if(old('products_search'))
-                                                <option @if(in_array($product->id, old('products_search'))) selected @endif value="{{ $product->id }}" data-name="{{ $product->id }}">
-                                                    {{ $product->id . ' : ' . $product->sku }}
-                                                    </option>
-                                            @endif
-                                        @endforeach
-                                    </select>
-                                    @error("products_search")
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
                             <div class="col-12 col-md-6">
                                 <div class="form-group">
                                     <label for="bin_code">{{ translate('pincode') }}</label>
@@ -218,9 +201,125 @@
                                 </div>
                             </div>
                             <div class="col-12">
-                                <div class="responsive-table products_table"></div>
+                                <table class="table d-block overflow-auto products_table">
+                                    <thead>
+                                        <th>
+                                            <button type="button" class="btn btn-success add_row">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </th>
+                                        <th>{{ translate('product name') }}</th>
+                                        <th>{{ translate('sizes') }}</th>
+                                        <th>{{ translate('extras') }}</th>
+                                        <th>{{ translate('price') }}</th>
+                                        <th>{{ translate('qty') }}</th>
+                                        <th>{{ translate('discount') }}</th>
+                                        @can('orders.files')
+                                            <th>{{ translate('files') }}</th>
+                                        @endcan
+                                        <th>{{ translate('notes') }}</th>
+                                        <th>{{ translate('total price') }}</th>
+                                    </thead>
+                                    <tbody>
+                                        @if(old('products'))
+                                            @foreach (old('products') as $product_old)
+                                                @php
+                                                    $index = $loop->index;
+                                                    $variants = App\Models\ProductVariant::where('product_id', $product_old['id'])->get();
+                                                @endphp
+                                                <tr id="{{ $index }}">
+                                                    @php
+                                                        if(old('type') == 'inhouse') {
+                                                            $categories_ids = App\Models\Category::whereHas('branches', function($query) {
+                                                               return $query->where('branch_id', old('branch_id'));
+                                                           })->latest()->pluck('id');
+                                                           $products = App\Models\Product::whereHas('categories', function($query) use($categories_ids) {
+                                                               return $query->whereIn('category_id', $categories_ids);
+                                                           })->latest()->get();
+                                                        }
+                                                    @endphp
+                                                    @if(isset($product_old['price']))
+                                                        <input type="hidden" class="form-control input_price" name="products[{{ $index }}][price]" value="{{ $product_old['price'] }}">
+                                                    @endif
+                                                    <td>
+                                                        <button type="button" class="btn btn-danger remove_row">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                    <td>
+                                                        <select class="select2 products_search" name="products[{{ $index }}][id]">
+                                                            <option value="">{{ translate('choose') }}</option>
+                                                            @foreach ($products as $product)
+                                                                <option value="{{ $product->id }}" @if($product_old['id'] == $product->id) selected @endif>{{ $product->sku . ' : ' . $product->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        @error("products.$index.id")
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </td>
+                                                    <td class="sizes_td">
+
+                                                        @if($variants->count() > 0)
+                                                            <select class="select2 products_search" name="products[{{ $index }}][variant_id]">
+                                                                <option value="">{{ translate('choose') }}</option>
+                                                                @foreach ($variants as $product_variant)
+                                                                    <option value="{{ $product_variant->id }}"
+                                                                        @if($product_old['variant_id'] == $product_variant->id) selected @endif>{{ $product_variant->variant }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            @error("products.$index.variant_id")
+                                                                <div class="text-danger">{{ $message }}</div>
+                                                            @enderror
+                                                        @else
+                                                            --
+                                                        @endif
+                                                    </td>
+                                                    <td class="extras_td">
+                                                        --
+                                                    </td>
+                                                    <td>
+                                                        <div class="price">
+                                                            @if(isset($product_old['price']))
+                                                                {{ $product_old['price'] }}
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" class="form-control amount" name="products[{{ $index }}][amount]" value="{{ $product_old['amount'] }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" class="form-control product_discount" name="products[{{ $index }}][discount]" value="{{ $product_old['discount'] }}">
+                                                    </td>
+                                                    <td>
+                                                        <div class="customized_files">
+                                                            <div class="form-group">
+                                                                <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[{{ $index }}][files][]">
+                                                                <button type="button" class="btn btn-primary form-control files">
+                                                                    <span class="mdi mdi-plus btn-lg"></span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><textarea class="form-control" name="products[{{ $index }}][notes]">{{ $product_old['notes'] }}</textarea></td>
+                                                    <td>
+                                                        <div class="total_price">
+                                                            @if(isset($product_old['price']))
+                                                                @if(old('discount_type') == 'percent')
+                                                                    {{ ($product_old['price'] * $product_old['amount']) * ($product_old['discount'] / 100) }}
+                                                                @else
+                                                                    {{ ($product_old['price'] * $product_old['amount']) - $product_old['discount'] }}
+                                                                @endif
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="w-100 cart-of-total-container d-none">
+                            <div class="w-100 cart-of-total-container
+                            @if(@old('products')) @else d-none @endif">
                                 <div class="cart-of-total">
                                     <h5>{{ translate('summary') }}</h5>
                                     <div class="responsive-table">
@@ -287,17 +386,173 @@
     </div>
 @endsection
 @section('footerScript')
-@include('orders.orders_scripts')
     <script>
 
+    @error('customer_name')
+        $("#modal_customers").modal();
+    @enderror
+    @error('customer_phone')
+        $("#modal_customers").modal();
+    @enderror
+    @error('customer_address')
+        $("#modal_customers").modal();
+    @enderror
 
-        @if(request('type') == 'inhouse')
-            getProductsByBranchId($('.branch_select').val(), 'inhouse');
-        @elseif(request('type') == 'online')
-            getProductsByBranchId($('.branch_select').val(), null);
+
+        let products = [];
+        @if(old('products'))
+        let index = {{ count(old('products')) }};
         @else
-            getProductsByBranchId($('.branch_select').val(), 'inhouse');
+            let index = -1;
         @endif
+        function tr(index) {
+            return `
+                <tr id="${index}">
+                    <td>
+                        <button type="button" class="btn btn-danger remove_row">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <select class="select2 products_search" name="products[${index}][id]">
+                            <option value="">{{ translate('choose') }}</option>
+                        </select>
+                    </td>
+                    <td class="sizes_td">--</td>
+                    <td class="extras_td">--</td>
+                    <td>
+                        <div class="price"></div>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control amount" name="products[${index}][amount]" value="1">
+                    </td>
+                    <td>
+                        <input type="number" class="form-control product_discount" name="products[${index}][discount]">
+                    </td>
+                    <td>
+                        <div class="customized_files">
+                            <div class="form-group">
+                                <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[${index}][files][]">
+                                <button type="button" class="btn btn-primary form-control files">
+                                    <span class="mdi mdi-plus btn-lg"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td><textarea class="form-control" name="products[${index}][notes]"></textarea></td>
+                    <td>
+                        <div class="total_price"></div>
+                    </td>
+                </tr>
+            `;
+        }
+
+
+        $(".add_row").on('click', function() {
+            index++;
+            $(".products_table tbody").append(tr(index));
+            products.forEach(product => {
+                $(".products_search").append(`
+                    <option value="${product.id}">${product.sku + ' : ' + product.name}</option>
+                `);
+            });
+            $(".select2").select2();
+            $(".cart-of-total-container").removeClass('d-none');
+            product_search(index);
+            remove_row();
+        });
+
+        function product_search(index) {
+            $(".products_search").on('change', function() {
+                product_id = $(this).val(),
+                product = products.find(obj => obj.id == product_id);
+                if(product.price_of_currency) {
+                    $(`.products_table tbody tr#${index} input.price_input`).remove();
+
+                    $(`.products_table tbody tr#${index}`).append(`
+                        <input class="price_input" type="hidden" name="products[${index}][price]" value="${product.price_of_currency.price_after_discount}">
+                    `);
+                    $(`.products_table tbody tr#${index} .price`).text(product.price_of_currency.price_after_discount);
+                    $(`.products_table tbody tr#${index} .total_price`).text(product.price_of_currency.price_after_discount * 1);
+                }
+                if(product.variants) {
+                    let sizes = [];
+                    product.variants.forEach((variant) => {
+                        if(variant.type == 'size') {
+                            sizes.push(variant);
+                        }
+                    });
+                    if(sizes.length !== 0) {
+                        $(`.products_table tbody tr#${index} .sizes_td`).empty();
+                        $(`.products_table tbody tr#${index} .sizes_td`).append(`
+                            <select class="select2 variant_search" name="products[${index}][variant_id]">
+                                <option value="">{{ translate('choose') }}</option>
+                            </select>
+                        `);
+                        $(".select2").select2();
+                        sizes.forEach((size) => {
+                            $(`.products_table tbody tr#${index} .sizes_td .variant_search`).append(`
+                                <option value="${size.id}" data-variant='${JSON.stringify(size)}'
+
+                                >${size.variant}</option>
+                            `);
+                        });
+                    } else {
+                        $(`.products_table tbody tr#${index} .sizes_td`).empty();
+                        $(`.products_table tbody tr#${index} .sizes_td`).append('--');
+                    }
+                    variant_search();
+                }
+                amountChange();
+                product_price();
+                getFullPrice();
+            })
+        }
+
+        function remove_row() {
+            $(".remove_row").on('click', function() {
+                $(this).parent().parent().remove();
+                getFullPrice();
+            });
+        }
+        remove_row();
+
+        function variant_search() {
+            $(".variant_search").on('change', function() {
+                let tr = $(this).parent().parent();
+                let index = tr.attr('id');
+                variant_id = $(this).val(),
+                variant = $(this).find(`option[value=${variant_id}]`).data('variant');
+
+                $.ajax({
+                    'method': 'GET',
+                    'data': {
+                        variant_id: variant_id,
+                    },
+                    'url' : `{{ route('products.variant_price') }}`,
+                    'success': function(res) {
+                        let price = res.price_after_discount;
+                        tr.find('input.price_input').remove();
+                        tr.append(`
+                            <input class="price_input" type="hidden" name="products[${index}][price]" value="${price}">
+                        `);
+                        tr.find(`.price`).text(price);
+                        tr.find(`.total_price`).text(price * 1);
+                        amountChange();
+                        product_price();
+                        getFullPrice();
+                    },
+                    'erorr' : function(err) {
+                        console.log(err);
+                    }
+                });
+
+            })
+        }
+        variant_search();
+
+
+
 
 
         $(".branch_select").on('change', function() {
@@ -376,17 +631,8 @@
                 },
                 'url': "{{ route('products.all') }}",
                 'success': function(res) {
-                    console.log(res);
-                    $(".select_products").select2().html('');
                     if(res.status) {
-                        res.data.forEach((obj) => {
-                            $(".select_products").append(`
-                                <option  value="${obj.id}" data-name="${obj.name}">
-                                    ${obj.name + ' : ' + obj.sku}
-                                    </option>
-                            `);
-                        });
-
+                        products = res.data;
                     } else {
                         toastr.error(res.message);
                     }
@@ -395,6 +641,9 @@
                     console.log(err);
                 }
             });
+        }
+        if($(".branch_select").val()) {
+            getProductsByBranchId($(".branch_select").val(), 'inhouse');
         }
 
 
@@ -444,27 +693,72 @@
         }
         getCitiesByCountryId();
 
-
-        if($(".select_products").val().length !== 0) {
-            $('.cart-of-total-container').removeClass('d-none');
-            $('.cart-of-total-container').addClass('d-block d-md-flex flex-row-reverse ');
-            getProductsWithAjax($(".select_products").val());
-        }
-
-
-
-        $(".select_products").on('change', function() {
-            arrayOfValues = $(this).val();
-            if(arrayOfValues.length !== 0) {
-                $('.cart-of-total-container').removeClass('d-none');
-                $('.cart-of-total-container').addClass('d-block d-md-flex flex-row-reverse ');
-                getProductsWithAjax(arrayOfValues);
-            } else {
-                $(".products_table").empty();
-                $('.cart-of-total-container').removeClass('d-block d-md-flex flex-row-reverse ');
-                $('.cart-of-total-container').addClass('d-none');
+        function getFullPrice() {
+            let prices = [],
+                total_prices = $(".total_prices"),
+                grandTotal = $(".grand_total"),
+                shippping = parseFloat($(".shipping").text()),
+                total_discount = $('.total_discount');
+            if(isNaN(shippping)) {
+                shippping = 0;
             }
-        });
+            if($(".products_table tbody").children().length !== 0) {
+                $(".products_table tbody").children().each((index, tr) => {
+                    if(!isNaN(parseFloat($(tr).find('.total_price').text()))) {
+                        prices.push(parseFloat($(tr).find('.total_price').text()));
+                    }
+                });
+            }
+
+            if(prices.length !== 0) {
+                prices = prices.reduce((acc, current) => acc + current);
+            }
+            total_prices.text(prices);
+            grandTotal.text(prices + shippping);
+            total_discount.on('keyup', function() {
+
+                let full_price = (prices +  shippping);
+                let grand_total = full_price - $(this).val();
+
+                @if(request('discount_type') == 'percent')
+                    grand_total = full_price - ((full_price * $(this).val()) / 100);
+                @endif
+                if($(".discount_type").val() == 'percent') {
+                    grand_total = full_price - ((full_price * $(this).val()) / 100);
+                }
+                grandTotal.text(grand_total);
+            });
+        }
+        function amountChange() {
+            $(".amount").on('keyup, change', function() {
+                let priceVal = parseFloat($(this).parent().parent().find('.price').text()),
+                amountVal = parseFloat($(this).val());
+                $(this).parent().parent().find('.total_price').text(priceVal * amountVal);
+                getFullPrice();
+            });
+        }
+        amountChange();
+        function product_price() {
+            $(".product_discount").on('keyup, change', function() {
+                let priceVal = parseFloat($(this).parent().parent().find('.price').text()),
+                    amount = parseFloat($(this).parent().parent().find('.amount').val()),
+                    discountVal = parseFloat($(this).val()),
+                    full_price = priceVal * amount;
+                let price_after_discount = full_price - discountVal;
+                @if(request('discount_type') == 'percent')
+                    price_after_discount = full_price - ((full_price * discountVal) / 100);
+                @endif
+                if($(".discount_type").val() == 'percent') {
+                    price_after_discount = full_price - ((full_price * discountVal) / 100);
+                }
+                $(this).parent().parent().find('.total_price').text(price_after_discount);
+                if(isNaN(price_after_discount)) {
+                    $(this).parent().parent().find('.total_price').text(full_price);
+                }
+                getFullPrice();
+            });
+        }
+        product_price();
 
 
         getFullPrice();

@@ -4071,10 +4071,9 @@ body {
   border-radius: 5px;
 }
 
-@media (max-width: 991px) {
-  .admin .create_order table input {
-    width: 150px;
-  }
+.admin .create_order table input,
+.admin .create_order table textarea {
+  width: 150px !important;
 }
 
 @media print {

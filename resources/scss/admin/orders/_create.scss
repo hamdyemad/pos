@@ -34,10 +34,8 @@
     }
 
     table {
-        @media(max-width: 991px) {
-            input  {
-                width: 150px;
-            }
+        input,textarea  {
+            width: 150px !important;
         }
     }
 }

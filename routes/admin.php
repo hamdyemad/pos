@@ -68,6 +68,7 @@ Route::group([
                 Route::get('/', 'ProductController@index')->name('index');
                 Route::post('/', 'ProductController@store')->name('store');
                 Route::get('/all_by_ids', 'ProductController@all_by_ids')->name('all_by_ids');
+                Route::get('/variant_price', 'ProductController@variant_price')->name('variant_price');
                 Route::post('/all_products', 'ProductController@allByBranchId')->name('all');
 
                 Route::get('/create', 'ProductController@create')->name('create');
@@ -88,6 +89,9 @@ Route::group([
                 Route::get('/create', 'OrderController@create')->name('create');
                 Route::get('/edit/{order}', 'OrderController@edit')->name('edit');
                 Route::post('/pdfs', 'OrderController@all_pdf')->name('all_pdf');
+
+                Route::post('/order_details', 'OrderController@order_details_destroy')->name('order_details.destroy');
+
                 Route::get('/{order}', 'OrderController@show')->name('show');
                 Route::get('/{order}/pdf', 'OrderController@pdf')->name('pdf');
 
@@ -97,6 +101,7 @@ Route::group([
 
                 Route::patch('/{order}', 'OrderController@update')->name('update');
                 Route::delete('/{order}', 'OrderController@destroy')->name('destroy');
+
 
             });
 

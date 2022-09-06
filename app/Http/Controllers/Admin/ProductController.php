@@ -426,6 +426,7 @@ class ProductController extends Controller
         }
     }
 
+
     public function all_by_ids(Request $request) {
         $products = Product::with(['price_of_currency' => function($query) use($request) {
             return $query;
@@ -435,12 +436,17 @@ class ProductController extends Controller
         return $request->json('data', $products);
     }
 
+    public function variant_price(Request $request) {
+        $product_price = ProductVariantPrice::where('variant_id', $request->variant_id)->first();
+        return $request->json('data', $product_price);
+    }
+
     public function allByBranchId(Request $request) {
         if($request->type == 'inhouse') {
             $categories_ids = Category::whereHas('branches', function($query) use($request) {
                 return $query->where('branch_id', $request->branch_id);
             })->pluck('id');
-            $products = Product::whereHas('categories', function($query) use($categories_ids) {
+            $products = Product::with('variants', 'price_of_currency')->whereHas('categories', function($query) use($categories_ids) {
                 return $query->whereIn('category_id', $categories_ids);
             })->orderBy('name')->get();
         } else if($request->type == null) {
