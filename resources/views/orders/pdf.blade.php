@@ -119,6 +119,7 @@
                                     @if($order->customer)
                                         {{ translate('name') . ': ' }} {{ $order->customer->name }}<br>
                                         {{ translate('phone') . ': ' }} {{ $order->customer->phone }}<br>
+                                        {{ translate('phone2') . ': ' }} {{ $order->customer->phone2 }}<br>
                                     @endif
                                     {{ translate('address') . ': ' }} {{ $order->customer->address }}<br>
                                 </td>

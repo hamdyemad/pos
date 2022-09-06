@@ -98,6 +98,10 @@
                         <td colspan="2">{{ translate('phone') }}</td>
                         <td class="text-center" colspan="4">{{ $order->customer->phone }}</td>
                     </tr>
+                    <tr class="info">
+                        <td colspan="2">{{ translate('phone2') }}</td>
+                        <td class="text-center" colspan="4">{{ $order->customer->phone2 }}</td>
+                    </tr>
                 @endif
                 <tr>
                     <td colspan="6">
