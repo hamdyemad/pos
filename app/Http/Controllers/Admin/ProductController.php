@@ -450,7 +450,7 @@ class ProductController extends Controller
                 return $query->whereIn('category_id', $categories_ids);
             })->orderBy('name')->get();
         } else if($request->type == null) {
-            $products = Product::orderBy('name')->get();
+            $products = Product::with('variants', 'price_of_currency')->orderBy('name')->get();
         }
         if(count($products) > 0) {
             return $this->sendRes('', true, $products);

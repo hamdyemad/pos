@@ -160,291 +160,93 @@
     <table class="table products">
         <thead>
             <tr>
-                <td><strong>{{ translate('product name') }}</strong></td>
-                <td><strong>{{ translate('price') }}</strong></td>
-                <td><strong>{{ translate('qty') }}</strong></td>
-                <td><strong>{{ translate('full price') }}</strong></td>
-                <td><strong>{{ translate('discount') }}</strong></td>
-                <td><strong>{{ translate('total price') }} </strong></td>
+                <th>{{ translate('product name') }}</th>
+                <th>{{ translate('sizes') }}</th>
+                <th>{{ translate('extras') }}</th>
+                <th>{{ translate('price') }}</th>
+                <th>{{ translate('qty') }}</th>
+                <th>{{ translate('discount') }}</th>
+                @can('orders.files')
+                    <th>{{ translate('files') }}</th>
+                @endcan
+                <th>{{ translate('notes') }}</th>
+                <th>{{ translate('total price') }}</th>
             </tr>
         </thead>
         <tbody>
-            @if(isset($order->order_details->groupBy('variant_type')['']))
-                @foreach ($order->order_details->groupBy('variant_type')[''] as $variant)
-                    @if($variant)
-                        <tr>
-                            <td>
-                                <div class="media">
-                                    @if($variant->product->photos !== null)
-                                        <img src="{{ asset(json_decode($variant->product->photos)[0]) }}" class="mr-3" alt="...">
-                                    @else
-                                        <img src="{{ asset('/images/product_avatar.png') }}" class="mr-3" alt="...">
-                                    @endif
-                                    <div class="media-body mt-2">
-                                        <div class="">
-                                            <h3 class="m-0 ml-2">{{ $variant->product->name }}</h3>
-                                            <p>
-                                                {{ $variant->notes }}
-                                            </p>
-                                            @if($variant->files)
-                                                <div class="box w-50 mt-2">
-                                                    <ul class="all_files list-unstyled">
-                                                        @foreach (json_decode($variant->files) as $file)
-                                                            <li>
-                                                                <a class="w-100" target="_blank" href="{{ asset($file) }}">
-                                                                    {{ $loop->index + 1 }}
-                                                                </a>
-                                                            </li>
-                                                        @endforeach
-                                                    </ul>
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <!-- Extras -->
-                                        @if(isset($order->order_details->groupBy('variant_type')['extra']))
-                                            @foreach ($order->order_details->groupBy('variant_type')['extra']->groupBy('product_id') as $product_id_from_extra => $val)
-                                                @if($variant->product->id == $product_id_from_extra)
-                                                    @foreach ($val as $extra)
-                                                        <div class="mb-2 box">
-                                                            <div class="line">
-                                                                <strong>{{ translate('extra') }} :</strong>
-                                                                <span>{{ $extra->variant  }}</span>
-                                                            </div>
-                                                            <div class="line">
-                                                                <strong>{{ translate('price') }} :</strong>
-                                                                <span>{{ $extra->price  }}</span>
-                                                            </div>
-                                                            <div class="line">
-                                                                <strong>{{ translate('qty') }} :</strong>
-                                                                <span>{{ $extra->qty  }}</span>
-                                                            </div>
-                                                            @if($extra->qty > 1)
-                                                                <div class="line">
-                                                                    <strong>{{ translate('total price') }} :</strong>
-                                                                    <span>{{ $extra->total_price  }}</span>
-                                                                </div>
-                                                            @endif
-                                                            <p>
-                                                                {{ $extra->notes }}
-                                                            </p>
-                                                            @if($extra->files)
-                                                                <div class="box w-50 mt-2">
-                                                                    <ul class="all_files list-unstyled">
-                                                                        @foreach (json_decode($extra->files) as $file)
-                                                                            <li>
-                                                                                <a class="w-100" target="_blank" href="{{ asset($file) }}">
-                                                                                    {{ $loop->index + 1 }}
-                                                                                </a>
-                                                                            </li>
-                                                                        @endforeach
-                                                                    </ul>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    @endforeach
-                                                @endif
-                                            @endforeach
-                                        @endif
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <strong class="comp-title">{{  $variant->price }}</strong>
-                                <ul class="mobile list-unstyled">
-                                    <li>{{ translate('price') }}</li>
-                                    <li>{{  $variant->price }}</li>
-                                </ul>
-                            </td>
-                            <td>
-                                <strong class="comp-title">{{ $variant->qty }}</strong>
-                                <ul class="mobile list-unstyled">
-                                    <li>{{ translate('qty') }}</li>
-                                    <li>{{ $variant->qty }}</li>
-                                </ul>
-                            </td>
-                            <td>
-                                <strong class="comp-title">{{  $variant->total_price }}</strong>
-                                <ul class="mobile list-unstyled">
-                                    <li>{{ translate('total price') }}</li>
-                                    <li>{{  $variant->total_price }}</li>
-                                </ul>
-                            </td>
-                            <td>
-                            @if($order->discount_type == 'percent')
-                                <strong class="comp-title">{{ '%' . $variant->discount }}</strong>
-                                <ul class="mobile list-unstyled">
-                                    <li>{{ translate('discount') }}</li>
-                                    <li>{{ '%' . $variant->discount }}</li>
-                                </ul>
+            @foreach ($order->order_details as $order_detail)
+                <tr>
+                    <td>
+                        <div class="media">
+                            @if($order_detail->product->photos !== null)
+                                <img src="{{ asset(json_decode($order_detail->product->photos)[0]) }}" class="mr-3" alt="...">
                             @else
-                                <strong class="comp-title">{{ $variant->discount }}</strong>
-                                <ul class="mobile list-unstyled">
-                                    <li>{{ translate('discount') }}</li>
-                                    <li>{{ $variant->discount }}</li>
-                                </ul>
+                                <img src="{{ asset('/images/product_avatar.png') }}" class="mr-3" alt="...">
                             @endif
-                            </td>
-                            @if($order->discount_type == 'percent')
-                                <td>
-                                    <strong class="comp-title">{{  (($variant->total_price * $variant->discount) / 100) }}</strong>
-                                    <ul class="mobile list-unstyled">
-                                        <li>{{ translate('total price') }}</li>
-                                        <li>{{ (($variant->total_price * $variant->discount) / 100)  }}</li>
-                                    </ul>
-                                </td>
-                            @else
-                                <td>
-                                    <strong class="comp-title">{{  $variant->total_price - $variant->discount }}</strong>
-                                    <ul class="mobile list-unstyled">
-                                        <li>{{ translate('total price') }}</li>
-                                        <li>{{ $variant->total_price - $variant->discount  }}</li>
-                                    </ul>
-                                </td>
-                            @endif
-                        </tr>
-                    @endif
-                @endforeach
-            @endif
-            @if(isset($order->order_details->groupBy('variant_type')['size']))
-                @foreach ($order->order_details->groupBy('variant_type')['size']->groupBy('product_id') as $product_id_from_size => $value)
-                    @php
-                        $product = App\Models\Product::find($product_id_from_size);
-                    @endphp
-                    @if($product)
-                        <tr>
-                            <td>
-                                <div class="media">
-                                    @if($product->photos !== null)
-                                        <img src="{{ asset(json_decode($product->photos)[0]) }}" class="mr-3" alt="...">
-                                    @else
-                                        <img src="{{ asset('/images/product_avatar.png') }}" class="mr-3" alt="...">
-                                    @endif
-                                    <div class="media-body">
-                                        <h3>{{ $product->name }}</h3>
-                                    </div>
-                                </div>
-                                @foreach ($value as $variant)
-                                    <p>
-                                        {{ $variant->notes }}
-                                    </p>
-                                    <div class="mb-2 d-flex">
-                                        <div class="box w-50">
-                                            <div class="line">
-                                                <strong>{{ translate('size') }} :</strong>
-                                                <span>{{ $variant->variant  }}</span>
-                                            </div>
-                                            <div class="line">
-                                                <strong>{{ translate('price') }} :</strong>
-                                                <span>{{  $variant->price  }}</span>
-                                            </div>
-                                            <div class="line">
-                                                <strong>{{ translate('quantity') }} :</strong>
-                                                <span>{{ $variant->qty  }}</span>
-                                            </div>
-                                            @if($variant->qty > 1)
-                                                <div class="line">
-                                                    <strong>{{ translate('sub total') }} :</strong>
-                                                    <span>{{ $variant->total_price  }}</span>
-                                                </div>
-                                            @endif
-                                            <div class="line">
-                                                <strong>{{ translate('discount') }} :</strong>
-                                                @if($order->discount_type == 'percent')
-                                                    <span>{{  '%' . $variant->discount  }}</span>
-                                                @else
-                                                    <span>{{ $variant->discount  }}</span>
-                                                @endif
-                                            </div>
-                                            <div class="line">
-                                                <strong>{{ translate('total price') }} :</strong>
-                                                @if($order->discount_type == 'percent')
-                                                    <span>{{ ($variant->total_price - (($variant->total_price * $variant->discount) /100))  }}</span>
-                                                @else
-                                                    <span>{{  $variant->total_price - $variant->discount  }}</span>
-                                                @endif
-                                            </div>
+                            <div class="media-body mt-2">
+                                <div class="">
+                                    <h3 class="m-0 ml-2">{{ $order_detail->product->name }}</h3>
+                                    @if($order_detail->files)
+                                        <div class="box w-50 mt-2">
+                                            <ul class="all_files list-unstyled">
+                                                @foreach (json_decode($order_detail->files) as $file)
+                                                    <li>
+                                                        <a class="w-100" target="_blank" href="{{ asset($file) }}">
+                                                            {{ $loop->index + 1 }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
                                         </div>
-                                        @if($variant->files)
-                                            <div class="box w-50">
-                                                <ul class="all_files list-unstyled">
-                                                    @foreach (json_decode($variant->files) as $file)
-                                                        <li>
-                                                            <a class="w-100" target="_blank" href="{{ asset($file) }}">
-                                                                {{ $loop->index + 1 }}
-                                                            </a>
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endforeach
-                                @if(isset($order->order_details->groupBy('variant_type')['extra']))
-                                    @foreach ($order->order_details->groupBy('variant_type')['extra']->groupBy('product_id') as $product_id_from_extra => $val)
-                                        @if($product_id_from_extra == $product_id_from_size)
-                                            @foreach ($val as $variant)
-                                                <p>
-                                                    {{ $variant->notes }}
-                                                </p>
-                                                <div class="mb-2 d-flex">
-                                                    <div class="box w-50">
-                                                        <div class="line">
-                                                            <strong>{{ translate('extra') }} :</strong>
-                                                            <span>{{ $variant->variant  }}</span>
-                                                        </div>
-                                                        <div class="line">
-                                                            <strong>{{ translate('price') }} :</strong>
-                                                            <span>{{  $variant->price  }}</span>
-                                                        </div>
-                                                        <div class="line">
-                                                            <strong>{{ translate('quantity') }} :</strong>
-                                                            <span>{{ $variant->qty  }}</span>
-                                                        </div>
-                                                        @if($variant->qty > 1)
-                                                            <div class="line">
-                                                                <strong>{{ translate('sub total') }} :</strong>
-                                                                <span>{{ $variant->total_price  }}</span>
-                                                            </div>
-                                                        @endif
-                                                        <div class="line">
-                                                            <strong>{{ translate('discount') }} :</strong>
-                                                            @if($order->discount_type == 'percent')
-                                                                <span>{{  '%' . $variant->discount  }}</span>
-                                                            @else
-                                                                <span>{{ $variant->discount  }}</span>
-                                                            @endif
-                                                        </div>
-                                                        <div class="line">
-                                                            <strong>{{ translate('total price') }} :</strong>
-                                                            @if($order->discount_type == 'percent')
-                                                                <span>{{  ( $variant->total_price - (($variant->total_price * $variant->discount) /100))  }}</span>
-                                                            @else
-                                                                <span>{{  $variant->total_price - $variant->discount  }}</span>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    @if($variant->files)
-                                                        <div class="box w-50">
-                                                            @foreach (json_decode($variant->files) as $file)
-                                                            <a target="_blank" href="{{ asset($file) }}">{{  $loop->index  }}</a>
-                                                            @endforeach
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @endforeach
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </td>
-                            <td>--</td>
-                            <td>--</td>
-                            <td>--</td>
-                            <td>--</td>
-                            <td>--</td>
-                        </tr>
-                    @endif
-                @endforeach
-            @endif
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        @if($order_detail->variant_type == 'size')
+                            {{ $order_detail->variant }}
+                        @endif
+                    </td>
+                    <td>
+                        @if($order_detail->variant_type == 'extra')
+                            {{ $order_detail->variant }}
+                        @endif
+                    </td>
+                    <td>
+                        {{ $order_detail->price }}
+                    </td>
+                    <td>
+                        {{ $order_detail->qty }}
+                    </td>
+                    <td>
+                        {{ $order_detail->discount }}
+                    </td>
+                    @can('orders.files')
+                        <td>
+                            @if($order_detail->files)
+                                <div class="box w-50 mt-2">
+                                    <ul class="all_files list-unstyled">
+                                        @foreach (json_decode($order_detail->files) as $file)
+                                            <li>
+                                                <a class="w-100" target="_blank" href="{{ asset($file) }}">
+                                                    {{ $loop->index + 1 }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                        </td>
+                    @endcan
+                    <td>
+                        {{ $order_detail->notes }}
+                    </td>
+                    <td>
+                        {{ $order_detail->total_price }}
+                    </td>
+                </tr>
+            @endforeach
             @if($order->shipping)
                 <tr>
                     <td>
@@ -453,6 +255,8 @@
                             <li>{{  $order->shipping }}</li>
                         </ul>
                     </td>
+                    <td class="comp-td"></td>
+                    <td class="comp-td"></td>
                     <td class="comp-td"></td>
                     <td class="comp-td"></td>
                     <td class="comp-td"></td>
@@ -476,6 +280,8 @@
                     <td class="comp-td"></td>
                     <td class="comp-td"></td>
                     <td class="comp-td"></td>
+                    <td class="comp-td"></td>
+                    <td class="comp-td"></td>
                     <td class="text-center comp-td">
                         <strong>{{ translate('discount') }}</strong></td>
                     <td class="comp-td">
@@ -490,6 +296,8 @@
             @if($order->coupon)
                 <tr>
                     <td></td>
+                    <td class="comp-td"></td>
+                    <td class="comp-td"></td>
                     <td class="comp-td"></td>
                     <td class="comp-td"></td>
                     <td class="comp-td"></td>
@@ -510,6 +318,8 @@
                         <li>{{  $order->grand_total }}</li>
                     </ul>
                 </td>
+                <td class="comp-td"></td>
+                <td class="comp-td"></td>
                 <td class="comp-td"></td>
                 <td class="comp-td"></td>
                 <td class="comp-td"></td>

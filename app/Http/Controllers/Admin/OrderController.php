@@ -464,23 +464,17 @@ class OrderController extends Controller
             }
 
             if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin' || Auth::user()->role_type == 'online') {
-                $products = Product::latest()->get();
+                $products = Product::with('variants', 'price_of_currency')->latest()->get();
             }
             if(Auth::user()->role_type == 'inhouse') {
                 $categories_ids = Category::whereHas('branches', function($query) {
                     return $query->where('branch_id', Auth::user()->branch_id);
                 })->latest()->pluck('id');
-                $products = Product::whereHas('categories', function($query) use($categories_ids) {
+                $products = Product::with('variants', 'price_of_currency')->whereHas('categories', function($query) use($categories_ids) {
                     return $query->whereIn('category_id', $categories_ids);
                 })->latest()->get();
-                return view('orders.pos.edit', compact('order', 'branches', 'products', 'countries', 'cities', 'customers'));
             }
-            if(Auth::user()->role_type == 'online') {
-                return view('orders.online.edit', compact('order', 'branches', 'products', 'countries', 'cities', 'customers'));
-            }
-            if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin') {
-                return view('orders.edit', compact('order', 'branches', 'products', 'countries', 'cities', 'customers'));
-            }
+            return view('orders.edit', compact('order', 'branches', 'products', 'countries', 'cities', 'customers'));
 
         } else {
             return redirect()->back()->with('error', translate('you should choose a default status'));
@@ -554,6 +548,19 @@ class OrderController extends Controller
                         if(isset($productObj['files'])) {
                             $files = [];
                             if(isset($productObj['update'])) {
+                                if($productObj['old_id'] !== $productObj['id']) {
+                                    $order_detail_old = OrderDetail::where(['order_id' => $order->id,
+                                        'product_id' => $productObj['old_id']])->first();
+                                    if($order_detail_old['files']) {
+                                        $files = json_decode($order_detail_old['files']);
+                                        foreach ($files as $file) {
+                                            if(file_exists($file)) {
+                                                unlink($file);
+                                            }
+                                        }
+                                    }
+                                    $order_detail_old->delete();
+                                }
                                 if($order_detail) {
                                     if($order_detail->files) {
                                         $files = json_decode($order_detail->files);
@@ -609,6 +616,19 @@ class OrderController extends Controller
                         $orderDetailCreation['files'] = json_encode($files);
                     }
                     if(isset($productObj['update'])) {
+                        if($productObj['old_id'] !== $productObj['id']) {
+                            $order_detail_old = OrderDetail::where(['order_id' => $order->id,
+                                'product_id' => $productObj['old_id']])->first();
+                            if($order_detail_old['files']) {
+                                $files = json_decode($order_detail_old['files']);
+                                foreach ($files as $file) {
+                                    if(file_exists($file)) {
+                                        unlink($file);
+                                    }
+                                }
+                            }
+                            $order_detail_old->delete();
+                        }
                         if($order_detail) {
                             $order_detail->update($orderDetailCreation);
                         } else {

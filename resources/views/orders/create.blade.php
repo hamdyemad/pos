@@ -23,6 +23,12 @@
                     <form action="{{ route('orders.create') }}" method="GET" id="orders_create">
                     </form>
                     <form class="order_store" action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data">
+                        @if(Auth::user()->role_type == 'inhouse')
+                            <input type="hidden" name="type" value="inhouse">
+                            <input type="hidden" name="branch_id" value="{{ Auth::user()->branch_id }}">
+                        @elseif(Auth::user()->role_type == 'online')
+                            <input type="hidden" name="type" value="online">
+                        @endif
                         @if(request('discount_type') == 'percent')
                             <input type="hidden" name="discount_type" value="percent">
                         @elseif(request('discount_type') == 'amount')
@@ -31,13 +37,16 @@
                             <input type="hidden" name="discount_type" value="amount">
                         @endif
 
-                        @if(request('type') =='online')
-                            <input type="hidden" name="type" value="online">
-                        @elseif(request('type') =='inhouse')
-                            <input type="hidden" name="type" value="inhouse">
-                        @else
-                            <input type="hidden" name="type" value="inhouse">
+                        @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin')
+                            @if(request('type') =='online')
+                                <input type="hidden" name="type" value="online">
+                            @elseif(request('type') =='inhouse')
+                                <input type="hidden" name="type" value="inhouse">
+                            @else
+                                <input type="hidden" name="type" value="inhouse">
+                            @endif
                         @endif
+
 
                         @csrf
                         <div class="row">
@@ -53,19 +62,21 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-12 col-md-6">
-                                <div class="form-group">
-                                    <label for="type">{{ translate('order type') }}</label>
-                                    <select onchange="this.form.submit()" form="orders_create" class="form-control order_type select2" name="type">
-                                        <option value="inhouse" @if(request('type') == 'inhouse') selected @endif>{{ translate('receipt from the branch') }}</option>
-                                        <option value="online" @if(request('type') == 'online') selected @endif>{{ translate('online order') }}</option>
-                                    </select>
-                                    @error('type')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                            @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin')
+                                <div class="col-12 col-md-6">
+                                    <div class="form-group">
+                                        <label for="type">{{ translate('order type') }}</label>
+                                        <select onchange="this.form.submit()" form="orders_create" class="form-control order_type select2" name="type">
+                                            <option value="inhouse" @if(request('type') == 'inhouse') selected @endif>{{ translate('receipt from the branch') }}</option>
+                                            <option value="online" @if(request('type') == 'online') selected @endif>{{ translate('online order') }}</option>
+                                        </select>
+                                        @error('type')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-12">
+                            @endif
+                            <div class="col-12 @if(Auth::user()->role_type == 'inhouse' || Auth::user()->role_type == 'online') col-md-6 @endif">
                                 <div class="form-group">
                                     <label for="payment_method">{{ translate('payment method') }}</label>
                                     <select class="form-control select2" name="payment_method">
@@ -77,22 +88,24 @@
                                     @enderror
                                 </div>
                             </div>
-                            @if(request('type') == 'inhouse' || request('type') == '')
-                                <div class="col-12 branch_col">
-                                    <div class="form-group">
-                                        <label for="branch_id">{{ translate('order branch creation') }}</label>
-                                        <select class="form-control select2 branch_select" name="branch_id">
-                                            @foreach ($branches as $branch)
-                                            <option value="{{ $branch->id }}" @if(old('branch_id') == $branch->id) selected @endif>{{ translate($branch->name) }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('branch_id')
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
+                            @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin')
+                                @if(request('type') == 'inhouse' || request('type') == '')
+                                    <div class="col-12 branch_col">
+                                        <div class="form-group">
+                                            <label for="branch_id">{{ translate('order branch creation') }}</label>
+                                            <select class="form-control select2 branch_select" name="branch_id">
+                                                @foreach ($branches as $branch)
+                                                <option value="{{ $branch->id }}" @if(old('branch_id') == $branch->id) selected @endif>{{ translate($branch->name) }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('branch_id')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
                             @endif
-                            @if(request('type') == 'online')
+                            @if(Auth::user()->role_type == 'online')
                                 <div class="col-12 col-md-6 country_col">
                                     <div class="form-group">
                                         <label for="country">{{ translate('country') }}</label>
@@ -103,6 +116,20 @@
                                         </select>
                                     </div>
                                 </div>
+                            @endif
+                            @if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin')
+                                @if(request('type') == 'online')
+                                    <div class="col-12 col-md-6 country_col">
+                                        <div class="form-group">
+                                            <label for="country">{{ translate('country') }}</label>
+                                            <select class="form-control select2 select_country" name="country_id">
+                                                @foreach ($countries as $country)
+                                                <option value="{{ $country->id }}" @if(old('country_id') == $country->id) selected @endif>{{ $country->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                @endif
                             @endif
                             <div class="col-12 d-flex align-items-end">
                                 <div class="form-group w-100">
@@ -229,13 +256,16 @@
                                                 @endphp
                                                 <tr id="{{ $index }}">
                                                     @php
-                                                        if(old('type') == 'inhouse') {
+                                                        if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin' || Auth::user()->role_type == 'online') {
+                                                            $products = App\Models\Product::with('variants', 'price_of_currency')->latest()->get();
+                                                        }
+                                                        if(Auth::user()->role_type == 'inhouse') {
                                                             $categories_ids = App\Models\Category::whereHas('branches', function($query) {
-                                                               return $query->where('branch_id', old('branch_id'));
-                                                           })->latest()->pluck('id');
-                                                           $products = App\Models\Product::whereHas('categories', function($query) use($categories_ids) {
-                                                               return $query->whereIn('category_id', $categories_ids);
-                                                           })->latest()->get();
+                                                                return $query->where('branch_id', Auth::user()->branch_id);
+                                                            })->latest()->pluck('id');
+                                                            $products = App\Models\Product::with('variants', 'price_of_currency')->whereHas('categories', function($query) use($categories_ids) {
+                                                                return $query->whereIn('category_id', $categories_ids);
+                                                            })->latest()->get();
                                                         }
                                                     @endphp
                                                     @if(isset($product_old['price']))
@@ -260,11 +290,11 @@
                                                     <td class="sizes_td">
 
                                                         @if($variants->count() > 0)
-                                                            <select class="select2 products_search" name="products[{{ $index }}][variant_id]">
+                                                            <select class="select2 products_search" name="products[{{ $index }}][variant_id]" data-product_id="{{ $product_old['id'] }}">
                                                                 <option value="">{{ translate('choose') }}</option>
                                                                 @foreach ($variants as $product_variant)
                                                                     <option value="{{ $product_variant->id }}"
-                                                                        @if($product_old['variant_id'] == $product_variant->id) selected @endif>{{ $product_variant->variant }}</option>
+                                                                        @if($product_old['variant_id'] == $product_variant->id) selected @endif data-variant="{{ $product_variant }}">{{ $product_variant->variant }}</option>
                                                                 @endforeach
                                                             </select>
                                                             @error("products.$index.variant_id")
@@ -290,16 +320,18 @@
                                                     <td>
                                                         <input type="number" class="form-control product_discount" name="products[{{ $index }}][discount]" value="{{ $product_old['discount'] }}">
                                                     </td>
-                                                    <td>
-                                                        <div class="customized_files">
-                                                            <div class="form-group">
-                                                                <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[{{ $index }}][files][]">
-                                                                <button type="button" class="btn btn-primary form-control files">
-                                                                    <span class="mdi mdi-plus btn-lg"></span>
-                                                                </button>
+                                                    @can('orders.files')
+                                                        <td>
+                                                            <div class="customized_files">
+                                                                <div class="form-group">
+                                                                    <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[{{ $index }}][files][]">
+                                                                    <button type="button" class="btn btn-primary form-control files">
+                                                                        <span class="mdi mdi-plus btn-lg"></span>
+                                                                    </button>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
+                                                        </td>
+                                                    @endcan
                                                     <td><textarea class="form-control" name="products[{{ $index }}][notes]">{{ $product_old['notes'] }}</textarea></td>
                                                     <td>
                                                         <div class="total_price">
@@ -388,6 +420,37 @@
 @section('footerScript')
     <script>
 
+            let address_col = `
+                <div class="col-12 col-md-6 address_col">
+                    <div class="form-group">
+                        <label for="customer_address">{{ translate('customer address') }}</label>
+                        <input type="text" class="form-control" name="customer_address" value="{{ old('customer_address') }}">
+                        @error('customer_address')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                `,
+                country_col = `
+                <div class="col-12 col-md-6 country_col">
+                    <div class="form-group">
+                        <label for="country">{{ translate('country') }}</label>
+                        <select class="form-control select_country" name="country_id"></select>
+                    </div>
+                </div>
+                `,
+                city_col = `
+                <div class="col-12 col-md-6 city_col">
+                    <div class="form-group">
+                        <label for="city_id">{{ translate('city') }}</label>
+                        <select class="form-control select_city" name="city_id"></select>
+                        @error('city_id')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            `;
+
     @error('customer_name')
         $("#modal_customers").modal();
     @enderror
@@ -429,16 +492,18 @@
                     <td>
                         <input type="number" class="form-control product_discount" name="products[${index}][discount]">
                     </td>
-                    <td>
-                        <div class="customized_files">
-                            <div class="form-group">
-                                <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[${index}][files][]">
-                                <button type="button" class="btn btn-primary form-control files">
-                                    <span class="mdi mdi-plus btn-lg"></span>
-                                </button>
+                    @can('orders.files')
+                        <td>
+                            <div class="customized_files">
+                                <div class="form-group">
+                                    <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[${index}][files][]">
+                                    <button type="button" class="btn btn-primary form-control files">
+                                        <span class="mdi mdi-plus btn-lg"></span>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </td>
+                        </td>
+                    @endcan
                     <td><textarea class="form-control" name="products[${index}][notes]"></textarea></td>
                     <td>
                         <div class="total_price"></div>
@@ -458,56 +523,105 @@
             });
             $(".select2").select2();
             $(".cart-of-total-container").removeClass('d-none');
-            product_search(index);
+            product_search();
             remove_row();
         });
 
-        function product_search(index) {
+
+        function product_search() {
             $(".products_search").on('change', function() {
-                product_id = $(this).val(),
-                product = products.find(obj => obj.id == product_id);
-                if(product.price_of_currency) {
-                    $(`.products_table tbody tr#${index} input.price_input`).remove();
-
-                    $(`.products_table tbody tr#${index}`).append(`
-                        <input class="price_input" type="hidden" name="products[${index}][price]" value="${product.price_of_currency.price_after_discount}">
-                    `);
-                    $(`.products_table tbody tr#${index} .price`).text(product.price_of_currency.price_after_discount);
-                    $(`.products_table tbody tr#${index} .total_price`).text(product.price_of_currency.price_after_discount * 1);
+                let product_id = $(this).val(),
+                    tr = $(this).parent().parent(),
+                    product_old_id = $(this).data('product_id'),
+                    index = tr.attr('id');
+                if(product_old_id) {
+                    product = products.find(obj => obj.id == product_old_id);
+                } else {
+                    product = products.find(obj => obj.id == product_id);
                 }
-                if(product.variants) {
-                    let sizes = [];
-                    product.variants.forEach((variant) => {
-                        if(variant.type == 'size') {
-                            sizes.push(variant);
-                        }
-                    });
-                    if(sizes.length !== 0) {
-                        $(`.products_table tbody tr#${index} .sizes_td`).empty();
-                        $(`.products_table tbody tr#${index} .sizes_td`).append(`
-                            <select class="select2 variant_search" name="products[${index}][variant_id]">
-                                <option value="">{{ translate('choose') }}</option>
-                            </select>
-                        `);
-                        $(".select2").select2();
-                        sizes.forEach((size) => {
-                            $(`.products_table tbody tr#${index} .sizes_td .variant_search`).append(`
-                                <option value="${size.id}" data-variant='${JSON.stringify(size)}'
+                if(product) {
+                    if(product.price_of_currency) {
+                        $(`.products_table tbody tr#${index} input.price_input`).remove();
 
-                                >${size.variant}</option>
-                            `);
-                        });
+                        $(`.products_table tbody tr#${index}`).append(`
+                            <input class="price_input" type="hidden" name="products[${index}][price]" value="${product.price_of_currency.price_after_discount}">
+                        `);
+                        $(`.products_table tbody tr#${index} .price`).text(product.price_of_currency.price_after_discount);
+                        $(`.products_table tbody tr#${index} .total_price`).text(product.price_of_currency.price_after_discount * 1);
                     } else {
-                        $(`.products_table tbody tr#${index} .sizes_td`).empty();
-                        $(`.products_table tbody tr#${index} .sizes_td`).append('--');
+                        $(`.products_table tbody tr#${index} input.price_input`).remove();
+                        $(`.products_table tbody tr#${index}`).append(`
+                            <input class="price_input" type="hidden" name="products[${index}][price]" value="0">
+                        `);
+                        $(`.products_table tbody tr#${index} .price`).text(0);
+                        $(`.products_table tbody tr#${index} .total_price`).text(0);
                     }
-                    variant_search();
+                    if(product.variants) {
+                        let sizes = [],
+                            extras = [];
+                        product.variants.forEach((variant) => {
+                            if(variant.type == 'size') {
+                                sizes.push(variant);
+                            }
+                            if(variant.type == 'extra') {
+                                extras.push(variant);
+                            }
+                        });
+                        if(sizes.length !== 0) {
+                            $(`.products_table tbody tr#${index} .sizes_td`).empty();
+                            $(`.products_table tbody tr#${index} .sizes_td`).append(`
+                                <select class="select2 variant_search" name="products[${index}][variant_id]">
+                                    <option value="">{{ translate('choose') }}</option>
+                                </select>
+                            `);
+                            $(`.products_table tbody tr#${index} .sizes_td .variant_search`).select2();
+                            sizes.forEach((size) => {
+                                $(`.products_table tbody tr#${index} .sizes_td .variant_search`).append(`
+                                    <option value="${size.id}" data-variant='${JSON.stringify(size)}'
+
+                                    >${size.variant}</option>
+                                `);
+                            });
+                        } else if(sizes.length == 0) {
+                            $(`.products_table tbody tr#${index} .sizes_td`).empty();
+                            $(`.products_table tbody tr#${index} .sizes_td`).append('--');
+                        }
+                        if(extras.length !== 0) {
+                            $(`.products_table tbody tr#${index} .extras_td`).empty();
+                            $(`.products_table tbody tr#${index} .extras_td`).append(`
+                                <select class="select2 variant_search" name="products[${index}][variant_id]">
+                                    <option value="">{{ translate('choose') }}</option>
+                                </select>
+                            `);
+                            $(`.products_table tbody tr#${index} .extras_td .variant_search`).select2();
+
+                            extras.forEach((extra) => {
+                                $(`.products_table tbody tr#${index} .extras_td .variant_search`).append(`
+                                    <option value="${extra.id}" data-variant='${JSON.stringify(extra)}'
+
+                                    >${extra.variant}</option>
+                                `);
+                            });
+                        } else if(extras.length == 0) {
+                            $(`.products_table tbody tr#${index} .extras_td`).empty();
+                            $(`.products_table tbody tr#${index} .extras_td`).append('--');
+                        }
+                        variant_search(product_id);
+                    }
+                } else {
+                    $(`.products_table tbody tr#${index} input.price_input`).remove();
+                    $(`.products_table tbody tr#${index}`).append(`
+                        <input class="price_input" type="hidden" name="products[${index}][price]" value="0">
+                    `);
+                    $(`.products_table tbody tr#${index} .price`).text(0);
+                    $(`.products_table tbody tr#${index} .total_price`).text(0);
                 }
                 amountChange();
                 product_price();
                 getFullPrice();
             })
         }
+        product_search();
 
         function remove_row() {
             $(".remove_row").on('click', function() {
@@ -517,39 +631,62 @@
         }
         remove_row();
 
-        function variant_search() {
+        function variant_search(product_id) {
             $(".variant_search").on('change', function() {
+                if(product_id) {
+                    let product = products.find(obj => obj.id == product_id);
+                } else {
+                    let product = products.find(obj => obj.id == $(this).attr('product_id'));
+                }
                 let tr = $(this).parent().parent();
                 let index = tr.attr('id');
-                variant_id = $(this).val(),
-                variant = $(this).find(`option[value=${variant_id}]`).data('variant');
-
-                $.ajax({
-                    'method': 'GET',
-                    'data': {
-                        variant_id: variant_id,
-                    },
-                    'url' : `{{ route('products.variant_price') }}`,
-                    'success': function(res) {
-                        let price = res.price_after_discount;
-                        tr.find('input.price_input').remove();
-                        tr.append(`
-                            <input class="price_input" type="hidden" name="products[${index}][price]" value="${price}">
+                variant_id = $(this).val();
+                if(variant_id) {
+                    let variant = $(this).find(`option[value=${variant_id}]`).data('variant');
+                    $.ajax({
+                        'method': 'GET',
+                        'data': {
+                            variant_id: variant_id,
+                        },
+                        'url' : `{{ route('products.variant_price') }}`,
+                        'success': function(res) {
+                            let price = res.price_after_discount;
+                            tr.find('input.price_input').remove();
+                            tr.append(`
+                                <input class="price_input" type="hidden" name="products[${index}][price]" value="${price}">
+                            `);
+                            tr.find(`.price`).text(price);
+                            tr.find(`.total_price`).text(price * 1);
+                            amountChange();
+                            product_price();
+                            getFullPrice();
+                        },
+                        'erorr' : function(err) {
+                            console.log(err);
+                        }
+                    });
+                } else {
+                    $(`.products_table tbody tr#${index} input.price_input`).remove();
+                    if(product.price_of_currency) {
+                        $(`.products_table tbody tr#${index}`).append(`
+                            <input class="price_input" type="hidden" name="products[${index}][price]" value="${product.price_of_currency.price_after_discount}">
                         `);
-                        tr.find(`.price`).text(price);
-                        tr.find(`.total_price`).text(price * 1);
-                        amountChange();
-                        product_price();
-                        getFullPrice();
-                    },
-                    'erorr' : function(err) {
-                        console.log(err);
+                        $(`.products_table tbody tr#${index} .price`).text(product.price_of_currency.price_after_discount);
+                        $(`.products_table tbody tr#${index} .total_price`).text(product.price_of_currency.price_after_discount * 1);
+                    } else {
+                        $(`.products_table tbody tr#${index}`).append(`
+                            <input class="price_input" type="hidden" name="products[${index}][price]" value="0">
+                        `);
+                        $(`.products_table tbody tr#${index} .price`).text(0);
+                        $(`.products_table tbody tr#${index} .total_price`).text(0);
                     }
-                });
-
+                }
+                amountChange();
+                product_price();
+                getFullPrice();
             })
         }
-        variant_search();
+        variant_search(null);
 
 
 
@@ -558,6 +695,12 @@
         $(".branch_select").on('change', function() {
             getProductsByBranchId($(this).val(), 'inhouse');
         });
+
+        @if(Auth::user()->role_type == 'inhouse')
+            getProductsByBranchId("{{ Auth::user()->branch_id }}", 'inhouse')
+        @elseif(Auth::user()->role_type == 'online')
+            getProductsByBranchId(null, null)
+        @endif
 
 
         $(".coupon_submit").on('click', function() {
@@ -631,6 +774,7 @@
                 },
                 'url': "{{ route('products.all') }}",
                 'success': function(res) {
+                    console.log(res);
                     if(res.status) {
                         products = res.data;
                     } else {

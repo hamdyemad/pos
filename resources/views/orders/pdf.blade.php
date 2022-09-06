@@ -99,7 +99,7 @@
 		<div class="invoice-box @if($rtl) rtl @endif">
 			<table class="table" cellpadding="0" cellspacing="0">
 				<tr>
-                    <td class="top" colspan="6">
+                    <td class="top" colspan="7">
                         @if (get_setting('logo'))
                             <img src="{{ asset(get_setting('logo')) }}" style="width: 500px; height: 200px;" alt="">
                         @else
@@ -109,7 +109,7 @@
 				</tr>
 
 				<tr class="information">
-                    <td colspan="3">
+                    <td colspan="4">
                         <table>
                             <tr>
                                 <td>
@@ -126,11 +126,11 @@
                         </table>
                     </td>
                     <td colspan="3">
-                        <table>
+                        <table style="direction: rtl; text-align:right">
                             <tr>
                                 <td>
                                     {{ translate('order number') . ' : ' . $order->id }}<br>
-                                    ({{ $order->created_at }})<br>
+                                    {{ Carbon\Carbon::createFromDate($order->created_at)->format('Y-m-d')}}<br>
                                     @if($order->notes)
                                         {{ translate('notes') . ': ' }} {{ $order->notes }}<br>
                                     @endif
@@ -140,135 +140,51 @@
                     </td>
 				</tr>
                 <tr class="heading">
-                    <td colspan="2">{{ translate('product name') }}</td>
+                    <td>{{ translate('name') }}</td>
+                    <td>{{ translate('variant') }}</td>
                     <td>{{ translate('price') }}</td>
-                    <td>{{ translate('count') }}</td>
+                    <td>{{ translate('qty') }}</td>
                     <td>{{ translate('discount') }}</td>
-                    <td>{{ translate('total price') }} </td>
+                    <td>{{ translate('notes') }}</td>
+                    <td>{{ translate('total price') }}</td>
                 </tr>
-                @if(isset($order->order_details->groupBy('variant_type')['']))
-                    @foreach ($order->order_details->groupBy('variant_type')[''] as $variant)
-                        @if($variant)
-                            <tr class="item">
-                                <td colspan="2">
-                                    <span>{{ $variant->product->name }}</span>
-                                    @if(isset($order->order_details->groupBy('variant_type')['extra']))
-                                        <table>
-                                            @foreach ($order->order_details->groupBy('variant_type')['extra']->groupBy('product_id') as $product_id_from_extra => $val)
-                                                @if($variant->product->id == $product_id_from_extra)
-                                                    @foreach ($val as $extra)
-                                                        <tr>
-                                                            <td>
-                                                                <span>{{ translate('extra') }} :</span>
-                                                                <span>{{ $extra->variant  }}</span>
-                                                            </td>
-                                                            <td>
-                                                                <span>{{ translate('price') }} :</span>
-                                                                <span>{{ $extra->price  }}</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>
-                                                                <span>{{ translate('quantity') }} :</span>
-                                                                <span>{{ $extra->qty  }}</span>
-                                                            </td>
-                                                            @if($extra->qty > 1)
-                                                                <td>
-                                                                    <span>{{ translate('total price') }} :</span>
-                                                                    <span>{{ $extra->total_price  }}</span>
-                                                                </td>
-                                                            @endif
-                                                        </tr>
-                                                    @endforeach
-                                                @endif
-                                            @endforeach
-                                        </table>
-                                    @endif
-                                </td>
-                                <td>
-                                    <span>{{ $variant->price }}</span>
-                                </td>
-                                <td><span>{{ $variant->qty }}</span></td>
-                                @if($order->discount_type == 'percent')
-                                    <td><span>{{ '%' . $variant->discount }}</span></td>
-                                    <td><span>{{ $variant->total_price * ($variant->discount / 100) }}</span></td>
-                                @else
-                                    <td><span>{{ $variant->discount }}</span></td>
-                                    <td><span>{{ $variant->total_price - $variant->discount }}</span></td>
-                                @endif
-                            </tr>
-                        @endif
-                    @endforeach
-                @endif
-                @if(isset($order->order_details->groupBy('variant_type')['size']))
-                    @foreach ($order->order_details->groupBy('variant_type')['size']->groupBy('product_id') as $product_id_from_size => $value)
-                        @if($value)
-                            <tr class="item">
-                                <td>
-                                    <span>{{ App\Models\Product::find($product_id_from_size)->name }}</span>
-                                </td>
-                                <td></td>
-                                <td>
-                                    @foreach ($value as $variant)
-                                        <div class="mb-2 d-flex align-items-center">
-                                            <div class="line">
-                                                <span>{{ translate('size') }} :</span>
-                                                <span>{{ $variant->variant  }}</span>
-                                            </div>
-                                            <div class="line">
-                                                <span>{{ translate('price') }} :</span>
-                                                <span>{{ $variant->price  }}</span>
-                                            </div>
-                                            <div class="line">
-                                                <span>{{ translate('quantity') }} :</span>
-                                                <span>{{ $variant->qty  }}</span>
-                                            </div>
-                                            @if($variant->qty > 1)
-                                                <div class="line">
-                                                    <span>{{ translate('total price') }} :</span>
-                                                    <span>{{ $variant->total_price  }}</span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                    @if(isset($order->order_details->groupBy('variant_type')['extra']))
-                                        @foreach ($order->order_details->groupBy('variant_type')['extra']->groupBy('product_id') as $product_id_from_extra => $val)
-                                            @if($product_id_from_extra == $product_id_from_size)
-                                                @foreach ($val as $variant)
-                                                    <div class="mb-2 d-flex align-items-center">
-                                                        <div class="line">
-                                                            <span>{{ translate('extra') }} :</span>
-                                                            <span>{{ $variant->variant  }}</span>
-                                                        </div>
-                                                        <div class="line">
-                                                            <span>{{ translate('price') }} :</span>
-                                                            <span>{{ $variant->price  }}</span>
-                                                        </div>
-                                                        <div class="line">
-                                                            <span>{{ translate('quantity') }} :</span>
-                                                            <span>{{ $variant->qty  }}</span>
-                                                        </div>
-                                                        @if($variant->qty > 1)
-                                                            <div class="line">
-                                                                <span>{{ translate('total price') }} :</span>
-                                                                <span>{{ $variant->total_price  }}</span>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                @endforeach
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                </td>
-                                <td></td>
-                                <td><span>{{ $value->pluck('qty')->sum() }}</span></td>
-                                <td><span>{{ $value->pluck('total_price')->sum() }}</span></td>
-                            </tr>
-                        @endif
-                    @endforeach
-                @endif
+                @foreach ($order->order_details as $order_detail)
+                    <tr>
+                        <td>
+                            {{ $order_detail->product->name }}
+                        </td>
+                        <td>
+                            {{ $order_detail->variant }}
+                        </td>
+                        <td>
+                            {{ $order_detail->price }}
+                        </td>
+                        <td>
+                            {{ $order_detail->qty }}
+                        </td>
+                        <td>
+                            @if($order->discount_type == 'percent')
+                                {{ '%' . $order_detail->discount }}
+
+                            @else
+                                {{ $order_detail->discount }}
+                            @endif
+                        </td>
+                        <td>
+                            {{ $order_detail->notes }}
+                        </td>
+                        <td>
+                            @if($order->discount_type == 'percent')
+                                {{ $order_detail->total_price * ($order_detail->discount / 100) }}
+                            @else
+                                {{ $order_detail->total_price - $order_detail->discount }}
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
                 @if($order->coupon)
                     <tr class="items">
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -284,32 +200,9 @@
 
                     </tr>
                 @endif
-                <tr class="item">
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td class="thick-line text-center">
-                        <span>{{ translate('total price without extras') }}</span>
-                    </td>
-                    @if(isset($order->order_details->groupBy('variant_type')['extra']))
-                        <td><span>{{  (($order->grand_total  - $order->shipping -  $order->order_details->groupBy('variant_type')['extra']->pluck('total_price')->sum()) + $order->total_discount) }}</span></td>
-                    @else
-                        <td><span>{{ (( $order->grand_total - $order->shipping) + $order->total_discount)  }}</span></td>
-                    @endif
-                </tr>
-                @if(isset($order->order_details->groupBy('variant_type')['extra']))
-                    <tr class="item">
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="text-center"> <span>{{ translate('total price of extras') }}</span></td>
-                        <td><span>{{ $order->order_details->groupBy('variant_type')['extra']->pluck('total_price')->sum() }}</span></td>
-                    </tr>
-                @endif
                 @if($order->shipping)
                     <tr class="item">
+                        <td class="no-line"></td>
                         <td class="no-line"></td>
                         <td class="no-line"></td>
                         <td class="no-line"></td>
@@ -325,12 +218,14 @@
                         <td class="no-line"></td>
                         <td class="no-line"></td>
                         <td class="no-line"></td>
+                        <td class="no-line"></td>
                         <td class="no-line text-center">
                             <span>{{ translate('discount') }}</span></td>
                         <td class="no-line"><span>{{ $order->total_discount }}</span></td>
                     </tr>
                 @endif
                 <tr class="item">
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -342,7 +237,7 @@
                     </td>
                 </tr>
                 <tr class="item">
-                    <td colspan="6">
+                    <td colspan="7">
                         @php
                             $order_id = $order['id'];
                             \Storage::disk('public')->put('barcodes/' . $order['id'] . '.png',base64_decode(DNS1D::getBarcodePNG("$order_id", 'C128')));
@@ -351,28 +246,28 @@
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: right"  colspan="6">
+                    <td style="text-align: right"  colspan="7">
                         شروط الاسترجاع  داخل الفروع
                         خلال 14 يوم
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: right"  colspan="6">
+                    <td style="text-align: right"  colspan="7">
                         1- عدم غسل المنتج
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: right"  colspan="6">
+                    <td style="text-align: right"  colspan="7">
                         2- عدم استخدام برفيوم علي المنتج
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: right"  colspan="6">
+                    <td style="text-align: right"  colspan="7">
                         3- عدم اللبس
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: right" colspan="6">
+                    <td style="text-align: right" colspan="7">
                         شروط الاستبدال داخل الفروع واون لاين خلال 14 يوم
                         اي مشكله في المنتج بعد اللبس خلال هذه المده بيتم التبديل فور فري ايآ كانت المشكلة ولا يحق للعميل الاسترجاع
                         التبديل فقط
