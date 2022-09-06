@@ -64,7 +64,7 @@
                                     <i class="fas fa-file-pdf"></i>
                                     <span>{{ translate('pos invoice') }}</span>
                                 </button>
-                                <button class="dropdown-item shipping_invoice_btn" type="button" data-name="export" form="shipping_invoice">
+                                <button class="dropdown-item  export_excel_btn" type="button" form="orders_form">
                                     <i class="fas fa-file-csv"></i>
                                     <span>{{ translate('export excel') }}</span>
                                 </button>
@@ -81,7 +81,7 @@
                     </div>
                 </div>
                 <div class="collapse mt-2" id="collapseExample">
-                    <form action="{{ route('orders.index') }}" method="GET">
+                    <form action="{{ route('orders.index') }}" id="orders_form" method="GET">
                         <div class="row">
                             <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
@@ -283,6 +283,11 @@
 
 @section('footerScript')
     <script>
+
+        $(".export_excel_btn").on('click', function() {
+            $(`#${$(this).attr('form')}`).append('<input type="hidden" name="export" value="excel">');
+            $(`#${$(this).attr('form')}`).submit();
+        });
 
 
         $(".shipping_invoice_btn").on('click', function() {

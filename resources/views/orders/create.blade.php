@@ -228,6 +228,9 @@
                                 </div>
                             </div>
                             <div class="col-12">
+                                @error('products')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                                 <table class="table d-block overflow-auto products_table">
                                     <thead>
                                         <th>
@@ -325,7 +328,7 @@
                                                             <div class="customized_files">
                                                                 <div class="form-group">
                                                                     <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[{{ $index }}][files][]">
-                                                                    <button type="button" class="btn btn-primary form-control files">
+                                                                    <button type="button" class="btn btn-primary form-control files" onclick="files('{{ $index }}', true)">
                                                                         <span class="mdi mdi-plus btn-lg"></span>
                                                                     </button>
                                                                 </div>
@@ -521,11 +524,36 @@
                     <option value="${product.id}">${product.sku + ' : ' + product.name}</option>
                 `);
             });
-            $(".select2").select2();
+            $(".products_table .select2").select2();
             $(".cart-of-total-container").removeClass('d-none');
+            files(index);
             product_search();
             remove_row();
         });
+
+        function files(index, editable=null) {
+            if(editable) {
+                let tr = $(`tr#${index}`);
+                tr.find('.input_files').click();
+                tr.find('.input_files').on("change", function(e) {
+                    let files = this.files;
+                    files.forEach(file => {
+                        tr.find(`.customized_files button`).text(files.length);
+                    });
+                });
+            } else {
+                $(".files").on('click', function() {
+                    let tr = $(this).parent().parent().parent().parent();
+                    tr.find('.input_files').click();
+                    tr.find('.input_files').on("change", function(e) {
+                        let files = this.files;
+                        files.forEach(file => {
+                            tr.find(`.customized_files button`).text(files.length);
+                        });
+                    });
+                });
+            }
+        }
 
 
         function product_search() {
@@ -699,6 +727,8 @@
         @if(Auth::user()->role_type == 'inhouse')
             getProductsByBranchId("{{ Auth::user()->branch_id }}", 'inhouse')
         @elseif(Auth::user()->role_type == 'online')
+            getProductsByBranchId(null, null)
+        @else
             getProductsByBranchId(null, null)
         @endif
 

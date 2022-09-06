@@ -229,6 +229,9 @@
                                 </div>
                             </div>
                             <div class="col-12">
+                                @error('products')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                                 <table class="table d-block overflow-auto products_table">
                                     <thead>
                                         <th>
@@ -268,6 +271,7 @@
                                                     @endphp
                                                     <input type="hidden" class="form-control" name="products[{{ $index }}][update]" value="true">
                                                     <input type="hidden" class="form-control" name="products[{{ $index }}][old_id]" value="{{ $order_detail->product_id }}">
+                                                    <input type="hidden" class="form-control" name="products[{{ $index }}][order_detail_id]" value="{{ $order_detail->id }}">
 
                                                     @if(isset($order_detail['price']))
                                                         <input type="hidden" class="form-control input_price" name="products[{{ $index }}][price]" value="{{ $order_detail['price'] }}">
@@ -290,7 +294,7 @@
                                                     </td>
                                                     <td class="sizes_td">
                                                         @if($variants->count() > 0)
-                                                            <select class="select2 products_search" name="products[{{ $index }}][variant_id]">
+                                                            <select class="select2 variant_search" name="products[{{ $index }}][variant_id]">
                                                                 <option value="">{{ translate('choose') }}</option>
                                                                 @foreach ($variants as $product_variant)
                                                                     @php
@@ -298,7 +302,10 @@
                                                                          'variant' => $order_detail['variant']])->first();
                                                                     @endphp
                                                                     <option value="{{ $product_variant->id }}"
-                                                                        @if($variant_prod->id == $product_variant->id) selected @endif>{{ $product_variant->variant }}</option>
+                                                                        @if($variant_prod)
+                                                                            @if($variant_prod->id == $product_variant->id) selected @endif
+                                                                        @endif
+                                                                        >{{ $product_variant->variant }}</option>
                                                                 @endforeach
                                                             </select>
                                                             @error("products.$index.variant_id")
@@ -456,7 +463,7 @@
                                                                 <div class="customized_files">
                                                                     <div class="form-group">
                                                                         <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[{{ $index }}][files][]">
-                                                                        <button type="button" class="btn btn-primary form-control files">
+                                                                        <button type="button" class="btn btn-primary form-control files" onclick="files('{{ $index }}', true)">
                                                                             <span class="mdi mdi-plus btn-lg"></span>
                                                                         </button>
                                                                     </div>
@@ -639,10 +646,18 @@
     });
 
     function files(index, editable=null) {
-        if(index) {
-            console.log(index)
-            if(editable) {
-                let tr = $(`tr#${index}`);
+        if(editable) {
+            let tr = $(`tr#${index}`);
+            tr.find('.input_files').click();
+            tr.find('.input_files').on("change", function(e) {
+                let files = this.files;
+                files.forEach(file => {
+                    tr.find(`.customized_files button`).text(files.length);
+                });
+            });
+        } else {
+            $(".files").on('click', function() {
+                let tr = $(this).parent().parent().parent().parent();
                 tr.find('.input_files').click();
                 tr.find('.input_files').on("change", function(e) {
                     let files = this.files;
@@ -650,18 +665,7 @@
                         tr.find(`.customized_files button`).text(files.length);
                     });
                 });
-            } else {
-                $(".files").on('click', function() {
-                    let tr = $(this).parent().parent().parent().parent();
-                    tr.find('.input_files').click();
-                    tr.find('.input_files').on("change", function(e) {
-                        let files = this.files;
-                        files.forEach(file => {
-                            tr.find(`.customized_files button`).text(files.length);
-                        });
-                    });
-                });
-            }
+            });
         }
     }
 
@@ -726,7 +730,7 @@
                     <option value="${product.id}">${product.sku + ' : ' + product.name}</option>
                 `);
             });
-            $(".select2").select2();
+            $(".products_table .select2").select2();
             $(".cart-of-total-container").removeClass('d-none');
             product_search();
             remove_row();

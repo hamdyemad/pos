@@ -91,6 +91,10 @@ class OrderController extends Controller
             ->where('created_at', '>=', $request->from);
         }
 
+        if($request->export == 'excel') {
+            return Excel::download(new OrderExport($orders->get(), $request->order_type), 'orders.xlsx');
+        }
+
 
         $orders = $orders->paginate(10);
 
@@ -135,6 +139,11 @@ class OrderController extends Controller
             ->where('created_at', '<=', $request->to)
             ->where('created_at', '>=', $request->from);
         }
+
+        if($request->export == 'excel') {
+            return Excel::download(new OrderExport($orders->get(), $request->order_type), 'orders.xlsx');
+        }
+
         $orders = $orders->paginate(10);
         return view('orders.bin_codes', compact('orders', 'statuses', 'branches', 'customers'));
     }
@@ -278,7 +287,7 @@ class OrderController extends Controller
                 'order_id' => $order->id,
                 'status_id' => $status->id
             ]);
-            foreach ($request->products as $productObj) {
+            foreach ($request->products as $index => $productObj) {
                 $product = Product::find($productObj['id']);
                 if($product) {
                     if(isset($productObj['variant_id'])) {
@@ -295,8 +304,8 @@ class OrderController extends Controller
                                 'notes' => $productObj['notes'],
                                 'total_price' => $productVariant->currenctPriceOfVariant->price_after_discount * $productObj['amount']
                             ];
-                            if(isset($variant['files'])) {
-                                foreach ($request->file("products.$product->id.variants.$productVariant->id.files") as $file) {
+                            if(isset($productObj['files'])) {
+                                foreach ($request->file("products.$index.files") as $file) {
                                     $files[] = $this->uploadFiles($file, $this->ordersPath);
                                 }
                                 $orderDetailCreation['files'] = json_encode($files);
@@ -323,7 +332,7 @@ class OrderController extends Controller
                             'total_price' => $price->price_after_discount * $productObj['amount']
                         ];
                         if(isset($productObj['files'])) {
-                            foreach ($request->file("products.$productId.files") as $file) {
+                            foreach ($request->file("products.$index.files") as $file) {
                                 $files[] = $this->uploadFiles($file, $this->ordersPath);
                             }
                             $orderDetailCreation['files'] = json_encode($files);
@@ -423,9 +432,6 @@ class OrderController extends Controller
             return redirect()->back()->with('error', translate('you should choose a 1 minimum of orders'));
         } else {
             $orders = Order::whereIn('id', $request->orders)->get();
-            if($request->type == 'export') {
-                return Excel::download(new OrderExport($orders, $request->order_type), 'orders.xlsx');
-            }
             $mpdf = new Mpdf();
             $mpdf->autoScriptToLang = true;
             $mpdf->autoLangToFont = true;
@@ -544,8 +550,7 @@ class OrderController extends Controller
                             'notes' => $productObj['notes'],
                             'total_price' => $productVariant->currenctPriceOfVariant->price_after_discount * $productObj['amount']
                         ];
-                        $order_detail = OrderDetail::where(['order_id' => $order->id,
-                        'product_id' => $product->id, 'variant' => $productVariant->variant])->first();
+                        $order_detail = OrderDetail::find($productObj['order_detail_id']);
                         if(isset($productObj['files'])) {
                             $files = [];
                             if(isset($productObj['update'])) {
@@ -576,8 +581,6 @@ class OrderController extends Controller
                         if(isset($productObj['update'])) {
                             if($order_detail) {
                                 $order_detail->update($orderDetailCreation);
-                            } else {
-                                OrderDetail::create($orderDetailCreation);
                             }
                         } else {
                             OrderDetail::create($orderDetailCreation);

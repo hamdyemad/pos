@@ -139,23 +139,6 @@
                 </div>
             </div>
         </div>
-        {{-- <div class="col-12 col-md-6">
-            <div class="card-header">
-                <h5 class="m-0 font-weight-bold">{{ translate('all files') }}</h5>
-            </div>
-            <div class="card-body">
-                    <ul class="all_files list-unstyled">
-                        @foreach (json_decode($order->customized_files) as $customized_file)
-                            <li>
-                                <a target="_blank" href="{{ asset($customized_file) }}">
-                                    {{ $loop->index + 1 }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div> --}}
 
     <table class="table products">
         <thead>
@@ -186,19 +169,6 @@
                             <div class="media-body mt-2">
                                 <div class="">
                                     <h3 class="m-0 ml-2">{{ $order_detail->product->name }}</h3>
-                                    @if($order_detail->files)
-                                        <div class="box w-50 mt-2">
-                                            <ul class="all_files list-unstyled">
-                                                @foreach (json_decode($order_detail->files) as $file)
-                                                    <li>
-                                                        <a class="w-100" target="_blank" href="{{ asset($file) }}">
-                                                            {{ $loop->index + 1 }}
-                                                        </a>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -225,17 +195,15 @@
                     @can('orders.files')
                         <td>
                             @if($order_detail->files)
-                                <div class="box w-50 mt-2">
-                                    <ul class="all_files list-unstyled">
-                                        @foreach (json_decode($order_detail->files) as $file)
-                                            <li>
-                                                <a class="w-100" target="_blank" href="{{ asset($file) }}">
-                                                    {{ $loop->index + 1 }}
-                                                </a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
+                                <ul class="all_files list-unstyled">
+                                    @foreach (json_decode($order_detail->files) as $file)
+                                        <li>
+                                            <a class="w-100" target="_blank" href="{{ asset($file) }}">
+                                                {{ $loop->index + 1 }}
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
                             @endif
                         </td>
                     @endcan
