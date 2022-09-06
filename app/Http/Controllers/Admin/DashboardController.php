@@ -20,7 +20,7 @@ class DashboardController extends Controller
     public function index()
     {
         $orders_branches =  Order::where('type', 'inhouse')->latest()->limit(10)->get();
-        $orders_online = Order::where('type', 'online')->latest()->get();
+        $orders_online = Order::where('type', 'online')->latest()->limit(10)->get();
         $productsCount = Product::all()->count();
         $categoriesCount = Category::all()->count();
         $branchesCount = Branch::all()->count();

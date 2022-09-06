@@ -451,6 +451,7 @@ class OrderController extends Controller
      */
     public function edit(Order $order)
     {
+
         $this->authorize('orders.edit');
         $status = Status::where('default_val', 1)->first();
         if($status) {

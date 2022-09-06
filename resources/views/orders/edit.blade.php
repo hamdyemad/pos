@@ -47,7 +47,7 @@
                             <div class="col-12 col-md-6">
                                 <div class="form-group">
                                     <label for="type">{{ translate('discount type') }}</label>
-                                    <select onchange="add_references('discount_type', $(this).val())" class="form-control discount_type select2" name="discount_type">
+                                    <select class="form-control discount_type select2" name="discount_type">
                                         <option value="amount"
                                         @if(request('discount_type') == 'amount')
                                             selected
@@ -72,7 +72,7 @@
                                 <div class="col-12 col-md-6">
                                     <div class="form-group">
                                         <label for="type">{{ translate('order type') }}</label>
-                                        <select onchange="add_references('type', $(this).val())" class="form-control order_type select2" name="type">
+                                        <select class="form-control order_type select2" name="type">
                                             <option value="inhouse"
                                             @if(request('type') == 'inhouse')
                                                 selected
@@ -253,7 +253,7 @@
                                             @foreach ($order->order_details as $order_detail)
                                                 @php
                                                     $index = $loop->index;
-                                                    $variants = App\Models\ProductVariant::where('product_id', $order_detail['id'])->get();
+                                                    $variants = App\Models\ProductVariant::where(['product_id' => $order_detail['product_id']])->get();
                                                 @endphp
                                                 <tr id="{{ $index }}">
                                                     @php
@@ -293,8 +293,12 @@
                                                             <select class="select2 products_search" name="products[{{ $index }}][variant_id]">
                                                                 <option value="">{{ translate('choose') }}</option>
                                                                 @foreach ($variants as $product_variant)
+                                                                    @php
+                                                                        $variant_prod = App\Models\ProductVariant::where(['product_id' => $order_detail['product_id'],
+                                                                         'variant' => $order_detail['variant']])->first();
+                                                                    @endphp
                                                                     <option value="{{ $product_variant->id }}"
-                                                                        @if($order_detail['variant_id'] == $product_variant->id) selected @endif>{{ $product_variant->variant }}</option>
+                                                                        @if($variant_prod->id == $product_variant->id) selected @endif>{{ $product_variant->variant }}</option>
                                                                 @endforeach
                                                             </select>
                                                             @error("products.$index.variant_id")
@@ -331,7 +335,7 @@
                                                             <div class="customized_files">
                                                                 <div class="form-group">
                                                                     <input type="file" class="form-control input_files" multiple accept="image/*" hidden name="products[{{ $index }}][files][]">
-                                                                    <button type="button" class="btn btn-primary form-control files">
+                                                                    <button type="button" class="btn btn-primary form-control files" onclick="files('{{ $index }}', true)">
                                                                         <span class="mdi mdi-plus btn-lg"></span>
                                                                     </button>
                                                                 </div>
@@ -636,8 +640,9 @@
 
     function files(index, editable=null) {
         if(index) {
-            $(".files").on('click', function() {
-                let tr = $(this).parent().parent().parent().parent();
+            console.log(index)
+            if(editable) {
+                let tr = $(`tr#${index}`);
                 tr.find('.input_files').click();
                 tr.find('.input_files').on("change", function(e) {
                     let files = this.files;
@@ -645,7 +650,18 @@
                         tr.find(`.customized_files button`).text(files.length);
                     });
                 });
-            });
+            } else {
+                $(".files").on('click', function() {
+                    let tr = $(this).parent().parent().parent().parent();
+                    tr.find('.input_files').click();
+                    tr.find('.input_files').on("change", function(e) {
+                        let files = this.files;
+                        files.forEach(file => {
+                            tr.find(`.customized_files button`).text(files.length);
+                        });
+                    });
+                });
+            }
         }
     }
 
@@ -879,6 +895,10 @@
 
 
 
+        $(".order_type").on('change', function() {
+            location.href = '{{ route('orders.edit', $order) }}' + '?type=' + $(this).val();
+        });
+
 
 
         $(".branch_select").on('change', function() {
@@ -888,6 +908,8 @@
         @if(Auth::user()->role_type == 'inhouse')
             getProductsByBranchId("{{ Auth::user()->branch_id }}", 'inhouse')
         @elseif(Auth::user()->role_type == 'online')
+            getProductsByBranchId(null, null)
+        @else
             getProductsByBranchId(null, null)
         @endif
 
