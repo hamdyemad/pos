@@ -257,6 +257,9 @@ class UserController extends Controller
         if($request->role_type == 'online') {
             $updateArray['branch_id'] = null;
         }
+        if($request->type == 'sub-admin') {
+            $updateArray['role_type'] = null;
+        }
         $validator = Validator::make($request->all(), $rules, $messages);
         if($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors())->with('error', translate('there is something error'))->withInput($request->all());

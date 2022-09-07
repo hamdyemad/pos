@@ -201,6 +201,10 @@ class OrderController extends Controller
         }
         if($request->products) {
             foreach ($request->products as $i => $productObj) {
+                $product = Product::find($productObj['id']);
+                if($product->variants->count() > 0) {
+                    $rules["products.$i.variant_id"] = ['required'];
+                }
                 $rules["products.$i.id"] = ['required'];
                 $rules["products.$i.amount"] = ['required','integer','min:1'];
                 $mesages["products.$i.amount.required"] = translate('the amount is required');
@@ -322,30 +326,32 @@ class OrderController extends Controller
                         }
                     } else {
                         $price = $product->price_of_currency()->first();
-                        $orderDetailCreation = [
-                            'order_id' => $order->id,
-                            'product_id' => $productObj['id'],
-                            'price' => $price->price_after_discount,
-                            'discount' => $productObj['discount'],
-                            'notes' => $productObj['notes'],
-                            'qty' => $productObj['amount'],
-                            'total_price' => $price->price_after_discount * $productObj['amount']
-                        ];
-                        if(isset($productObj['files'])) {
-                            foreach ($request->file("products.$index.files") as $file) {
-                                $files[] = $this->uploadFiles($file, $this->ordersPath);
+                        if($price) {
+                            $orderDetailCreation = [
+                                'order_id' => $order->id,
+                                'product_id' => $productObj['id'],
+                                'price' => $price->price_after_discount,
+                                'discount' => $productObj['discount'],
+                                'notes' => $productObj['notes'],
+                                'qty' => $productObj['amount'],
+                                'total_price' => $price->price_after_discount * $productObj['amount']
+                            ];
+                            if(isset($productObj['files'])) {
+                                foreach ($request->file("products.$index.files") as $file) {
+                                    $files[] = $this->uploadFiles($file, $this->ordersPath);
+                                }
+                                $orderDetailCreation['files'] = json_encode($files);
+                                $files = [];
                             }
-                            $orderDetailCreation['files'] = json_encode($files);
-                            $files = [];
+                            OrderDetail::create($orderDetailCreation);
+                            $total_price = $price->price_after_discount * $productObj['amount'];
+                            if($request->discount_type == 'amount') {
+                                $pricePushedToGrand = ($total_price - $productObj['discount']);
+                            } else {
+                                $pricePushedToGrand = $total_price - (($total_price * $productObj['discount']) / 100);
+                            }
+                            array_push($grand_total, $pricePushedToGrand);
                         }
-                        OrderDetail::create($orderDetailCreation);
-                        $total_price = $price->price_after_discount * $productObj['amount'];
-                        if($request->discount_type == 'amount') {
-                            $pricePushedToGrand = ($total_price - $productObj['discount']);
-                        } else {
-                            $pricePushedToGrand = $total_price - (($total_price * $productObj['discount']) / 100);
-                        }
-                        array_push($grand_total, $pricePushedToGrand);
                     }
                 }
             }
@@ -463,6 +469,7 @@ class OrderController extends Controller
         if($status) {
             $customers = Customer::orderBy('name')->get();
             $countries = Country::where('active', '1')->get();
+
             $branches = Branch::orderBy('name')->get();
             if($order->city) {
                 $cities = City::where('country_id', $order->city->country_id)->get();
@@ -519,6 +526,7 @@ class OrderController extends Controller
         if($this->validateOrder($request)) {
             return $this->validateOrder($request);
         }
+
 
         if($request->customer_id == null) {
             $customer = Customer::create([

@@ -140,6 +140,22 @@
                                             </select>
                                         </div>
                                     </div>
+                                    @if($order->city_id !== null)
+                                        <div class="col-12 col-md-6 city_col">
+                                            <div class="form-group">
+                                                <label for="city_id">{{ translate('city') }}</label>
+                                                <select class="form-control select_city select2" name="city_id">
+                                                    @foreach ($cities as $city)
+                                                        <option value="{{ $city->id }}"  data-shipping="{{ $city->price }}"
+                                                            @if($order->city_id == $city->id) selected @endif>{{ $city->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('city_id')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    @endif
                                 @endif
                             @endif
                             <div class="col-12 d-flex align-items-end">
@@ -961,7 +977,8 @@
                     if(res.status) {
                         $(".select_city").select2().html('');
                         res.data.forEach((obj) => {
-                            $(".select_city").append(`<option value="${obj.id}" data-shipping="${obj.price}">${obj.name}</option>`);
+                            $(".select_city").append(`<option value="${obj.id}" data-shipping="${obj.price}"
+                            >${obj.name}</option>`);
                         });
                         $('.shipping_tr').removeClass('d-none');
                         $(".shipping_tr .shipping").text($(".select_city option:selected").data('shipping'))
@@ -978,6 +995,11 @@
             });
         }
 
+        $(".select_city").on('change', function() {
+            $(".shipping_tr .shipping").text($(".select_city option:selected").data('shipping'))
+            getFullPrice();
+        })
+
 
         // Get Cities By Country id
         function getCitiesByCountryId() {
@@ -991,7 +1013,9 @@
                 getCitiesByCountryIdAjax(country_id);
             });
         }
-        getCitiesByCountryId();
+        @if($order->type !== 'online')
+            getCitiesByCountryId();
+        @endif
 
         function getFullPrice() {
             let prices = [],
