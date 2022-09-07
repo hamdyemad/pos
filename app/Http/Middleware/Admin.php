@@ -19,7 +19,7 @@ class Admin
         if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin' || Auth::user()->type == 'user') {
             return $next($request);
         } else {
-            return redirect(route('frontend.home'));
+            return redirect(route('dashboard'));
         }
     }
 }

@@ -43,7 +43,7 @@ class OrderController extends Controller
     {
         $this->authorize('orders.index');
         Carbon::setLocale(app()->getLocale());
-        $orders = Order::where('under_approve', 0)->latest();
+        $orders = Order::latest();
         if(count(Auth::user()->statuses_permessions()) > 0) {
             $orders = $orders->whereIn('status_id', Auth::user()->statuses_permessions());
         }
