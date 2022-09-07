@@ -227,6 +227,14 @@
                                     @enderror
                                 </div>
                             </div>
+                            @if(Auth::user()->role_type == 'inhouse')
+                                <div class="col-12">
+                                    <div class="form-group form-check">
+                                        <input type="checkbox" name="print" value="true" checked class="form-check-input" id="exampleCheck1">
+                                        <label class="form-check-label" for="exampleCheck1">print order</label>
+                                    </div>
+                                </div>
+                            @endif
                             <div class="col-12">
                                 @error('products')
                                     <div class="text-danger">{{ $message }}</div>

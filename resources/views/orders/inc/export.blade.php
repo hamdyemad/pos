@@ -6,9 +6,13 @@
             <td>order number</td>
             <td>name</td>
             <td>phone</td>
+            <td>phone2</td>
             <td>address</td>
             <td>qty's</td>
             <td>payment method</td>
+            <td>branch</td>
+            <td>type</td>
+            <td>status</td>
             @if($order_type)
                 <td>employee name</td>
                 <td>pincode</td>
@@ -36,9 +40,17 @@
                 <td>{{ $order->id }}</td>
                 <td>{{ $order->customer->name }}</td>
                 <td>{{ $order->customer->phone }}</td>
+                <td>{{ $order->customer->phone2 }}</td>
                 <td>{{ $order->customer->address }}</td>
                 <td>{{ $order->order_details()->pluck('qty')->sum() }}</td>
                 <td>{{ $order->payment_method }}</td>
+                <td>
+                    @if($order->branch)
+                        {{ $order->branch->name }}
+                    @endif
+                </td>
+                <td>{{ $order->type }}</td>
+                <td>{{ $order->status->name }}</td>
                 @if($order_type)
                     <td>{{ App\User::where('bin_code', $order->bin_code)->first()->name }}</td>
                     <td>{{ $order->bin_code }}</td>
@@ -66,6 +78,10 @@
             </tr>
         @endforeach
         <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>

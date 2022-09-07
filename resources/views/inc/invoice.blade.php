@@ -87,6 +87,19 @@
                                         <span>واتساب</span>
                                     </a>
                                 @endif
+                                @if($order->customer->phone2)
+                                    <div class="mobile" style="direction: ltr">
+                                        <a href="tel:+2{{ $order->customer->phone2 }}">
+                                            <i class="fas fa-phone-alt"></i>
+                                            <span>اتصال</span>
+                                        </a>
+                                        <span>{{ $order->customer->phone2 }}</span>
+                                    </div>
+                                    <a href="https://wa.me/+2{{ $order->customer->phone2 }}">
+                                        <i class="fab fa-whatsapp"></i>
+                                        <span>واتساب</span>
+                                    </a>
+                                @endif
                                 {{-- @if($order['customer']['email'])
                                     <a href="mailto:{{ $order['customer']['email'] }}">
                                         <i class="far fa-envelope"></i>

@@ -80,15 +80,15 @@ class OrderController extends Controller
             $orders = $orders->where('status_id', 'like', '%' . $request->status_id .'%');
         }
         if($request->from) {
-            $orders = $orders->where('created_at', '>=', $request->from);
+            $orders = $orders->whereDate('created_at', '>=', $request->from);
         }
         if($request->to) {
-            $orders = $orders->where('created_at', '<=', $request->to);
+            $orders = $orders->whereDate('created_at', '<=', $request->to);
         }
         if($request->to && $request->from) {
             $orders = $orders
-            ->where('created_at', '<=', $request->to)
-            ->where('created_at', '>=', $request->from);
+            ->whereDate('created_at', '<=', $request->to)
+            ->whereDate('created_at', '>=', $request->from);
         }
 
         if($request->export == 'excel') {
@@ -128,20 +128,20 @@ class OrderController extends Controller
             $orders = $orders->where('status_id', 'like', '%' . $request->status_id .'%');
         }
         if($request->from) {
-            $orders = $orders->where('created_at', '>=', $request->from);
+            $orders = $orders->whereDate('created_at', '>=', $request->from);
         }
         if($request->to) {
-            $orders = $orders->where('created_at', '<=', $request->to);
+            $orders = $orders->whereDate('created_at', '<=', $request->to);
         }
 
         if($request->to && $request->from) {
             $orders = $orders
-            ->where('created_at', '<=', $request->to)
-            ->where('created_at', '>=', $request->from);
+            ->whereDate('created_at', '<=', $request->to)
+            ->whereDate('created_at', '>=', $request->from);
         }
 
         if($request->export == 'excel') {
-            return Excel::download(new OrderExport($orders->get(), $request->order_type), 'orders.xlsx');
+            return Excel::download(new OrderExport($orders->get(), true), 'orders.xlsx');
         }
 
         $orders = $orders->paginate(10);
@@ -550,7 +550,9 @@ class OrderController extends Controller
                             'notes' => $productObj['notes'],
                             'total_price' => $productVariant->currenctPriceOfVariant->price_after_discount * $productObj['amount']
                         ];
-                        $order_detail = OrderDetail::find($productObj['order_detail_id']);
+                        if(isset($productObj['order_detail_id'])) {
+                            $order_detail = OrderDetail::find($productObj['order_detail_id']);
+                        }
                         if(isset($productObj['files'])) {
                             $files = [];
                             if(isset($productObj['update'])) {
