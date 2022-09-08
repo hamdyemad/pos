@@ -64,10 +64,12 @@
                                     <i class="fas fa-file-pdf"></i>
                                     <span>{{ translate('pos invoice') }}</span>
                                 </button>
-                                <button class="dropdown-item  export_excel_btn" type="button" form="orders_form">
-                                    <i class="fas fa-file-csv"></i>
-                                    <span>{{ translate('export excel') }}</span>
-                                </button>
+                                @can('orders.excel')
+                                    <button class="dropdown-item  export_excel_btn" type="button" form="orders_form">
+                                        <i class="fas fa-file-csv"></i>
+                                        <span>{{ translate('export excel') }}</span>
+                                    </button>
+                                @endcan
                                 <button class="dropdown-item" href="#" data-toggle="modal" data-target="#statusModal">
                                     <i class="fas fa-edit"></i>
                                     <span>{{ translate('change order status') }}</span>

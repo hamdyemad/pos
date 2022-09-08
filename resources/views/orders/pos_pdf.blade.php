@@ -8,14 +8,10 @@
         <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
 		<style>
 			.invoice-box {
-                /* width: 302.36220472; */
-				padding: 30px;
                 margin: auto;
-				border: 1px solid #eee;
-                height: 100%;
-				box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+                width: 260px;
+                height: 1056px;
 				font-size: 16px;
-				line-height: 24px;
 				font-family: "Cairo", sans-serif;
 			}
 
@@ -63,8 +59,8 @@
         }
 
         .logo {
-            width: 250px;
-            height: 200px;
+            width: 200px;
+            height: 150px;
         }
 
 		</style>
@@ -85,10 +81,12 @@
                     <td colspan="2">{{ translate('date') }}</td>
                     <td class="text-center" colspan="4">{{ \Carbon\Carbon::createFromDate($order->created_at)->format('Y-m-d') }}</td>
                 </tr>
-                <tr class="info">
-                    <td colspan="2">{{ translate('branch') }}</td>
-                    <td class="text-center" colspan="4">{{ $order->branch->name }}</td>
-                </tr>
+                @if($order->branch)
+                    <tr class="info">
+                        <td colspan="2">{{ translate('branch') }}</td>
+                        <td class="text-center" colspan="4">{{ $order->branch->name }}</td>
+                    </tr>
+                @endif
                 @if($order->customer)
                     <tr class="info">
                         <td colspan="2">{{ translate('name') }}</td>
