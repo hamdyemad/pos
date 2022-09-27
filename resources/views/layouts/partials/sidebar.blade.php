@@ -93,7 +93,7 @@
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="mdi mdi-cart-outline"></i>
                         @if($orders_count !== 0)
-                        <span class="badge badge-pill badge-primary float-right">{{ $orders_count }}</span>
+                            <span class="badge badge-pill badge-primary float-right">{{ $orders_count }}</span>
                         @endif
                         <span>{{ translate('orders') }}</span>
                     </a>
@@ -148,21 +148,38 @@
                          </ul>
                      </li>
                  @endcan
-                 @can('products.index')
-                     <li>
-                         <a href="javascript: void(0);" class="has-arrow waves-effect">
-                             <i class="mdi mdi-inbox"></i>
+                 @if(
+                 Auth::user()->can('products.index') ||
+                 Auth::user()->can('products.create') ||
+                 Auth::user()->can('products.statuses.index') ||
+                 Auth::user()->can('products.statuses.create') ||
+                 Auth::user()->can('products.transactions.index') ||
+                 Auth::user()->can('products.transactions.index')
+                 )
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="mdi mdi-inbox"></i>
 
-                             <span>{{ translate('products') }}</span>
-                         </a>
-                         <ul class="sub-menu" aria-expanded="false">
-                             <li><a href="{{ route('products.index') }}">{{ translate('all products') }}</a></li>
-                             @can('products.create')
-                                 <li><a href="{{ route('products.create') }}">{{ translate('create product') }}</a></li>
-                             @endcan
-                         </ul>
+                            <span>{{ translate('products') }}</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            <li><a href="{{ route('products.index') }}">{{ translate('all products') }}</a></li>
+                            @can('products.create')
+                                <li><a href="{{ route('products.create') }}">{{ translate('create product') }}</a></li>
+                            @endcan
+                            @can('products.transactions.index')
+                                <li><a href="{{ route('products.transactions.index') }}">{{ translate('all transactions') }}</a></li>
+                            @endcan
+
+                            @can('products.statuses.index')
+                                <li><a href="{{ route('products.statuses.index') }}">{{ translate('transaction statuses') }}</a></li>
+                            @endcan
+                            @can('products.statuses.create')
+                                <li><a href="{{ route('products.statuses.create') }}">{{ translate('create transaction statuses') }}</a></li>
+                            @endcan
+                        </ul>
                      </li>
-                 @endcan
+                 @endif
                  @can('countries.index')
                      <li>
                          <a href="javascript: void(0);" class="has-arrow waves-effect">

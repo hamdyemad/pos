@@ -3966,16 +3966,35 @@ body {
   }
 }
 
+.admin .all_products .dropdown-toggle {
+  padding: 10px !important;
+}
+
 @media (max-width: 991px) {
   .admin .show_product .card-header h1 {
     font-size: 20px;
   }
 }
 
-.admin .show_product img {
+.admin .show_product .photos {
   width: 100% !important;
   height: 100% !important;
   border-radius: 10px;
+}
+
+.admin .show_product .barcode {
+  width: 250px;
+  height: 60px;
+}
+
+@media (max-width: 991px) {
+  .admin .show_product .barcode {
+    margin-bottom: 10px;
+  }
+
+  .admin .show_product .barcode.main {
+    width: 100%;
+  }
 }
 
 .admin .show_product .owl-stage {
@@ -4083,8 +4102,8 @@ body {
   border-radius: 5px;
 }
 
-.admin .create_order table input,
-.admin .create_order table textarea {
+.admin .create_order .products_table input,
+.admin .create_order .products_table textarea {
   width: 150px !important;
 }
 

@@ -185,6 +185,13 @@
                                                         @enderror
                                                     </div>
                                                     <div class="form-group">
+                                                        <label for="customer_phone">{{ translate('customer phone 2') }}</label>
+                                                        <input type="text" class="form-control" name="customer_phone2" value="{{ old('customer_phone2') }}">
+                                                        @error('customer_phone2')
+                                                            <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="form-group">
                                                         <label for="customer_address">{{ translate('customer address') }}</label>
                                                         <input type="text" class="form-control" name="customer_address" value="{{ old('customer_address') }}">
                                                         @error('customer_address')
@@ -233,6 +240,20 @@
                                         <input type="checkbox" name="print" value="true" checked class="form-check-input" id="exampleCheck1">
                                         <label class="form-check-label" for="exampleCheck1">print order</label>
                                     </div>
+                                </div>
+                            @endif
+                            @if(Auth::user()->role_type == 'inhouse')
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="notes">{{ translate('scan') }}</label>
+                                        <textarea id="scan" class="form-control" maxlength="225"
+                                            rows="3"></textarea>
+                                    </div>
+                                    <audio class="d-none scanner_sound" controls>
+                                        <source src="{{ asset('scanner.mp3') }}" type="audio/ogg">
+                                        <source src="{{ asset('scanner.mp3') }}" type="audio/mpeg">
+                                        Your browser does not support the audio element.
+                                    </audio>
                                 </div>
                             @endif
                             <div class="col-12">
@@ -431,6 +452,7 @@
 @section('footerScript')
     <script>
 
+
             let address_col = `
                 <div class="col-12 col-md-6 address_col">
                     <div class="form-group">
@@ -523,19 +545,50 @@
             `;
         }
 
+        @if(Auth::user()->role_type == 'inhouse')
+            $("#scan").focus();
+        @endif
+
+        $("#scan").on('keyup', function() {
+            let scan_value = $(this).val();
+            let product_id = null;
+            if(scan_value !== undefined) {
+                product_id = scan_value.split('.')[0];
+            }
+            let finded_product = products.find((product) => {
+                if(product.id == product_id) {
+                    return product;
+                }
+            })
+            if(finded_product) {
+                $(".scanner_sound")[0].play();
+                $(".add_row").click();
+                $(this).val('');
+            } else {
+                toastr.info('there is no product');
+            }
+        });
+
 
         $(".add_row").on('click', function() {
+            let scan_value = $("#scan").val();
+            let product_id = null;
+            if(scan_value !== undefined) {
+                product_id = scan_value.split('.')[0];
+            }
             index++;
             $(".products_table tbody").append(tr(index));
             products.forEach(product => {
                 $(".products_search").append(`
-                    <option value="${product.id}">${product.sku + ' : ' + product.name}</option>
+                    <option value="${product.id}" ${product_id == product.id ? 'selected' : ''}>${product.sku + ' : ' + product.name}</option>
                 `);
             });
             $(".products_table .select2").select2();
             $(".cart-of-total-container").removeClass('d-none');
-            files(index);
+
+            product_search_on_value(index);
             product_search();
+            files(index);
             remove_row();
         });
 
@@ -563,6 +616,104 @@
             }
         }
 
+        function product_search_on_value(index) {
+            let scan_value = $("#scan").val(),
+                variant_id = null;
+            if(scan_value !== undefined) {
+                variant_id = scan_value.split('.')[1];
+            }
+
+            let tr = $(".products_table tbody").find(`tr#${index}`),
+                product_id = tr.find(".products_search").val(),
+                product_old_id = tr.find(".products_search").data('product_id');
+                if(product_old_id) {
+                    product = products.find(obj => obj.id == product_old_id);
+                } else {
+                    product = products.find(obj => obj.id == product_id);
+                }
+                if(product) {
+                    if(product.price_of_currency) {
+                        $(`.products_table tbody tr#${index} input.price_input`).remove();
+
+                        $(`.products_table tbody tr#${index}`).append(`
+                            <input class="price_input" type="hidden" name="products[${index}][price]" value="${product.price_of_currency.price_after_discount}">
+                        `);
+                        $(`.products_table tbody tr#${index} .price`).text(product.price_of_currency.price_after_discount);
+                        $(`.products_table tbody tr#${index} .total_price`).text(product.price_of_currency.price_after_discount * 1);
+                    } else {
+                        $(`.products_table tbody tr#${index} input.price_input`).remove();
+                        $(`.products_table tbody tr#${index}`).append(`
+                            <input class="price_input" type="hidden" name="products[${index}][price]" value="0">
+                        `);
+                        $(`.products_table tbody tr#${index} .price`).text(0);
+                        $(`.products_table tbody tr#${index} .total_price`).text(0);
+                    }
+                    if(product.variants) {
+                        let sizes = [],
+                            extras = [];
+                        product.variants.forEach((variant) => {
+                            if(variant.type == 'size') {
+                                sizes.push(variant);
+                            }
+                            if(variant.type == 'extra') {
+                                extras.push(variant);
+                            }
+                        });
+                        if(sizes.length !== 0) {
+                            $(`.products_table tbody tr#${index} .sizes_td`).empty();
+                            $(`.products_table tbody tr#${index} .sizes_td`).append(`
+                                <select class="select2 variant_search" name="products[${index}][variant_id]">
+                                    <option value="">{{ translate('choose') }}</option>
+                                </select>
+                            `);
+                            $(`.products_table tbody tr#${index} .sizes_td .variant_search`).select2();
+
+                            sizes.forEach((size) => {
+                                $(`.products_table tbody tr#${index} .sizes_td .variant_search`).append(`
+                                    <option value="${size.id}" ${variant_id == size.id ? 'selected' : ''} data-variant='${JSON.stringify(size)}'
+
+                                    >${size.variant}</option>
+                                `);
+                            });
+                        } else if(sizes.length == 0) {
+                            $(`.products_table tbody tr#${index} .sizes_td`).empty();
+                            $(`.products_table tbody tr#${index} .sizes_td`).append('--');
+                        }
+                        if(extras.length !== 0) {
+                            $(`.products_table tbody tr#${index} .extras_td`).empty();
+                            $(`.products_table tbody tr#${index} .extras_td`).append(`
+                                <select class="select2 variant_search" name="products[${index}][variant_id]">
+                                    <option value="">{{ translate('choose') }}</option>
+                                </select>
+                            `);
+                            $(`.products_table tbody tr#${index} .extras_td .variant_search`).select2();
+
+                            extras.forEach((extra) => {
+                                $(`.products_table tbody tr#${index} .extras_td .variant_search`).append(`
+                                    <option value="${extra.id}" data-variant='${JSON.stringify(extra)}'
+
+                                    >${extra.variant}</option>
+                                `);
+                            });
+                        } else if(extras.length == 0) {
+                            $(`.products_table tbody tr#${index} .extras_td`).empty();
+                            $(`.products_table tbody tr#${index} .extras_td`).append('--');
+                        }
+                        variant_search_on_value(product_id, index);
+                        variant_search(product_id);
+                    }
+                } else {
+                    $(`.products_table tbody tr#${index} input.price_input`).remove();
+                    $(`.products_table tbody tr#${index}`).append(`
+                        <input class="price_input" type="hidden" name="products[${index}][price]" value="0">
+                    `);
+                    $(`.products_table tbody tr#${index} .price`).text(0);
+                    $(`.products_table tbody tr#${index} .total_price`).text(0);
+                }
+                amountChange();
+                product_price();
+                getFullPrice();
+        }
 
         function product_search() {
             $(".products_search").on('change', function() {
@@ -642,6 +793,7 @@
                             $(`.products_table tbody tr#${index} .extras_td`).empty();
                             $(`.products_table tbody tr#${index} .extras_td`).append('--');
                         }
+                        variant_search_on_value(product_id);
                         variant_search(product_id);
                     }
                 } else {
@@ -666,6 +818,62 @@
             });
         }
         remove_row();
+
+        function variant_search_on_value(product_id, index) {
+            let scan_value = $("#scan").val();
+
+            if(product_id) {
+                let product = products.find(obj => obj.id == product_id);
+            } else {
+                let product = products.find(obj => obj.id == $(".variant_search").attr('product_id'));
+            }
+            let tr = $(".products_table tbody").find(`tr#${index}`);
+
+            if(scan_value !== undefined) {
+                let variant_id = scan_value.split('.')[1];
+                let variant = tr.find(".variant_search").find(`option[value=${variant_id}]`).data('variant');
+                $.ajax({
+                    'method': 'GET',
+                    'data': {
+                        variant_id: variant_id,
+                    },
+                    'url' : `{{ route('products.variant_price') }}`,
+                    'success': function(res) {
+                        let price = res.price_after_discount;
+                        tr.find('input.price_input').remove();
+                        tr.append(`
+                            <input class="price_input" type="hidden" name="products[${index}][price]" value="${price}">
+                        `);
+                        tr.find(`.price`).text(price);
+                        tr.find(`.total_price`).text(price * 1);
+                        amountChange();
+                        product_price();
+                        getFullPrice();
+                    },
+                    'erorr' : function(err) {
+                        console.log(err);
+                    }
+                });
+            } else {
+                $(`.products_table tbody tr#${index} input.price_input`).remove();
+                if(product.price_of_currency) {
+                    $(`.products_table tbody tr#${index}`).append(`
+                        <input class="price_input" type="hidden" name="products[${index}][price]" value="${product.price_of_currency.price_after_discount}">
+                    `);
+                    $(`.products_table tbody tr#${index} .price`).text(product.price_of_currency.price_after_discount);
+                    $(`.products_table tbody tr#${index} .total_price`).text(product.price_of_currency.price_after_discount * 1);
+                } else {
+                    $(`.products_table tbody tr#${index}`).append(`
+                        <input class="price_input" type="hidden" name="products[${index}][price]" value="0">
+                    `);
+                    $(`.products_table tbody tr#${index} .price`).text(0);
+                    $(`.products_table tbody tr#${index} .total_price`).text(0);
+                }
+            }
+            amountChange();
+            product_price();
+            getFullPrice();
+        }
 
         function variant_search(product_id) {
             $(".variant_search").on('change', function() {

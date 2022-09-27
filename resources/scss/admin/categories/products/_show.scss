@@ -6,10 +6,20 @@
             }
         }
     }
-    img {
+    .photos {
         width: 100% !important;
         height: 100% !important;
         border-radius: 10px;
+    }
+    .barcode {
+        width: 250px;
+        height: 60px;
+        @media(max-width: 991px) {
+            &.main {
+                width: 100%;
+            }
+            margin-bottom: 10px;
+        }
     }
     .owl-stage {
         margin: auto;

@@ -58,7 +58,7 @@ class OrderController extends Controller
         if(Auth::user()->role_type == 'inhouse') {
             $statuses = Status::where('order_type', 'inhouse')->get();
             if(!$request->customer_id) {
-                $orders = $orders->where('type', 'inhouse');
+                $orders = $orders->where('type', 'inhouse')->where('user_id', auth()->id());
             }
         }
         $branches = Branch::all();
@@ -92,8 +92,10 @@ class OrderController extends Controller
         }
 
         if($request->export == 'excel') {
-            return Excel::download(new OrderExport($orders->get(), $request->order_type), 'orders.xlsx');
+            return Excel::download(new OrderExport($orders->with('customer')->get(), $request->order_type), 'orders.xlsx');
         }
+
+
 
 
         $orders = $orders->paginate(10);
@@ -276,8 +278,10 @@ class OrderController extends Controller
             }
             if($request->customer_id == null) {
                 $customer = Customer::create([
+                    'user_id' => Auth::id(),
                     'name' => $request->customer_name,
                     'phone' => $request->customer_phone,
+                    'phone2' => $request->customer_phone2,
                     'email' => $request->customer_email,
                     'address' => $request->customer_address,
                     'type' => $request->customer_type,
@@ -530,8 +534,10 @@ class OrderController extends Controller
 
         if($request->customer_id == null) {
             $customer = Customer::create([
+                'user_id' => Auth::id(),
                 'name' => $request->customer_name,
                 'phone' => $request->customer_phone,
+                'phone2' => $request->customer_phone2,
                 'email' => $request->customer_email,
                 'address' => $request->customer_address,
                 'type' => $request->customer_type,

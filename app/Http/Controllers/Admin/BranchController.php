@@ -32,6 +32,8 @@ class BranchController extends Controller
          }
         $branches = $branches->paginate(10);
         return view('branches.index', compact('branches'));
+
+
     }
 
     /**

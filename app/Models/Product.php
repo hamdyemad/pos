@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     protected $fillable = [
-        'name','count','sku','photos','description','active','viewed_number'
+        'name','count','sku','photos', 'barcode','description','active','viewed_number'
     ];
 
     public function prices() {
@@ -24,5 +24,9 @@ class Product extends Model
 
     public function price_of_currency() {
         return $this->hasOne(ProductPrice::class, 'product_id');
+    }
+
+    public function branches_qty() {
+        return $this->hasMany(BranchProductQty::class, 'product_id')->orderBy('branch_id');
     }
 }

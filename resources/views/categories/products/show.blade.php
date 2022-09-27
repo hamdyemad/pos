@@ -16,16 +16,15 @@
     <div class="show_product">
         <div class="card">
             <div class="card-header text-center text-md-left flex-column-reverse d-flex flex-md-row justify-content-between">
-                <div class="text-left">
-                    <h1>{{ translate('information about') . ' ' . $product->name }}</h1>
-                </div>
+                <h1>{{ translate('information about') . ' ' . $product->name }}</h1>
+                <img class="barcode main" src="{{ asset('products_barcodes/' . $product->barcode) }}" alt="">
             </div>
             <div class="card-body">
                 <div class="owl-carousel owl-theme" style="direction: ltr">
                     @if($product->photos)
                         @foreach (json_decode($product->photos) as $photo)
                             <div class="item">
-                                <img src="{{ asset($photo) }}" alt="">
+                                <img class="photos" src="{{ asset($photo) }}" alt="">
                             </div>
                         @endforeach
                     @else
@@ -41,6 +40,7 @@
                                 <th>{{ translate('price') }}</th>
                                 <th>{{ translate('discount') }}</th>
                                 <th><span class="max">{{ translate('price after discount') }}</span></th>
+                                <th>{{ translate('barcode') }}</th>
                             </thead>
                             <tbody>
                                 @foreach ($product->variants->groupBy('type')['size'] as $variant)
@@ -49,6 +49,9 @@
                                         <td>{{ $variant->price->price }}</td>
                                         <td>{{ $variant->price->discount }}</td>
                                         <td>{{ $variant->price->price_after_discount }}</td>
+                                        <td>
+                                            <img class="barcode" src="{{ asset('products_barcodes/' . $variant->barcode) }}" alt="">
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -56,22 +59,40 @@
                     </div>
                     @endif
                     @if(isset($product->variants->groupBy('type')['extra']))
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <th>{{ translate('extra') }}</th>
-                                <th>{{ translate('price') }}</th>
-                            </thead>
-                            <tbody>
-                                @foreach ($product->variants->groupBy('type')['extra'] as $variant)
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <th>{{ translate('extra') }}</th>
+                                    <th>{{ translate('price') }}</th>
+                                </thead>
+                                <tbody>
+                                    @foreach ($product->variants->groupBy('type')['extra'] as $variant)
+                                        <tr>
+                                            <td>{{ $variant->variant }}</td>
+                                            <td>{{ $variant->price->price_after_discount }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                    @if($product->branches_qty->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    @foreach ($product->branches_qty as $branch_data)
+                                        <td>{{ $branch_data->branch->name }}</td>
+                                    @endforeach
+                                </thead>
+                                <tbody>
                                     <tr>
-                                        <td>{{ $variant->variant }}</td>
-                                        <td>{{ $variant->price->price_after_discount }}</td>
+                                        @foreach ($product->branches_qty as $branch_data)
+                                            <td>{{ $branch_data->qty }}</td>
+                                        @endforeach
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                                </tbody>
+                            </table>
+                        </div>
                     @endif
                 @endif
                 <a class="btn btn-info btn-block" href="{{ route('products.index') }}">

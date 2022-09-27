@@ -75,6 +75,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th><span class="max">{{ translate("user who's add customer") }}</span></th>
                                 <th>{{ translate('name') }}</th>
                                 <th>{{ translate('address') }}</th>
                                 <th>{{ translate('phone') }}</th>
@@ -91,8 +92,15 @@
                             @foreach ($customers as $customer)
                                 <tr>
                                     <th scope="row">{{ $customer->id }}</th>
-                                    <td>{{ translate($customer->name) }}</td>
-                                    <td>{{ translate($customer->address) }}</td>
+                                    <td>
+                                        @if($customer->user)
+                                            {{ $customer->user->name }}
+                                        @else
+                                            --
+                                        @endif
+                                    </td>
+                                    <td>{{ $customer->name }}</td>
+                                    <td>{{ $customer->address }}</td>
                                     <td>{{ $customer->phone }}</td>
                                     <td>{{ $customer->phone2 }}</td>
                                     <td>{{ $customer->email }}</td>
@@ -132,7 +140,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                    {{ $customers->links() }}
+                    {{ $customers->appends(request()->all())->links() }}
                 </div>
             @endif
         </div>

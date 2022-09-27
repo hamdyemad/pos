@@ -14,14 +14,28 @@
         <div class="card">
             <div class="card-header">
                 <div class="d-flex flex-column flex-md-row text-center text-md-right justify-content-between">
-                    <h2>{{ translate('products') }}</h2>
-                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                        <i class="fa fa-filter" aria-hidden="true"></i>
-                        <span>{{ translate('filter') }}</span>
-                    </button>
+                    <h2>{{ translate('products') . ' ('. $products->count() . ')' }}</h2>
+                    <div class="d-flex">
+                        <div class="dropdown mr-2">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-edit"></i>
+                                <span>{{ translate('quick edit') }}</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <button class="dropdown-item  print_barcode_btn" type="button" form="products_form">
+                                    <i class="fas fa-file-csv"></i>
+                                    <span>{{ translate('print barcodes') }}</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                            <i class="fa fa-filter" aria-hidden="true"></i>
+                            <span>{{ translate('filter') }}</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="collapse mt-2" id="collapseExample">
-                    <form action="{{ route('products.index') }}" method="GET">
+                    <form action="{{ route('products.index') }}" method="GET" id="products_form">
                         <div class="row">
                             <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
@@ -69,13 +83,6 @@
                                         value="{{ request('price_after_discount') }}">
                                 </div>
                             </div>
-                            {{-- <div class="col-12 col-md-6 col-lg-3">
-                                <div class="form-group">
-                                    <label for="viewed_number">{{ translate('appearance number') }}</label>
-                                    <input class="form-control" name="viewed_number" type="number"
-                                        value="{{ request('viewed_number') }}">
-                                </div>
-                            </div> --}}
                             <div class="col-12 col-md-6 col-lg-3">
                                 <div class="form-group">
                                     <label for="category">{{ translate('available') }}</label>
@@ -119,12 +126,10 @@
                                     <th><span>{{ translate('sku') }}</span></th>
                                     <th><span>{{ translate('product name') }}</span></th>
                                     <th><span>{{ translate('categories') }}</span></th>
-                                    {{-- <th><span>{{ translate('description') }}</span></th> --}}
                                     <th><span>{{ translate('available') }}</span></th>
-                                    {{-- <th><span>{{ translate('appearance number') }}</span></th> --}}
                                     <th><span>{{ translate('creation date') }}</span></th>
                                     <th><span>{{ translate('last update date') }}</span></th>
-                                    <th><span>{{ translate('settings') }}</span></th>
+                                    <th colspan="3"><span>{{ translate('settings') }}</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -143,13 +148,6 @@
                                                 <a class="h4 d-block" href="{{ route('categories.show', $category->id) }}">{{ $category->name }}</a>
                                             @endforeach
                                         </td>
-                                        {{-- <td>
-                                            @if (strlen($product->description) > 20)
-                                                {{ substr($product->description, 0, 20) . '...' }}
-                                            @else
-                                                {{ $product->description }}
-                                            @endif
-                                        </td> --}}
                                         <td>
                                             @if ($product->active)
                                                 <div class="badge badge-success w-100 p-2">{{ translate('yes') }}</div>
@@ -157,16 +155,13 @@
                                                 <div class="badge badge-secondary w-100">{{ translate('no') }}</div>
                                             @endif
                                         </td>
-                                        {{-- <td>
-                                            {{ $product->viewed_number }}
-                                        </td> --}}
                                         <td>
                                             {{ $product->created_at->diffForHumans() }}
                                         </td>
                                         <td>
                                             {{ $product->updated_at->diffForHumans() }}
                                         </td>
-                                        <td>
+                                        <td colspan="3">
                                             <div class="options d-flex">
                                                 @can('products.show')
                                                     <a class="btn btn-success mr-1"
@@ -210,30 +205,35 @@
                                             </tr>
                                         @endforeach
                                     @endif
+
                                     @if($product->variants)
                                         @if(isset($product->variants->groupBy('type')['size']))
 
-                                            <tr>
-                                                <td colspan="4"><h4>{{ translate('size') }}</h4></td>
-                                            </tr>
-                                            @foreach ($product->variants->groupBy('type')['size'] as $variant)
                                                 <tr>
-                                                    <td>{{ $variant->variant }}</td>
-                                                    <td>
-                                                        <div class="d-flex align-items-center mb-2">
-                                                            <span class="max">{{ translate('price') . ':' }}</span> <span class="badge badge-secondary d-block font-size-16 font-weight-bold ml-2">{{ $variant->price->price }}</span>
-                                                        </div>
-                                                        @if($variant->price->discount > 1)
-                                                            <div class="d-flex align-items-center mb-2">
-                                                                <span class="max">{{ translate('discount') . ':' }}</span><span class="badge badge-secondary d-block font-size-16 font-weight-bold ml-2">{{ $variant->price->discount }}</span>
-                                                            </div>
-                                                            <div class="d-flex align-items-center">
-                                                                <span class="max">{{ translate('price after discount') . ':' }}</span><span class="badge badge-secondary d-block font-size-16 font-weight-bold ml-2">{{ $variant->price->price_after_discount }}</span>
-                                                            </div>
-                                                        @endif
-                                                    </td>
+                                                    @foreach ($product->variants->groupBy('type')['size'] as $variant)
+                                                        <td width="50">{{ $variant->variant }}</td>
+                                                    @endforeach
                                                 </tr>
-                                            @endforeach
+                                                <tr>
+                                                    @foreach ($product->variants->groupBy('type')['size'] as $variant)
+                                                        <td>
+                                                            <div class="d-flex align-items-center mb-2">
+                                                                <span class="max">{{ translate('price') . ':' }}</span> <span class="badge badge-secondary d-block font-size-16 font-weight-bold ml-2">{{ $variant->price->price }}</span>
+                                                            </div>
+                                                            @if($variant->price->discount > 1)
+                                                                <div class="d-flex align-items-center mb-2">
+                                                                    <span class="max">{{ translate('discount') . ':' }}</span><span class="badge badge-secondary d-block font-size-16 font-weight-bold ml-2">{{ $variant->price->discount }}</span>
+                                                                </div>
+                                                                <div class="d-flex align-items-center">
+                                                                    <span class="max">{{ translate('price after discount') . ':' }}</span><span class="badge badge-secondary d-block font-size-16 font-weight-bold ml-2">{{ $variant->price->price_after_discount }}</span>
+                                                                </div>
+                                                            @endif
+                                                            <div class="d-flex align-items-center mb-2">
+                                                                <span class="max">{{ translate('count') . ':' }}</span> <span class="badge badge-secondary d-block font-size-16 font-weight-bold ml-2">{{ $variant->count }}</span>
+                                                            </div>
+                                                        </td>
+                                                    @endforeach
+                                                </tr>
                                         @endif
                                         @if(isset($product->variants->groupBy('type')['extra']))
                                             <tr>
@@ -247,6 +247,21 @@
                                             @endforeach
                                         @endif
                                     @endif
+
+                                    @foreach ($product->branches_qty as $branch_data)
+                                        <tr>
+                                            <td><h4>{{ $branch_data->branch->name }}</h4></td>
+                                        </tr>
+                                    @endforeach
+                                    @foreach ($product->branches_qty as $branch_data)
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="max">{{ translate('count') . ':' }}</span><span class="badge badge-secondary d-block font-size-16 font-weight-bold ml-2">{{ $branch_data->qty }}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 @endforeach
                             </tbody>
                         </table>
@@ -262,5 +277,9 @@
 
 @section('footerScript')
     <script>
+        $(".print_barcode_btn").on('click', function() {
+            $(`#${$(this).attr('form')}`).append('<input type="hidden" name="barcode" value="true">');
+            $(`#${$(this).attr('form')}`).submit();
+        });
     </script>
 @endsection

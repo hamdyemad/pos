@@ -1,3 +1,5 @@
+@include('inc.functions')
+
 <!DOCTYPE html>
 <html lang="ar">
 

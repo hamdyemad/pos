@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\BranchProductQty;
 use App\Models\Category;
+use App\Models\Language;
 use App\Models\Permession;
 use App\Models\Product;
 use App\Models\ProductPrice;
@@ -19,6 +21,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use PDF;
+use Mpdf\Mpdf;
 
 class ProductController extends Controller
 {
@@ -82,7 +86,33 @@ class ProductController extends Controller
             ->whereDate('created_at', '=', $start)
             ->whereDate('created_at', '<=', $end);
         }
+        if($request->barcode == 'true') {
+            $products = $products->with('variants')->get();
+
+            $currenctLang = Language::where('regional','like', '%' . app()->getLocale() . '%')->first();
+            Carbon::setLocale(app()->getLocale());
+            $mpdf = new Mpdf();
+            $mpdf->autoScriptToLang = true;
+            $mpdf->autoLangToFont = true;
+            foreach ($products as $product) {
+                if($product->price_of_currency) {
+                    $mpdf->WriteHTML(view('categories.products.barcodes', ['product' => $product,'rtl' => $currenctLang->rtl])->render());
+                } else {
+                    if($product->variants) {
+                        if($product->variants->count() > 0) {
+                            foreach ($product->variants as $variant) {
+                                $mpdf->WriteHTML(view('categories.products.barcodes', ['product' => $product,'rtl' => $currenctLang->rtl, 'variant' => $variant])->render());
+                            }
+                        }
+                    }
+                }
+
+            }
+            $mpdf->Output('invoices/products_barcodes.pdf');
+            return redirect()->to(asset('invoices/' . 'products_barcodes' . '.pdf'));
+        }
         $products = $products->paginate(10);
+
         return view('categories.products.index', compact('products', 'categories'));
     }
 
@@ -224,6 +254,7 @@ class ProductController extends Controller
                     'product_id' => $product->id,
                     'type' => 'size',
                     'variant' => $size['variant'],
+                    'count' => $size['count']
                 ]);
                 // Create Product Variactions Price With Currency
                 $sizePrice['price'] = doubleval($size['prices']['price']);
@@ -399,7 +430,8 @@ class ProductController extends Controller
                 $productVariant = ProductVariant::create([
                     'product_id' => $product->id,
                     'type' => 'size',
-                    'variant' => $size['variant']
+                    'variant' => $size['variant'],
+                    'count' => $size['count']
                 ]);
                 // Create Product Variactions Price With Currency
                 $sizePrice['price'] = doubleval($size['prices']['price']);

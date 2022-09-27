@@ -228,6 +228,12 @@
                                                                         @enderror
                                                                     </td>
                                                                     <td colspan="2">
+                                                                        <input class="form-control" value="{{ $value['count'] }}" name="sizes[{{ $key }}][count]" placeholder="{{ translate('count') }}" type="number">
+                                                                        @error("sizes.$key.prices.count")
+                                                                            <div class="text-danger">{{ $message }}</div>
+                                                                        @enderror
+                                                                    </td>
+                                                                    <td colspan="2">
                                                                         <div class="d-flex align-items-center">
                                                                             <div class="price_after_discount">
                                                                                 {{ $value['prices']['price'] - $value['prices']['discount'] }}
@@ -403,10 +409,13 @@
                                             @enderror
                                         </td>
                                         <td colspan="2">
-                                            <input class="form-control discount-input" value="0" name="${name}[${index}][prices][discount]" onkeyup="getFullPrice(this)" placeholder="{{ translate('discount') }}" type="text">
+                                            <input class="form-control discount-input" name="${name}[${index}][prices][discount]" onkeyup="getFullPrice(this)" placeholder="{{ translate('discount') }}" type="text">
                                             @error("sizes.*.prices.discount")
                                                 <div class="text-danger">{{ $message }}</div>
                                             @enderror
+                                        </td>
+                                        <td colspan="2">
+                                            <input class="form-control" name="${name}[${index}][count]" placeholder="{{ translate('count') }}" type="number">
                                         </td>
                                         <td colspan="2">
                                             <div class="d-flex align-items-center">

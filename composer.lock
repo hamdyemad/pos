@@ -124,16 +124,16 @@
         },
         {
             "name": "carlos-meneses/laravel-mpdf",
-            "version": "2.1.8",
+            "version": "2.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mccarlosen/laravel-mpdf.git",
-                "reference": "8cc36dc1c8275f7a08b0f59dc1395d273c922e7d"
+                "reference": "df2244cfdf533fa3206c8441d1c0b94efe1d34c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mccarlosen/laravel-mpdf/zipball/8cc36dc1c8275f7a08b0f59dc1395d273c922e7d",
-                "reference": "8cc36dc1c8275f7a08b0f59dc1395d273c922e7d",
+                "url": "https://api.github.com/repos/mccarlosen/laravel-mpdf/zipball/df2244cfdf533fa3206c8441d1c0b94efe1d34c2",
+                "reference": "df2244cfdf533fa3206c8441d1c0b94efe1d34c2",
                 "shasum": ""
             },
             "require": {
@@ -168,7 +168,7 @@
             ],
             "support": {
                 "issues": "https://github.com/mccarlosen/laravel-mpdf/issues",
-                "source": "https://github.com/mccarlosen/laravel-mpdf/tree/2.1.8"
+                "source": "https://github.com/mccarlosen/laravel-mpdf/tree/2.1.9"
             },
             "funding": [
                 {
@@ -176,7 +176,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2022-07-18T15:00:56+00:00"
+            "time": "2022-08-25T17:09:52+00:00"
         },
         {
             "name": "cartalyst/stripe",

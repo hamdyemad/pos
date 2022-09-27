@@ -18,6 +18,7 @@ class CreateProductsVariationsTable extends Migration
             $table->unsignedBigInteger('product_id');
             $table->enum('type', ['extra', 'size']);
             $table->string('variant');
+            $table->integer('count');
             $table->foreign('product_id')->on('products')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->unique(['product_id', 'variant']);
             $table->timestamps();

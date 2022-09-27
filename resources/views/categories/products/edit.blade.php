@@ -267,6 +267,12 @@
                                                                                 @enderror
                                                                             </td>
                                                                             <td>
+                                                                                <input class="form-control" value="{{ $value['count'] }}" name="sizes[{{ $key }}][count]" placeholder="{{ translate('count') }}" type="number">
+                                                                                @error("sizes.$key.prices.count")
+                                                                                    <div class="text-danger">{{ $message }}</div>
+                                                                                @enderror
+                                                                            </td>
+                                                                            <td>
                                                                                 <div class="d-flex align-items-center">
                                                                                     <div class="price_after_discount">
                                                                                         {{ $value['prices']['price'] - $value['prices']['discount'] }}
@@ -317,6 +323,13 @@
                                                                         <td>
                                                                             <input class="form-control discount-input" value="{{ $value->price['discount'] }}" name="sizes[{{ $key }}][prices][discount]" onkeyup="getFullPrice(this)" placeholder="{{ translate('discount') }}" type="text">
                                                                             @error("sizes.$key.prices.discount")
+                                                                                <div class="text-danger">{{ $message }}</div>
+                                                                            @enderror
+                                                                        </td>
+                                                                        <td>
+
+                                                                            <input class="form-control" value="{{ $value['count'] }}" name="sizes[{{ $key }}][count]" placeholder="{{ translate('count') }}" type="number">
+                                                                            @error("sizes.$key.prices.count")
                                                                                 <div class="text-danger">{{ $message }}</div>
                                                                             @enderror
                                                                         </td>
@@ -492,7 +505,11 @@
                                             <input class="form-control price-input" name="${name}[${index}][prices][price]" onkeyup="getFullPrice(this)" placeholder="{{ translate('price') }}" type="text">
                                         </td>
                                         <td>
-                                            <input class="form-control discount-input" value="0" name="${name}[${index}][prices][discount]" onkeyup="getFullPrice(this)" placeholder="{{ translate('discount') }}" type="text">
+                                            <input class="form-control discount-input" name="${name}[${index}][prices][discount]" onkeyup="getFullPrice(this)" placeholder="{{ translate('discount') }}" type="text">
+                                        </td>
+                                        <td>
+
+                                            <input class="form-control" name="${name}[${index}][count]" placeholder="{{ translate('count') }}" type="number">
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center">

@@ -8,9 +8,9 @@
         <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
 		<style>
 			.invoice-box {
-                margin: auto;
-                width: 260px;
-                height: 1056px;
+                width: 300px;
+                height: 100%;
+                /* height: 1056px; */
 				font-size: 16px;
 				font-family: "Cairo", sans-serif;
 			}

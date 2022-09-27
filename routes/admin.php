@@ -65,6 +65,30 @@ Route::group([
             });
             // Products
             Route::group(['prefix' => 'products', 'as' => 'products.'], function() {
+                // Product Statuses
+                Route::group(['prefix' => 'statuses', 'as' => 'statuses.'], function() {
+                    Route::get('/', 'ProductTransactionStatusController@index')->name('index');
+                    Route::post('/', 'ProductTransactionStatusController@store')->name('store');
+                    Route::get('/create', 'ProductTransactionStatusController@create')->name('create');
+                    Route::get('/edit/{status}', 'ProductTransactionStatusController@edit')->name('edit');
+                    Route::get('/{status}', 'ProductTransactionStatusController@show')->name('show');
+                    Route::patch('/{status}', 'ProductTransactionStatusController@update')->name('update');
+                    Route::delete('/{status}', 'ProductTransactionStatusController@destroy')->name('destroy');
+                });
+
+                // Product Transaction
+                Route::group(['prefix' => 'transactions', 'as' => 'transactions.'], function() {
+                    Route::get('/', 'ProductTransactioController@index')->name('index');
+                    Route::post('/', 'ProductTransactioController@store')->name('store');
+                    Route::get('/create', 'ProductTransactioController@create')->name('create');
+                    Route::get('/edit/{transaction}', 'ProductTransactioController@edit')->name('edit');
+                    Route::post('/update_main_status', 'ProductTransactioController@update_main_status')->name('update_main_status');
+                    Route::post('/update_status', 'ProductTransactioController@update_status')->name('update_status');
+                    Route::get('/{transaction}', 'ProductTransactioController@show')->name('show');
+                    Route::patch('/{transaction}', 'ProductTransactioController@update')->name('update');
+                    Route::delete('/{transaction}', 'ProductTransactioController@destroy')->name('destroy');
+                });
+
                 Route::get('/', 'ProductController@index')->name('index');
                 Route::post('/', 'ProductController@store')->name('store');
                 Route::get('/all_by_ids', 'ProductController@all_by_ids')->name('all_by_ids');
@@ -76,6 +100,7 @@ Route::group([
                 Route::get('/{product}', 'ProductController@show')->name('show');
                 Route::patch('/{product}', 'ProductController@update')->name('update');
                 Route::delete('/{product}', 'ProductController@destroy')->name('destroy');
+
             });
             // Orders
             Route::group(['prefix' => 'orders', 'as' => 'orders.'], function() {

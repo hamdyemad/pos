@@ -29,7 +29,9 @@
         @foreach ($orders as $order)
             @php
                 if($order->discount_type == 'percent') {
-                    $discount = ($order->grand_total / ($order->total_discount / 100) * ($order->total_discount / 100));
+                    if($order->total_discount > 0) {
+                        $discount = ($order->grand_total / ($order->total_discount / 100) * ($order->total_discount / 100));
+                    }
                 } else {
                     $discount = $order->total_discount;
                 }
@@ -38,10 +40,17 @@
                 <td>{{ $loop->index + 1 }}</td>
                 <td>{{ \Carbon\Carbon::createFromDate($order->created_at)->format('Y-m-d') }}</td>
                 <td>{{ $order->id }}</td>
-                <td>{{ $order->customer->name }}</td>
-                <td>{{ $order->customer->phone }}</td>
-                <td>{{ $order->customer->phone2 }}</td>
-                <td>{{ $order->customer->address }}</td>
+                @if($order->customer)
+                    <td>{{ $order->customer->name }}</td>
+                    <td>{{ $order->customer->phone }}</td>
+                    <td>{{ $order->customer->phone2 }}</td>
+                    <td>{{ $order->customer->address }}</td>
+                @else
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                @endif
                 <td>{{ $order->order_details()->pluck('qty')->sum() }}</td>
                 <td>{{ $order->payment_method }}</td>
                 <td>

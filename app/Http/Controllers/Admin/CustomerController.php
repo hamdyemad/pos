@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -62,7 +63,8 @@ class CustomerController extends Controller
         $rules = [
             'name' => 'required|string',
             'address' => 'required|string',
-            'phone' => 'required|string',
+            'phone' => 'required|string|unique:customers,phone|unique:customers,phone2',
+            'phone2' => 'required|string|unique:customers,phone|unique:customers,phone2',
             'email' => 'string',
             'type' => 'in:regular,special'
         ];
@@ -71,12 +73,15 @@ class CustomerController extends Controller
             'name.unique' => translate('you should choose a name is not already exists'),
             'address.required' => translate('the address is required'),
             'phone.required' => translate('the phone is required'),
+            'phone.unique' => translate('the phone is used'),
+            'phone2.unique' => translate('the phone is used'),
         ];
         $validator = Validator::make($request->all(), $rules, $messages);
         if($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors())->with('error', 'يوجد مشكلة ما')->withInput($request->all());
         }
         Customer::create([
+            'user_id' => Auth::id(),
             'name' => $request->name,
             'address' => $request->address,
             'phone' => $request->phone,

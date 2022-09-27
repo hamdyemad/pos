@@ -17,6 +17,9 @@ class CreateStatusesTable extends Migration
             $table->id();
             $table->string('name');
             $table->boolean('default_val')->default(0);
+            $table->boolean('paid')->default(0);
+            $table->boolean('returned')->default(0);
+            $table->boolean('under_collection')->default(0);
             $table->timestamps();
         });
     }
