@@ -286,7 +286,7 @@
                                                     $index = $loop->index;
                                                     $variants = App\Models\ProductVariant::where('product_id', $product_old['id'])->get();
                                                 @endphp
-                                                <tr id="{{ $index }}">
+                                                <tr id="{{ $index }}" product_id="{{ $product_old['id'] }}">
                                                     @php
                                                         if(Auth::user()->type == 'admin' || Auth::user()->type == 'sub-admin' || Auth::user()->role_type == 'online') {
                                                             $products = App\Models\Product::with('variants', 'price_of_currency')->latest()->get();
@@ -501,9 +501,9 @@
         @else
             let index = -1;
         @endif
-        function tr(index) {
+        function tr(index, product_id) {
             return `
-                <tr id="${index}">
+                <tr id="${index}" product_id="${product_id}">
                     <td>
                         <button type="button" class="btn btn-danger remove_row">
                             <i class="fas fa-trash"></i>
@@ -549,8 +549,9 @@
             $("#scan").focus();
         @endif
 
-        $("#scan").on('keyup', function() {
-            let scan_value = $(this).val();
+        var scan_value = '';
+        $("#scan").bind('paste', function(e) {
+            scan_value = e.originalEvent.clipboardData.getData('text');
             let product_id = null;
             if(scan_value !== undefined) {
                 product_id = scan_value.split('.')[0];
@@ -562,8 +563,8 @@
             })
             if(finded_product) {
                 $(".scanner_sound")[0].play();
+                $(this).val('')
                 $(".add_row").click();
-                $(this).val('');
             } else {
                 toastr.info('there is no product');
             }
@@ -571,19 +572,19 @@
 
 
         $(".add_row").on('click', function() {
-            let scan_value = $("#scan").val();
             let product_id = null;
             if(scan_value !== undefined) {
                 product_id = scan_value.split('.')[0];
             }
+            console.log(product_id)
             index++;
-            $(".products_table tbody").append(tr(index));
+            $(".products_table tbody").append(tr(index, product_id));
             products.forEach(product => {
-                $(".products_search").append(`
+                $(`.products_table tbody tr#${index}`).find(".products_search").append(`
                     <option value="${product.id}" ${product_id == product.id ? 'selected' : ''}>${product.sku + ' : ' + product.name}</option>
                 `);
             });
-            $(".products_table .select2").select2();
+            $(`.products_table tbody tr#${index}`).find(".select2").select2();
             $(".cart-of-total-container").removeClass('d-none');
 
             product_search_on_value(index);
@@ -593,8 +594,8 @@
         });
 
         function files(index, editable=null) {
+            let tr = $(`tr#${index}`);
             if(editable) {
-                let tr = $(`tr#${index}`);
                 tr.find('.input_files').click();
                 tr.find('.input_files').on("change", function(e) {
                     let files = this.files;
@@ -603,7 +604,7 @@
                     });
                 });
             } else {
-                $(".files").on('click', function() {
+                tr.find(".files").on('click', function() {
                     let tr = $(this).parent().parent().parent().parent();
                     tr.find('.input_files').click();
                     tr.find('.input_files').on("change", function(e) {
@@ -617,8 +618,7 @@
         }
 
         function product_search_on_value(index) {
-            let scan_value = $("#scan").val(),
-                variant_id = null;
+            let variant_id = null;
             if(scan_value !== undefined) {
                 variant_id = scan_value.split('.')[1];
             }
@@ -820,14 +820,12 @@
         remove_row();
 
         function variant_search_on_value(product_id, index) {
-            let scan_value = $("#scan").val();
-
+            let tr = $(".products_table tbody").find(`tr#${index}`);
             if(product_id) {
                 let product = products.find(obj => obj.id == product_id);
             } else {
-                let product = products.find(obj => obj.id == $(".variant_search").attr('product_id'));
+                let product = products.find(obj => obj.id == tr.find(".variant_search").attr('product_id'));
             }
-            let tr = $(".products_table tbody").find(`tr#${index}`);
 
             if(scan_value !== undefined) {
                 let variant_id = scan_value.split('.')[1];

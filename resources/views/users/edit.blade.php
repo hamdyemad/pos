@@ -175,6 +175,41 @@
 @endsection
 @section('footerScript')
     <script>
+
+$(".files").on("click", function() {
+            $(".input_files").click();
+        });
+        $(".input_files").on("change", function(e) {
+            $(".input_files")
+                .parent()
+                .find(".imgs")
+                .empty();
+            let files = this.files;
+            if (files.length > 5) {
+                $(".file_error").removeAttr("hidden");
+            } else {
+                $(".file_error").attr("hidden", "");
+                files.forEach(file => {
+                    let fileReader = new FileReader();
+                    fileReader.readAsDataURL(file);
+                    fileReader.onload = function(event) {
+                        let img = document.createElement("img");
+                        img.setAttribute("class", "rounded");
+                        img.src = event.target.result;
+                        $(".input_files")
+                            .parent()
+                            .find(".imgs")
+                            .append(img);
+                    };
+                    if (files.length > 1) {
+                        $(".files").text(files.length);
+                    } else {
+                        $(".files").text(files[0].name);
+                    }
+                });
+            }
+        });
+
         let branch_col = `
             <div class="col-12 col-md-6 branch_col">
                 <div class="form-group">
