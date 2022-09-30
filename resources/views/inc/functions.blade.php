@@ -21,11 +21,7 @@
 
     // Auto View Orders After 3 days Without view
     $orders_views_ids = \App\Models\OrderView::where('user_id', auth()->user()->id)->pluck('order_id');
-    if(auth()->user()->type == 'admin'  || auth()->user()->type == 'sub-admin') {
-        $orders = \App\Models\Order::whereNotIn('id', $orders_views_ids)->get();
-    } else {
-        $orders = \App\Models\Order::whereNotIn('id', $orders_views_ids)->where('user_id', auth()->user()->id)->get();
-    }
+    $orders = \App\Models\Order::whereNotIn('id', $orders_views_ids)->get();
     foreach ($orders as $order) {
 
         if(\Carbon\Carbon::now()->diffInDays($order['created_at']) > 3) {

@@ -661,8 +661,8 @@
 
     var scan_value = '';
 
-    $("#scan").bind('paste', function(e) {
-        scan_value = e.originalEvent.clipboardData.getData('text');
+    $("#scan").on('keydown, keyup', function(e) {
+        scan_value = $(this).val();
         let product_id = null;
         if(scan_value !== undefined) {
             product_id = scan_value.split('.')[0];

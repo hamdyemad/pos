@@ -8,8 +8,9 @@
         <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
 		<style>
 			.invoice-box {
-                width: 250px;
-                height: 100%;
+                width: 188.97637795px;
+                height: 94.488188976px;
+                padding: 20px 0;
 				font-size: 16px;
 				font-family: "Cairo", sans-serif;
 			}
@@ -30,44 +31,34 @@
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: left">
-                        <span>{{ translate('name') }}</span>
-                    </td>
-                    <td style="text-align: right">
+                    <td colspan="2"  style="text-align: center">
+                        <span>{{ translate('name') . ':' }}</span>
                         <span>{{ $product->name }}</span>
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: left">
-                        <span>{{ translate('sku') }}</span>
-                    </td>
-                    <td style="text-align: right">
+                    <td colspan="2"  style="text-align: center">
+                        <span>{{ translate('sku') . ':' }}</span>
                         <span>{{ $product->sku }}</span>
                     </td>
                 </tr>
                 @if(isset($variant))
                     <tr>
-                        <td style="text-align: left">
-                            <span>{{ translate('variant') }}</span>
-                        </td>
-                        <td style="text-align: right">
+                        <td colspan="2"  style="text-align: center">
+                            <span>{{ translate('variant') . ':' }}</span>
                             <span>{{ $variant->variant }}</span>
                         </td>
                     </tr>
                     <tr>
-                        <td style="text-align: left">
-                            <span>{{ translate('price') }}</span>
-                        </td>
-                        <td style="text-align: right">
+                        <td colspan="2"  style="text-align: center">
+                            <span>{{ translate('price') . ':' }}</span>
                             <span>{{ $variant->price->price_after_discount }}</span>
                         </td>
                     </tr>
                 @else
                     <tr>
-                        <td style="text-align: left">
-                            <span>{{ translate('price') }}</span>
-                        </td>
-                        <td style="text-align: right">
+                        <td colspan="2"  style="text-align: center">
+                            <span>{{ translate('price') . ':' }}</span>
                             <span>{{ $product->price_of_currency->price_after_discount }}</span>
                         </td>
                     </tr>
