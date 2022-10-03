@@ -317,7 +317,7 @@ class ProductController extends Controller
             'count' => $request->count,
             'sku' => $request->sku,
             'description' => $request->description,
-            'viewed_number' => $request->viewed_number,
+            'viewed_number' => $request->viewed_number
         ];
         $validator_array = [
             'name' => 'required',
@@ -381,10 +381,10 @@ class ProductController extends Controller
             }
             $updateArray['photos'] = json_encode($photos);
         }
+
+
         $product->update($updateArray);
-        ProductPrice::where('product_id', $product->id)->delete();
-        ProductVariant::where('product_id', $product->id)->where('type', 'extra')->delete();
-        ProductVariant::where('product_id', $product->id)->where('type', 'size')->delete();
+        $prod_price = ProductPrice::where('product_id', $product->id)->first();
         // Remove Categories
         foreach ($product->categories as $category) {
             $product->categories()->detach($category);
@@ -401,48 +401,81 @@ class ProductController extends Controller
         if($request->has('product_prices')) {
             $product_price['price'] = doubleval($request->product_prices['price']);
             $product_price['discount'] = doubleval($request->product_prices['discount']);
-            ProductPrice::create([
-                'product_id' => $product->id,
-                'price' => $product_price['price'],
-                'discount' => $product_price['discount'],
-                'price_after_discount' => ($product_price['price'] - $product_price['discount'])
-            ]);
+            if($prod_price) {
+                $prod_price->update([
+                    'price' => $product_price['price'],
+                    'discount' => $product_price['discount'],
+                    'price_after_discount' => ($product_price['price'] - $product_price['discount'])
+                ]);
+            }
         }
         if($request->extras) {
             foreach ($request->extras as $extra) {
-                $productVariant = ProductVariant::create([
-                    'product_id' => $product->id,
-                    'type' => 'extra',
-                    'variant' => $extra['variant']
-                ]);
-                // Create Product Variactions Price With Currency
                 $extraPrice['price'] = doubleval($extra['prices']['price']);
-                ProductVariantPrice::create([
-                    'product_id' => $product->id,
-                    'variant_id' => $productVariant->id,
-                    'price' => $extraPrice['price'],
-                    'price_after_discount' => $extraPrice['price']
-                ]);
+                if(isset($extra['variant_id'])) {
+                    $productVariant = ProductVariant::find($extra['variant_id']);
+                    $productVariant->update([
+                        'variant' => $extra['variant'],
+                        'count' => $extra['count']
+                    ]);
+                    $variant_price = ProductVariantPrice::where('variant_id', $extra['variant_id'])->first();
+                    if($variant_price) {
+                        $variant_price->update([
+                            'price' => $extraPrice['price'],
+                            'price_after_discount' => $extraPrice['price']
+                        ]);
+                    }
+                } else {
+                    $productVariant = ProductVariant::create([
+                        'product_id' => $product->id,
+                        'type' => 'extra',
+                        'variant' => $extra['variant']
+                    ]);
+                    // Create Product Variactions Price With Currency
+                    ProductVariantPrice::create([
+                        'product_id' => $product->id,
+                        'variant_id' => $productVariant->id,
+                        'price' => $extraPrice['price'],
+                        'price_after_discount' => $extraPrice['price']
+                    ]);
+                }
             }
         }
         if($request->sizes) {
             foreach ($request->sizes as $size) {
-                $productVariant = ProductVariant::create([
-                    'product_id' => $product->id,
-                    'type' => 'size',
-                    'variant' => $size['variant'],
-                    'count' => $size['count']
-                ]);
-                // Create Product Variactions Price With Currency
                 $sizePrice['price'] = doubleval($size['prices']['price']);
                 $sizePrice['discount'] = doubleval($size['prices']['discount']);
-                ProductVariantPrice::create([
-                    'product_id' => $product->id,
-                    'variant_id' => $productVariant->id,
-                    'price' => $sizePrice['price'],
-                    'discount' => $sizePrice['discount'],
-                    'price_after_discount' => ($sizePrice['price'] - $sizePrice['discount'])
-                ]);
+                if(isset($size['variant_id'])) {
+                    $productVariant = ProductVariant::find($size['variant_id']);
+                    $productVariant->update([
+                        'variant' => $size['variant'],
+                        'count' => $size['count']
+                    ]);
+                    // Update Product Variactions Price With Currency
+                    $variant_price = ProductVariantPrice::where('variant_id', $size['variant_id'])->first();
+                    if($variant_price) {
+                        $variant_price->update([
+                            'price' => $sizePrice['price'],
+                            'discount' => $sizePrice['discount'],
+                            'price_after_discount' => ($sizePrice['price'] - $sizePrice['discount'])
+                        ]);
+                    }
+                } else {
+                    $productVariant = ProductVariant::create([
+                        'product_id' => $product->id,
+                        'type' => 'size',
+                        'variant' => $size['variant'],
+                        'count' => $size['count']
+                    ]);
+                    // Create Product Variactions Price With Currency
+                    ProductVariantPrice::create([
+                        'product_id' => $product->id,
+                        'variant_id' => $productVariant->id,
+                        'price' => $sizePrice['price'],
+                        'discount' => $sizePrice['discount'],
+                        'price_after_discount' => ($sizePrice['price'] - $sizePrice['discount'])
+                    ]);
+                }
             }
         }
         return redirect()->back()->with('info', translate('updated successfully'));
@@ -497,6 +530,21 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+
+    public function destroy_variant(Request $request) {
+        $variant = ProductVariant::find($request->variant);
+        if($variant) {
+            $variant->delete();
+            if($variant->barcode !== null) {
+                if(file_exists('products_barcodes/' . $variant->barcode)) {
+                    unlink('products_barcodes/' . $variant->barcode);
+                }
+            }
+            return redirect()->back()->with('success', translate('removed successfully !'));
+        }
+    }
+
     public function destroy(Product $product)
     {
         $this->authorize('products.destroy');

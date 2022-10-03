@@ -20,6 +20,9 @@
                     {{ translate('edit product') }}
                 </div>
                 <div class="card-body">
+                    <form action="{{ route('products.destroy_variant') }}" id="remove_variant" method="POST">
+                        @csrf
+                    </form>
                     <form action="{{ route('products.update', $product) }}" method="POST" enctype="multipart/form-data">
                         @method('PATCH')
                         @csrf
@@ -195,6 +198,8 @@
                                             @if(isset($product->variants->groupBy('type')['extra']))
                                                 @foreach ($product->variants->groupBy('type')['extra'] as $key => $value)
                                                     <tr>
+                                                        <input class="form-control" value="{{ $value['id'] }}" name="extras[{{ $key }}][variant_id]" type="hidden">
+                                                        <input class="form-control" value="{{ $value['id'] }}" form="remove_variant" name="variant" type="hidden">
                                                         <td>
                                                             <input class="form-control" name="extras[{{ $key }}][variant]" value="{{ $value['variant'] }}" placeholder="{{ translate('extra') }}" type="text">
                                                             @error("extras.$key.variant")
@@ -207,14 +212,12 @@
                                                                 <div class="text-danger">{{ $message }}</div>
                                                             @enderror
                                                         </td>
-                                                        @if(count($product->variants->groupBy('type')['extra']) > 1 && $key !== 0)
-                                                            <td>
-                                                                <button type="button" class="btn btn-danger remove-extra">
-                                                                    <span>{{ translate('remove') }}</span>
-                                                                    <i class="mdi mdi-trash-can-outline"></i>
-                                                                </button>
-                                                            </td>
-                                                        @endif
+                                                        <td>
+                                                            <button form="remove_variant" class="btn btn-danger remove-extra">
+                                                                <span>{{ translate('remove') }}</span>
+                                                                <i class="mdi mdi-trash-can-outline"></i>
+                                                            </button>
+                                                        </td>
                                                     </tr>
                                                 @endforeach
                                             @endif
@@ -305,7 +308,7 @@
                                                                     </th>
                                                                     @if(count($product->variants->groupBy('type')['size']) > 1 && $key !== 0)
                                                                         <th>
-                                                                            <button type="button" class="btn btn-danger remove-size">
+                                                                            <button form="remove_variant" class="btn btn-danger">
                                                                                 <span>{{ translate('remove') }}</span>
                                                                                 <i class="mdi mdi-trash-can-outline"></i>
                                                                             </button>
@@ -314,6 +317,9 @@
                                                                 </thead>
                                                                 <tbody>
                                                                     <tr class="prices_for_size">
+                                                                        <input class="form-control" value="{{ $value['id'] }}" name="sizes[{{ $key }}][variant_id]" type="hidden">
+                                                                        <input class="form-control" value="{{ $value['id'] }}" form="remove_variant" name="variant" type="hidden">
+
                                                                         <td>
                                                                             <input class="form-control price-input" value="{{ $value->price['price'] }}" name="sizes[{{ $key }}][prices][price]" onkeyup="getFullPrice(this)" placeholder="{{ translate('price') }}" type="text">
                                                                             @error("sizes.$key.prices.price")

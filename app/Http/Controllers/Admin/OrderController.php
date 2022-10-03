@@ -60,6 +60,7 @@ class OrderController extends Controller
             if(!$request->customer_id) {
                 $orders = $orders->where('type', 'inhouse')->where('user_id', auth()->id());
             }
+            $orders = $orders->whereDate('created_at', '=', Carbon::now());
         }
         $branches = Branch::all();
         $customers = Customer::all();

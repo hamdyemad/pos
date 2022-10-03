@@ -65,6 +65,10 @@ Route::group([
             });
             // Products
             Route::group(['prefix' => 'products', 'as' => 'products.'], function() {
+
+                // Destroy Variant
+                Route::post('/variants', 'ProductController@destroy_variant')->name('destroy_variant');
+
                 // Product Statuses
                 Route::group(['prefix' => 'statuses', 'as' => 'statuses.'], function() {
                     Route::get('/', 'ProductTransactionStatusController@index')->name('index');
@@ -100,6 +104,7 @@ Route::group([
                 Route::get('/{product}', 'ProductController@show')->name('show');
                 Route::patch('/{product}', 'ProductController@update')->name('update');
                 Route::delete('/{product}', 'ProductController@destroy')->name('destroy');
+
 
             });
             // Orders

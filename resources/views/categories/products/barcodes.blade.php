@@ -9,7 +9,7 @@
 		<style>
 			.invoice-box {
                 width: 188.97637795px;
-                height: 94.488188976px;
+                height: 100%;
                 padding: 20px 0;
 				font-size: 16px;
 				font-family: "Cairo", sans-serif;
@@ -22,6 +22,11 @@
         <div class="invoice-box @if($rtl) rtl @endif">
             <table>
                 <tr>
+                    <td colspan="2"  style="text-align: center">
+                        <span>{{ $product->name . '-' . $product->sku }}</span>
+                    </td>
+                </tr>
+                <tr>
                     <td colspan="2">
                         @if($variant)
                             <img style="width: 100%; height: 50px" src="{{ asset('products_barcodes/' . $variant->barcode) }}" alt="">
@@ -30,36 +35,17 @@
                         @endif
                     </td>
                 </tr>
-                <tr>
-                    <td colspan="2"  style="text-align: center">
-                        <span>{{ translate('name') . ':' }}</span>
-                        <span>{{ $product->name }}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2"  style="text-align: center">
-                        <span>{{ translate('sku') . ':' }}</span>
-                        <span>{{ $product->sku }}</span>
-                    </td>
-                </tr>
+
                 @if(isset($variant))
                     <tr>
                         <td colspan="2"  style="text-align: center">
-                            <span>{{ translate('variant') . ':' }}</span>
-                            <span>{{ $variant->variant }}</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"  style="text-align: center">
-                            <span>{{ translate('price') . ':' }}</span>
-                            <span>{{ $variant->price->price_after_discount }}</span>
+                            <span>{{ $variant->variant . '-' . $variant->price->price_after_discount }}</span>
                         </td>
                     </tr>
                 @else
                     <tr>
                         <td colspan="2"  style="text-align: center">
-                            <span>{{ translate('price') . ':' }}</span>
-                            <span>{{ $product->price_of_currency->price_after_discount }}</span>
+                            <span>{{ $variant->variant . '-' . $product->price_of_currency->price_after_discount }}</span>
                         </td>
                     </tr>
                 @endif

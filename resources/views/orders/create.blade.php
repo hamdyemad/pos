@@ -550,25 +550,27 @@
         @endif
 
         var scan_value = '';
-        $("#scan").on('keydown, keyup', function(e) {
-            scan_value = $(this).val();
-            let product_id = null;
-            if(scan_value !== undefined) {
-                product_id = scan_value.split('.')[0];
-            }
-            let finded_product = products.find((product) => {
-                if(product.id == product_id) {
-                    return product;
+        $("#scan").on('keypress', function(e) {
+            if (e.keyCode === 13) {
+                scan_value = $(this).val();
+                let product_id = null;
+                if(scan_value !== undefined) {
+                    product_id = scan_value.split('.')[0];
                 }
-            })
-
-            if(finded_product) {
-                $(".scanner_sound")[0].play();
-                $(this).val('')
-                $(".add_row").click();
-            } else {
-                toastr.info('there is no product');
+                let finded_product = products.find((product) => {
+                    if(product.id == product_id) {
+                        return product;
+                    }
+                })
+                if(finded_product) {
+                    $(".scanner_sound")[0].play();
+                    $(".add_row").click();
+                } else {
+                    toastr.info('there is no product');
+                }
+                $(this).val('');
             }
+
         });
 
 
@@ -577,7 +579,6 @@
             if(scan_value !== undefined) {
                 product_id = scan_value.split('.')[0];
             }
-            console.log(product_id)
             index++;
             $(".products_table tbody").append(tr(index, product_id));
             products.forEach(product => {
