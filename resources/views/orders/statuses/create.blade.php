@@ -53,6 +53,7 @@
                                         <option value="paid" @if(old('type') == 'paid') selected @endif>{{ translate('paid') }}</option>
                                         <option value="returned" @if(old('type') == 'returned') selected @endif>{{ translate('returned') }}</option>
                                         <option value="under_collection" @if(old('type') == 'under_collection') selected @endif>{{ translate('under collection') }}</option>
+                                        <option value="out_for_delivery" @if(old('type') == 'out_for_delivery') selected @endif>{{ translate('out_for_delivery') }}</option>
                                     </select>
                                     @error('type')
                                         <div class="text-danger">{{ $message }}</div>

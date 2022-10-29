@@ -11,6 +11,11 @@ class Branch extends Model
         'name', 'phone', 'address'
     ];
 
+
+    public function current_products() {
+        return $this->hasMany(BranchProductQty::class, 'branch_id');
+    }
+
     public function bussinesses() {
         return $this->hasMany(Business::class, 'branch_id');
     }

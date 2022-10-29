@@ -508,12 +508,17 @@ class ProductController extends Controller
 
     public function allByBranchId(Request $request) {
         if($request->type == 'inhouse') {
-            $categories_ids = Category::whereHas('branches', function($query) use($request) {
-                return $query->where('branch_id', $request->branch_id);
-            })->pluck('id');
-            $products = Product::with('variants', 'price_of_currency')->whereHas('categories', function($query) use($categories_ids) {
-                return $query->whereIn('category_id', $categories_ids);
-            })->orderBy('name')->get();
+            $products_ids_of_branch = BranchProductQty::where('branch_id', $request->branch_id)->pluck('product_id');
+            $products_variants_ids_of_branch = BranchProductQty::
+            where('branch_id' , $request->branch_id)
+            ->where('qty' , '>', 0)
+            ->pluck('variant_id');
+
+            $products = Product::with(['variants' => function($variants) use($products_variants_ids_of_branch) {
+                return $variants->whereIn('id', $products_variants_ids_of_branch);
+            }, 'price_of_currency'])
+            ->whereIn('id', $products_ids_of_branch)
+            ->orderBy('name')->get();
         } else if($request->type == null) {
             $products = Product::with('variants', 'price_of_currency')->orderBy('name')->get();
         }

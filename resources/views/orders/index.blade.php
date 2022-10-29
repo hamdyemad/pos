@@ -160,6 +160,8 @@
                 </div>
             </div>
 
+
+
             <div class="card-body">
                 @if (count($orders) < 1)
                     <div class="alert alert-info">{{ translate('there is no orders') }}</div>
@@ -185,6 +187,7 @@
                         </thead>
                         <tbody>
                             @foreach ($orders as $order)
+
                                 <tr id="{{ $order->id }}" data-value="{{ $order }}">
                                     <th><input class="form-control" name="orders[]" value="{{ $order->id }}"  form="shipping_invoice" type="checkbox"></th>
                                     <th>{{ $order->id }}</th>
@@ -214,11 +217,91 @@
                                         </td>
                                     @endif
                                     <td>
-                                        <select class="form-control status select2">
-                                            @foreach ($statuses as $status)
-                                                <option value="{{ $status->id }}" @if($order->status_id == $status->id) selected @endif>{{ $status->name }}</option>
-                                            @endforeach
-                                        </select>
+                                        <div class="div_status">
+                                            <select class="form-control status select2">
+                                                @foreach ($statuses as $status)
+                                                    <option value="{{ $status->id }}" data-returned="{{ $status->returned }}"
+                                                        @if($order->status_id == $status->id) selected @endif>
+                                                        {{ $status->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="returnedModal_{{ $order->id }}" tabindex="-1" aria-labelledby="returnedModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                    <h5 class="modal-title" id="returnedModalLabel">{{ translate('return order') }}</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                    </div>
+                                                    <form action="{{ route('orders.status_update') }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="type" value="returned">
+                                                        <input type="hidden" name="order_id" value="{{ $order->id }}">
+                                                        <input type="hidden" name="branch_id" value="{{ $order->branch_id }}">
+                                                        <input type="hidden" name="status_id" value="{{ $order->status_id }}">
+                                                        <div class="modal-body">
+                                                            <table>
+                                                                <thead>
+                                                                    <tr>
+                                                                        <td>
+                                                                            {{ translate('product name') }}
+                                                                        </td>
+                                                                        <td>
+                                                                            {{ translate('variant') }}
+                                                                        </td>
+                                                                        <td>{{ translate('price') }}</td>
+                                                                        <td>{{ translate('quantity') }}</td>
+                                                                        <td>{{ translate('total price') }}</td>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach ($order->order_details as $order_detail)
+                                                                        <tr>
+                                                                            <td>
+                                                                                <input type="hidden" name="product_id[]" value="{{ $order_detail->product_id }}">
+                                                                                <input type="hidden" name="variant[]" value="{{ $order_detail->variant }}">
+                                                                                {{ $order_detail->product->name }}
+                                                                            </td>
+                                                                            <td>
+                                                                                {{ $order_detail->variant }}
+                                                                            </td>
+                                                                            <td>
+                                                                                <div class="price">
+                                                                                    {{ $order_detail->price }}
+                                                                                </div>
+                                                                            </td>
+                                                                            <td>
+                                                                                <input min="0" max="{{ $order_detail->qty }}" class="form-control amount" name="qty[]" type="number" value="{{ $order_detail->qty }}">
+                                                                            </td>
+                                                                            <td>
+                                                                                <div class="total_price">{{ $order_detail->total_price }}</div>
+                                                                            </td>
+                                                                        </tr>
+
+                                                                    @endforeach
+                                                                    <tr>
+                                                                        <td colspan="4">{{ translate('final price') }}</td>
+                                                                        <td>
+                                                                            <div class="final_price">
+                                                                                {{ $order->order_details->pluck('total_price')->sum() }}
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ translate('close') }}</button>
+                                                            <button type="submit" class="btn btn-primary">{{ translate('save') }}</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </td>
                                     {{-- <td>
                                         @if($order->paid)
@@ -286,6 +369,7 @@
 @section('footerScript')
     <script>
 
+
         $(".export_excel_btn").on('click', function() {
             $(`#${$(this).attr('form')}`).append('<input type="hidden" name="export" value="excel">');
             $(`#${$(this).attr('form')}`).submit();
@@ -300,9 +384,6 @@
             $("#shipping_invoice").submit();
         })
 
-        $("tbody tr").on('dblclick', function() {
-            location.assign("/admin/orders/" + $(this).attr('id'));
-        });
 
         $('#statusModal').on('shown.bs.modal', function () {
             console.log("yes")
@@ -343,30 +424,63 @@
         });
 
         $(".status").on('change', function () {
-            $("#preloader_all").removeClass('d-none');
-            let token = $("meta[name=_token]").attr('content'),
-            order_id = $(this).parent().parent().attr('id'),
-            user_id = "{{ Auth::id() }}",
-            status_id = $(this).val();
-            $.ajax({
-                "method": "POST",
-                "data": {
-                    "_token": token,
-                    "order_id" : order_id,
-                    "user_id" : user_id,
-                    "status_id": status_id
-                },
-                "url": "{{ route('orders.status_update') }}",
-                "success": function(data) {
-                    if(data.status) {
-                        toastr.success(data.msg);
+            let returned = $(this).find('option:selected').data('returned');
+            let order_id = $(this).parent().parent().parent().attr('id');
+            let status_id = $(this).val();
+            if(returned) {
+                $(`#returnedModal_${order_id}`).find(`input[name=status_id]`).val(status_id)
+                $(this).parent().find('.modal').modal();
+                $(".amount").on('change, keyup', function() {
+                    let full_price = [];
+                    let tr = $(this).parent().parent(),
+                        price = tr.find('.price'),
+                        modal = tr.find('.modal'),
+                        total_price = tr.find('.total_price');
+                    let value = parseFloat(price.text()) * parseFloat($(this).val());
+
+
+                    $(`#returnedModal_${order_id}`).find('table tbody tr').each((index, trFinded) => {
+                        if($(trFinded).find('.total_price').length > 0) {
+                            console.log($(trFinded).find('.total_price')[0])
+                            full_price.push($(trFinded).find('.total_price').text());
+                        }
+                    })
+
+                    if(full_price.length > 0) {
+                        full_price = full_price.reduce((acc, curr) => {
+                            return acc + curr;
+                        });
+                        tr.parent().find('.final_price').text(full_price)
                     }
-                    $("#preloader_all").addClass('d-none');
-                },
-                "error": function(err) {
-                    console.log(err);
-                }
-            })
+                });
+            } else {
+                $("#preloader_all").removeClass('d-none');
+                let token = $("meta[name=_token]").attr('content'),
+                order_id = $(this).parent().parent().attr('id'),
+                user_id = "{{ Auth::id() }}",
+                status_id = $(this).val();
+                $.ajax({
+                    "method": "POST",
+                    "data": {
+                        "_token": token,
+                        "order_id" : order_id,
+                        "user_id" : user_id,
+                        "status_id": status_id
+                    },
+                    "url": "{{ route('orders.status_update') }}",
+                    "success": function(data) {
+                        console.log(data);
+                        if(data.status) {
+                            toastr.success(data.msg);
+                        }
+                        $("#preloader_all").addClass('d-none');
+                    },
+                    "error": function(err) {
+                        console.log(err);
+                    }
+                })
+            }
+
         })
     </script>
 @endsection

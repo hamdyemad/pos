@@ -55,6 +55,7 @@
                                         <option value="paid" @if($status->paid) selected @endif>{{ translate('paid') }}</option>
                                         <option value="returned" @if($status->returned) selected @endif>{{ translate('returned') }}</option>
                                         <option value="under_collection" @if($status->under_collection) selected @endif>{{ translate('under collection') }}</option>
+                                        <option value="out_for_delivery" @if($status->out_for_delivery) selected @endif>{{ translate('out_for_delivery') }}</option>
                                     </select>
                                     @error('type')
                                         <div class="text-danger">{{ $message }}</div>

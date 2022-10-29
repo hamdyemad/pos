@@ -494,6 +494,9 @@
         $("#modal_customers").modal();
     @enderror
 
+    $(".branch_select").on('change', function() {
+        $(".products_table tbody").empty();
+    });
 
         let products = [];
         @if(old('products'))
@@ -580,6 +583,7 @@
                 product_id = scan_value.split('.')[0];
             }
             index++;
+            console.log(products)
             $(".products_table tbody").append(tr(index, product_id));
             products.forEach(product => {
                 $(`.products_table tbody tr#${index}`).find(".products_search").append(`
@@ -1020,7 +1024,6 @@
                 },
                 'url': "{{ route('products.all') }}",
                 'success': function(res) {
-                    console.log(res);
                     if(res.status) {
                         products = res.data;
                     } else {

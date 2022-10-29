@@ -65,8 +65,7 @@ class CustomerController extends Controller
             'address' => 'required|string',
             'phone' => 'required|string|unique:customers,phone|unique:customers,phone2',
             'phone2' => 'required|string|unique:customers,phone|unique:customers,phone2',
-            'email' => 'string',
-            'type' => 'in:regular,special'
+            'type' => 'in:regular,special,jomla'
         ];
         $messages = [
             'name.required' => translate('the name is required'),
@@ -130,8 +129,7 @@ class CustomerController extends Controller
             'name' => ['required','string'],
             'address' => 'required|string',
             'phone' => 'required|string',
-            'email' => 'string',
-            'type' => 'in:regular,special'
+            'type' => 'in:regular,special,jomla'
         ];
         $messages = [
             'name.required' => translate('the name is required'),

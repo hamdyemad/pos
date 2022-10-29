@@ -22,6 +22,11 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class, 'product_id');
     }
 
+    public function branch_variants($ids) {
+        return $this->hasMany(ProductVariant::class, 'product_id')->whereIn('id', $ids);
+
+    }
+
     public function price_of_currency() {
         return $this->hasOne(ProductPrice::class, 'product_id');
     }

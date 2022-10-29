@@ -74,6 +74,7 @@
                                     <select class="form-control select2" name="type">
                                         <option value="regular" @if(old('type') == 'regular') selected @endif>{{ translate('regular') }}</option>
                                         <option value="special" @if(old('type') == 'special') selected @endif>{{ translate('special') }}</option>
+                                        <option value="jomla" @if(old('type') == 'jomla') selected @endif>{{ translate('jomla') }}</option>
                                     </select>
                                     @error('type')
                                         <div class="text-danger">{{ $message }}</div>

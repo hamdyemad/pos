@@ -5,6 +5,7 @@
             <td>date</td>
             <td>order number</td>
             <td>name</td>
+            <td>customer type</td>
             <td>phone</td>
             <td>phone2</td>
             <td>address</td>
@@ -23,6 +24,7 @@
             <td>coupon</td>
             <td>total</td>
             <td>total after discount</td>
+            <td>notes</td>
         </tr>
     </thead>
     <tbody>
@@ -42,6 +44,7 @@
                 <td>{{ $order->id }}</td>
                 @if($order->customer)
                     <td>{{ $order->customer->name }}</td>
+                    <td>{{ $order->customer->type }}</td>
                     <td>{{ $order->customer->phone }}</td>
                     <td>{{ $order->customer->phone2 }}</td>
                     <td>{{ $order->customer->address }}</td>
@@ -84,6 +87,7 @@
                 </td>
                 <td>{{ $order->grand_total + $discount }}</td>
                 <td>{{ $order->grand_total }}</td>
+                <td>{{ $order->notes }}</td>
             </tr>
         @endforeach
         <tr>

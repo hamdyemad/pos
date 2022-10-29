@@ -82,6 +82,12 @@
                                     </td>
                                     <td>
                                         <div class="options d-flex">
+                                            @can('branches.show')
+                                                <a class="btn btn-success mr-1" href="{{ route('branches.show', $branch) }}">
+                                                    <span>{{ translate('show') }}</span>
+                                                    <span class="mdi mdi-eye"></span>
+                                                </a>
+                                            @endcan
                                             @can('branches.edit')
                                                 <a class="btn btn-info mr-1" href="{{ route('branches.edit', $branch) }}">
                                                     <span>{{ translate('edit') }}</span>

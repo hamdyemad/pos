@@ -8,6 +8,7 @@ use App\Exports\OrderExport;
 use App\Http\Controllers\Controller;
 use App\Models\ApprovalOrder;
 use App\Models\Branch;
+use App\Models\BranchProductQty;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Country;
@@ -71,14 +72,14 @@ class OrderController extends Controller
             $orders = $orders->where('type', 'like', '%' . $request->type .'%');
         }
         if($request->branch_id) {
-            $orders = $orders->where('branch_id', 'like', '%' . $request->branch_id .'%');
+            $orders = $orders->where('branch_id', $request->branch_id);
         }
         if($request->customer_id) {
-            $orders = $orders->where('customer_id', 'like', '%' . $request->customer_id .'%');
+            $orders = $orders->where('customer_id', $request->customer_id);
 
         }
         if($request->status_id) {
-            $orders = $orders->where('status_id', 'like', '%' . $request->status_id .'%');
+            $orders = $orders->where('status_id', $request->status_id);
         }
         if($request->from) {
             $orders = $orders->whereDate('created_at', '>=', $request->from);
@@ -685,7 +686,6 @@ class OrderController extends Controller
 
     public function order_details_destroy(Request $request) {
         $order_detail = OrderDetail::find($request->id);
-;
         $order_detail->order->grand_total -= $order_detail->total_price;
         $order_detail->order->save();
         if($order_detail['files']) {
@@ -703,22 +703,75 @@ class OrderController extends Controller
     // Update Order Status
     public function updateStatus(Request $request) {
         $order = Order::find($request->order_id);
-        if($order) {
-            $order->update([
-                'status_id' => $request->status_id
-            ]);
-            StatusHistory::create([
-                'user_id' => Auth::id(),
-                'order_id' => $order->id,
-                'status_id' => $order->status_id
-            ]);
-            event(new changeOrderStatus([
-                'user_id' => Auth::id(),
-                'status_id' => $request->status_id,
-                'order' => $order,
-                'status_name' => $order->status->name
-            ]));
-            return response()->json(['msg' => translate('updated successfully'), 'status' => true]);
+        if($request->has('type') && $request->type == 'returned') {
+            if($order) {
+                for($i = 0; $i < count($request['product_id']); $i++) {
+                    $variant = ProductVariant::where([
+                        'product_id' => $request['product_id'][$i],
+                        'variant' => $request['variant'][$i],
+                    ])->first();
+                    if($variant) {
+                        $branch_qty_product = BranchProductQty::where(['branch_id' => $request->branch_id,
+                        'product_id' => $request['product_id'][$i], 'variant_id' => $variant->id])->first();
+                        $branch_qty_product->qty += $request['qty'][$i];
+                        $branch_qty_product->save();
+                    }
+                }
+                $order->update([
+                    'status_id' => $request->status_id
+                ]);
+                StatusHistory::create([
+                    'user_id' => Auth::id(),
+                    'order_id' => $order->id,
+                    'status_id' => $order->status_id
+                ]);
+                event(new changeOrderStatus([
+                    'user_id' => Auth::id(),
+                    'status_id' => $request->status_id,
+                    'order' => $order,
+                    'status_name' => $order->status->name
+                ]));
+                return redirect()->back()->with('success', translate('updated successfully'));
+            }
+
+        } else {
+            $order = Order::find($request->order_id);
+            if($order) {
+                $status = Status::find($request->status_id);
+                if($status) {
+                    // Out for delivery and minus quantity
+                    if($status->out_for_delivery) {
+                        foreach($order->order_details as $order_detail) {
+                            $variant = ProductVariant::where([
+                                'product_id' => $order_detail->product_id,
+                                'type' => $order_detail->variant_type,
+                                'variant' => $order_detail->variant,
+                            ])->first();
+                            if($variant) {
+                                $branch_qty_product = BranchProductQty::where(['branch_id' => $order->branch_id,
+                                'product_id' => $order_detail->product_id, 'variant_id' => $variant->id])->first();
+                                $branch_qty_product->qty -= $order_detail->qty;
+                                $branch_qty_product->save();
+                            }
+                        }
+                    }
+                    $order->update([
+                        'status_id' => $request->status_id
+                    ]);
+                    StatusHistory::create([
+                        'user_id' => Auth::id(),
+                        'order_id' => $order->id,
+                        'status_id' => $order->status_id
+                    ]);
+                    event(new changeOrderStatus([
+                        'user_id' => Auth::id(),
+                        'status_id' => $request->status_id,
+                        'order' => $order,
+                        'status_name' => $order->status->name
+                    ]));
+                    return response()->json(['msg' => translate('updated successfully'), 'status' => true]);
+                }
+            }
         }
     }
 

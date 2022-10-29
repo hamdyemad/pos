@@ -53,6 +53,7 @@
                                 <option value=""> {{ translate('choose') }}</option>
                                 <option value="regular" @if(request('type') == 'regular') selected @endif>{{ translate('regular') }}</option>
                                 <option value="special" @if(request('type') == 'special') selected @endif>{{ translate('special') }}</option>
+                                <option value="jomla" @if(request('type') == 'jomla') selected @endif>{{ translate('jomla') }}</option>
                             </select>
                         </div>
                     </div>

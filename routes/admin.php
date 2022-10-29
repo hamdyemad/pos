@@ -37,6 +37,7 @@ Route::group([
                 Route::post('/', 'BranchController@store')->name('store');
                 Route::get('/create', 'BranchController@create')->name('create');
                 Route::get('/edit/{branch}', 'BranchController@edit')->name('edit');
+                Route::get('/{branch}', 'BranchController@show')->name('show');
                 Route::patch('/{branch}', 'BranchController@update')->name('update');
                 Route::delete('/{branch}', 'BranchController@destroy')->name('destroy');
             });

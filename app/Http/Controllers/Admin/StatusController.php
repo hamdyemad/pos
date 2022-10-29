@@ -68,7 +68,7 @@ class StatusController extends Controller
         ]);
 
         if($request->type) {
-            $rules['type'] = 'in:paid,under_collection,returned,default';
+            $rules['type'] = 'in:paid,under_collection,returned,default,out_for_delivery';
         }
         if($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors())
@@ -90,7 +90,12 @@ class StatusController extends Controller
             } else if($request->type == 'under_collection') {
                 $creation['under_collection'] = 1;
                 $type = 'under_collection';
+            } else if($request->type == 'out_for_delivery') {
+                $creation['out_for_delivery'] = 1;
+                $type = 'out_for_delivery';
             }
+
+
             $finded = Status::where($type, 1)->first();
             if($finded) {
                 $finded->update([
@@ -159,6 +164,7 @@ class StatusController extends Controller
             'paid' => 0,
             'returned' => 0,
             'under_collection' => 0,
+            'out_for_delivery' => 0
         ]);
 
         if($request->type) {
@@ -176,7 +182,11 @@ class StatusController extends Controller
             } else if($request->type == 'under_collection') {
                 $creation['under_collection'] = 1;
                 $type = 'under_collection';
+            } else if($request->type == 'out_for_delivery') {
+                $creation['out_for_delivery'] = 1;
+                $type = 'out_for_delivery';
             }
+
             $finded = Status::where($type, 1)->first();
             if($finded) {
                 $finded->update([

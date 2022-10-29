@@ -64,6 +64,7 @@
                                     <th>{{ translate('paid') }}</th>
                                     <th>{{ translate('returned') }}</th>
                                     <th>{{ translate('under collection') }}</th>
+                                    <th>{{ translate('out_for_delivery') }}</th>
                                     <th>{{ translate('creation date') }}</th>
                                     <th>{{ translate('last update date') }}</th>
                                     <th>{{ translate('settings') }}</th>
@@ -93,6 +94,11 @@
                                         <td>
                                             @if($status->under_collection)
                                                 <div class="badge badge-success">{{ translate('under collection') }}</div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($status->out_for_delivery)
+                                                <div class="badge badge-success">{{ translate('out_for_delivery') }}</div>
                                             @endif
                                         </td>
                                         <td>
