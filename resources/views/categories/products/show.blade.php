@@ -80,14 +80,18 @@
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
-                                    @foreach ($product->branches_qty as $branch_data)
-                                        <td>{{ $branch_data->branch->name }}</td>
-                                    @endforeach
+                                    <th>{{ translate('product name') }}</th>
+                                    <th>{{ translate('variant') }}</th>
+                                    <th>{{ translate('qty') }}</th>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         @foreach ($product->branches_qty as $branch_data)
-                                            <td>{{ $branch_data->qty }}</td>
+                                            <tr>
+                                                <td>{{ $branch_data->branch->name }}</td>
+                                                <td>{{ $branch_data->variant->variant }}</td>
+                                                <td>{{ $branch_data->qty }}</td>
+                                            </tr>
                                         @endforeach
                                     </tr>
                                 </tbody>

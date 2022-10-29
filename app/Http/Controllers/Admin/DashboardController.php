@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\BranchProductQty;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Status;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -26,6 +28,27 @@ class DashboardController extends Controller
         $branchesCount = Branch::all()->count();
         $ordersCount = Order::all()->count();
         $statuses = Status::orderBy('name')->get();
+
+        // if(Auth::user()->type == 'admin') {
+        //     $categories = Category::all();
+        //     foreach($categories as $category) {
+        //         foreach($category->products as $product) {
+        //             foreach($product->variants as $variant) {
+        //                 $variant->count = 5000;
+        //                 $variant->save();
+        //                 foreach($category->branches as $branch) {
+        //                     BranchProductQty::create([
+        //                         'branch_id' => $branch->id,
+        //                         'product_id' => $product->id,
+        //                         'variant_id' => $variant->id,
+        //                         'qty' => 5000
+        //                     ]);
+
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
         return view('dashboard.index', compact('productsCount', 'categoriesCount',
         'branchesCount', 'ordersCount', 'orders_branches', 'orders_online'));
     }

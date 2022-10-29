@@ -456,7 +456,6 @@
             } else {
                 $("#preloader_all").removeClass('d-none');
                 let token = $("meta[name=_token]").attr('content'),
-                order_id = $(this).parent().parent().attr('id'),
                 user_id = "{{ Auth::id() }}",
                 status_id = $(this).val();
                 $.ajax({
@@ -469,7 +468,6 @@
                     },
                     "url": "{{ route('orders.status_update') }}",
                     "success": function(data) {
-                        console.log(data);
                         if(data.status) {
                             toastr.success(data.msg);
                         }

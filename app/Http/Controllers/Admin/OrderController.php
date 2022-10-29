@@ -702,8 +702,8 @@ class OrderController extends Controller
 
     // Update Order Status
     public function updateStatus(Request $request) {
-        $order = Order::find($request->order_id);
         if($request->has('type') && $request->type == 'returned') {
+            $order = Order::find($request->order_id);
             if($order) {
                 for($i = 0; $i < count($request['product_id']); $i++) {
                     $variant = ProductVariant::where([
@@ -711,10 +711,16 @@ class OrderController extends Controller
                         'variant' => $request['variant'][$i],
                     ])->first();
                     if($variant) {
-                        $branch_qty_product = BranchProductQty::where(['branch_id' => $request->branch_id,
-                        'product_id' => $request['product_id'][$i], 'variant_id' => $variant->id])->first();
-                        $branch_qty_product->qty += $request['qty'][$i];
-                        $branch_qty_product->save();
+                        if($order->type == 'online') {
+                            $variant->count-= $request['qty'][$i];
+                            $variant->save();
+                        } else {
+                            $branch_qty_product = BranchProductQty::where(['branch_id' => $request->branch_id,
+                            'product_id' => $request['product_id'][$i], 'variant_id' => $variant->id])->first();
+                            $branch_qty_product->qty += $request['qty'][$i];
+                            $branch_qty_product->save();
+                        }
+
                     }
                 }
                 $order->update([
@@ -739,8 +745,7 @@ class OrderController extends Controller
             if($order) {
                 $status = Status::find($request->status_id);
                 if($status) {
-                    // Out for delivery and minus quantity
-                    if($status->out_for_delivery) {
+                    if($order->type == 'online') {
                         foreach($order->order_details as $order_detail) {
                             $variant = ProductVariant::where([
                                 'product_id' => $order_detail->product_id,
@@ -748,10 +753,25 @@ class OrderController extends Controller
                                 'variant' => $order_detail->variant,
                             ])->first();
                             if($variant) {
-                                $branch_qty_product = BranchProductQty::where(['branch_id' => $order->branch_id,
-                                'product_id' => $order_detail->product_id, 'variant_id' => $variant->id])->first();
-                                $branch_qty_product->qty -= $order_detail->qty;
-                                $branch_qty_product->save();
+                                $variant->count-= $order_detail->qty;
+                                $variant->save();
+                            }
+                        }
+                    } else {
+                        // Out for delivery and minus quantity
+                        if($status->out_for_delivery) {
+                            foreach($order->order_details as $order_detail) {
+                                $variant = ProductVariant::where([
+                                    'product_id' => $order_detail->product_id,
+                                    'type' => $order_detail->variant_type,
+                                    'variant' => $order_detail->variant,
+                                ])->first();
+                                if($variant) {
+                                    $branch_qty_product = BranchProductQty::where(['branch_id' => $order->branch_id,
+                                    'product_id' => $order_detail->product_id, 'variant_id' => $variant->id])->first();
+                                    $branch_qty_product->qty -= $order_detail->qty;
+                                    $branch_qty_product->save();
+                                }
                             }
                         }
                     }

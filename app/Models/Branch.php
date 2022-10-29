@@ -23,4 +23,8 @@ class Branch extends Model
     public function categories() {
         return $this->hasMany(Category::class, 'branch_id');
     }
+
+    public function cats() {
+        return $this->belongsTo(Category::class, 'branch_id', 'id', 'branches_categories');
+    }
 }
