@@ -529,6 +529,25 @@ class ProductController extends Controller
         }
     }
 
+    public function allByBranchIdAndCategory(Request $request) {
+        if($request->type == 'inhouse') {
+
+            $categories = Category::with(['branches' => function($branches) use ($request) {
+                return $branches->where('branch_id', $request->branch_id);
+            }]);
+            $products = Product::with('price_of_currency')
+            ->whereIn('id', $categories->products->pluck('id'))
+            ->orderBy('name')->get();
+        } else if($request->type == null) {
+            $products = Product::with('variants', 'price_of_currency')->orderBy('name')->get();
+        }
+        if(count($products) > 0) {
+            return $this->sendRes('', true, $products);
+        } else {
+            return $this->sendRes(translate('there is no products in the branch yet'), false);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      *

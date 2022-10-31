@@ -266,7 +266,7 @@
                     'branch_id': branch_id,
                     'type': type
                 },
-                'url': "{{ route('products.all') }}",
+                'url': "{{ route('products.all.categories') }}",
                 'success': function(res) {
                     console.log(res);
                     if(res.status) {

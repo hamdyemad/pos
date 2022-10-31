@@ -247,21 +247,6 @@
                                             @endforeach
                                         @endif
                                     @endif
-
-                                    @foreach ($product->branches_qty as $branch_data)
-                                        <tr>
-                                            <td><h4>{{ $branch_data->branch->name }}</h4></td>
-                                        </tr>
-                                    @endforeach
-                                    @foreach ($product->branches_qty as $branch_data)
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <span class="max">{{ translate('count') . ':' }}</span><span class="badge badge-secondary d-block font-size-16 font-weight-bold ml-2">{{ $branch_data->qty }}</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
                                 @endforeach
                             </tbody>
                         </table>

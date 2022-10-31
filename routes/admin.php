@@ -99,6 +99,7 @@ Route::group([
                 Route::get('/all_by_ids', 'ProductController@all_by_ids')->name('all_by_ids');
                 Route::get('/variant_price', 'ProductController@variant_price')->name('variant_price');
                 Route::post('/all_products', 'ProductController@allByBranchId')->name('all');
+                Route::post('/all_products_by_branch_and_categories', 'ProductController@allByBranchIdAndCategory')->name('all.categories');
 
                 Route::get('/create', 'ProductController@create')->name('create');
                 Route::get('/edit/{product}', 'ProductController@edit')->name('edit');
