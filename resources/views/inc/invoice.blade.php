@@ -223,9 +223,15 @@
                     <td>
                         {{ $order_detail->notes }}
                     </td>
-                    <td>
-                        {{ $order_detail->total_price }}
-                    </td>
+                    @if($order->discount_type == 'percent')
+                        <td>
+                            {{ $order_detail->total_price - ($order_detail->total_price * ($order_detail->discount  / 100)) }}
+                        </td>
+                    @else
+                        <td>
+                            {{ $order_detail->total_price - $order_detail->discount }}
+                        </td>
+                    @endif
                 </tr>
             @endforeach
             @if($order->shipping)
