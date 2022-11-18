@@ -681,6 +681,11 @@ class OrderController extends Controller
         }
         $order->grand_total = $grand_total;
         $order->save();
+        StatusHistory::create([
+            'user_id' => Auth::id(),
+            'order_id' => $order->id,
+            'status_id' => $order->status_id
+        ]);
         return redirect()->back()->with('info', translate('updated successfully'));
     }
 

@@ -80,7 +80,7 @@
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
-                                    <th>{{ translate('product name') }}</th>
+                                    <th>{{ translate('branch name') }}</th>
                                     <th>{{ translate('variant') }}</th>
                                     <th>{{ translate('qty') }}</th>
                                 </thead>
