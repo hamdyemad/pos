@@ -176,7 +176,7 @@
                         </td>
                         <td>
                             @if($order->discount_type == 'percent')
-                                {{ $order_detail->total_price * ($order_detail->discount / 100) }}
+                                {{ $order_detail->total_price - ($order_detail->total_price * ($order_detail->discount / 100)) }}
                             @else
                                 {{ $order_detail->total_price - $order_detail->discount }}
                             @endif
@@ -222,7 +222,13 @@
                         <td class="no-line"></td>
                         <td class="no-line text-center">
                             <span>{{ translate('discount') }}</span></td>
-                        <td class="no-line"><span>{{ $order->total_discount }}</span></td>
+                        <td class="no-line">
+                            @if($order->discount_type == 'percent')
+                                <span>{{ '%' . $order->total_discount }}</span>
+                            @else
+                                <span>{{ $order->total_discount }}</span>
+                            @endif
+                        </td>
                     </tr>
                 @endif
                 <tr class="item">
