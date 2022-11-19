@@ -32,7 +32,11 @@
                                     @foreach ($statuses_history as $status_history)
                                         <tr>
                                             <td>{{ $status_history->user->name }}</td>
-                                            <td>{{ $status_history->status->name }}</td>
+                                            @if($status_history->notes)
+                                                <td>{{ $status_history->notes }}</td>
+                                            @else
+                                                <td>{{ $status_history->status->name }}</td>
+                                            @endif
                                             <td>{{ $status_history->created_at }}</td>
                                         </tr>
                                     @endforeach

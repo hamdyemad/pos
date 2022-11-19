@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class StatusHistory extends Model
 {
     protected $table = 'statuses_histroy';
-    protected $fillable = ['user_id', 'order_id', 'status_id'];
+    protected $fillable = ['user_id', 'order_id', 'status_id', 'notes'];
     //
 
     public function user() {

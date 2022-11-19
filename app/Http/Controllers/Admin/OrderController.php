@@ -684,7 +684,8 @@ class OrderController extends Controller
         StatusHistory::create([
             'user_id' => Auth::id(),
             'order_id' => $order->id,
-            'status_id' => $order->status_id
+            'status_id' => $order->status_id,
+            'notes' => 'updated order'
         ]);
         return redirect()->back()->with('info', translate('updated successfully'));
     }
