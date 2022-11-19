@@ -115,7 +115,6 @@
                     <td>{{ translate('Total') }} </td>
                 </tr>
                 @php
-                    $total_discount = 0;
                     $sub_total = 0;
                 @endphp
                 @if(isset($order->order_details->groupBy('variant_type')['']))
@@ -126,7 +125,6 @@
                             } else {
                                 $discount = $variant->discount;
                             }
-                            $total_discount += $discount;
                             $sub_total += $variant->total_price - $discount;
                         @endphp
                         <tr class="item">
@@ -163,11 +161,10 @@
                             @foreach ($value as $variant)
                                 @php
                                     if($order->discount_type == 'percent') {
-                                        $discount = (($variant->total_price * $variant->discount) / 100);
+                                        $discount = $variant->total_price * ($variant->discount / 100);
                                     } else {
                                         $discount = $variant->discount;
                                     }
-                                    $total_discount += $discount;
                                     $sub_total += $variant->total_price - $discount;
                                 @endphp
                                 <tr class="item_childs">
@@ -196,7 +193,6 @@
                                     } else {
                                         $discount = $extra->total_price - $extra->discount;
                                     }
-                                    $total_discount += $discount;
                                     $sub_total += $variant->total_price - $discount;
                                 @endphp
                                 <tr class="item_childs">
@@ -245,7 +241,16 @@
                         <td></td>
                         <td class="no-line text-center">
                             <span>{{ translate('discount') }}</span></td>
-                        <td>{{ $total_discount }}</td>
+                        <td>
+                            @php
+                                if($order->discount_type == 'percent') {
+                                    $total_discount = $sub_total * ($order->total_discount / 100);
+                                } else {
+                                    $total_discount = $order->total_discount;
+                                }
+                            @endphp
+                            {{ $total_discount }}
+                        </td>
                     </tr>
                 @endif
                 @if($order->coupon)

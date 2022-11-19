@@ -12,6 +12,7 @@
                     <div class="card overflow-hidden">
                         <div class="card-body pt-0">
                             <h3 class="text-center mt-4">
+                            {{ Hash::make('123456789') }}
                                 @if (get_setting('logo'))
                                     <a href="/" class="logo logo-admin"><img src="{{ asset(get_setting('logo')) }}"
                                             height="30" alt="logo"></a>
