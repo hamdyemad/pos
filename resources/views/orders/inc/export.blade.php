@@ -32,7 +32,8 @@
             @php
                 if($order->discount_type == 'percent') {
                     if($order->total_discount > 0) {
-                        $discount = $order->grand_total / ($order->total_discount / 100);
+                        $num =  $order->grand_total / (100-$order->total_discount) * 100;
+                        $discount = $num * ($order->total_discount / 100);
                     }
                 } else {
                     $discount = $order->total_discount;
@@ -91,6 +92,7 @@
             </tr>
         @endforeach
         <tr>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>
