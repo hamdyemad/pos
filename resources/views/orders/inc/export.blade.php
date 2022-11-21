@@ -32,7 +32,7 @@
             @php
                 if($order->discount_type == 'percent') {
                     if($order->total_discount > 0) {
-                        $discount = $order->grand_total * ($order->total_discount / 100);
+                        $discount = $order->grand_total / ($order->total_discount / 100);
                     }
                 } else {
                     $discount = $order->total_discount;
